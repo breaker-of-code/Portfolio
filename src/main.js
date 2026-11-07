@@ -30,6 +30,14 @@ const driver = createDriveController({ getIndex: () => nav.state.index, getLengt
 let sceneRoute;
 const companySceneItems = companies.map(c => ({ ...c, icon: 'building' }));
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+const zoomStorageKey = 'coastal-portfolio:view-zoom:v1';
+const viewZoom = { hub: 112, career: 112, projects: 112 };
+try {
+  const saved = JSON.parse(localStorage.getItem(zoomStorageKey) || '{}');
+  for (const route of Object.keys(viewZoom)) {
+    if (typeof saved?.[route] === 'number' && Number.isFinite(saved[route])) viewZoom[route] = Math.max(50, Math.min(300, Math.round(saved[route])));
+  }
+} catch { /* Zoom still works when browser storage is unavailable. */ }
 let world, activeTab = 'overview', skillTab = 0, hiddenCard = false, moving = false, soundOn = false, audioContext;
 let galleryImages = [], galleryIndex = 0, returnLocation = null, toastTimeout;
 let sectionTransition = false, pendingState = null;
@@ -57,6 +65,7 @@ document.querySelector('#app').innerHTML = `
     <div class="drive-controls"><button id="previous" class="drive-button" data-action="previous" aria-label="Previous stop">${svg('back')}<span>Previous</span></button><button id="next" class="drive-button" data-action="next" aria-label="Next stop"><span>Next stop</span>${svg('arrow')}</button></div>
   </footer>
   <div class="bottom-notes"><span class="control-hint"><kbd>↑</kbd><kbd>↓</kbd> to drive <span class="divider">·</span> <kbd>Enter</kbd> to explore</span><span class="mobile-hint">Tap a stop. Take your time.</span><div class="utility-controls"><button data-action="simple">Simple view</button><span>·</span><button id="fullscreen-toggle" data-action="landscape" aria-label="Open fullscreen landscape view" hidden>${svg('fullscreen')}</button><button id="sound-toggle" data-action="sound" aria-label="Enable sound" aria-pressed="false">${svg('mute')}</button><button data-action="help" class="help-button" aria-label="Show controls">?</button></div></div>
+  <div class="zoom-control" role="group" aria-label="View zoom"><label id="zoom-label" for="zoom-slider">HOME ZOOM</label><input id="zoom-slider" type="range" min="50" max="300" step="1" value="112" aria-label="Home zoom" aria-valuetext="112 percent"/><output id="zoom-value" for="zoom-slider">112%</output><button data-action="reset-zoom" aria-label="Reset zoom to 112 percent" title="Reset this view to 112%">↺</button></div>
   <div id="toast" class="toast" role="status"></div>
   <dialog id="orientation-gate" closedby="none" class="orientation-gate" aria-labelledby="orientation-title" aria-describedby="orientation-note"><div class="orientation-card"><div class="rotate-device" aria-hidden="true"><span></span><b>↻</b></div><span class="eyebrow">A LITTLE MORE ROOM TO EXPLORE</span><h1 id="orientation-title">Let’s go landscape<span>.</span></h1><p id="orientation-note">Turn your device sideways to drive along the coast.</p><button class="primary" data-action="landscape">${svg('fullscreen')} Open landscape view</button><small>The journey starts when your screen is horizontal.</small></div></dialog>
   <dialog id="gallery" class="gallery-dialog" aria-label="Project image viewer"><button class="gallery-close icon-button" data-action="close-gallery" aria-label="Close image viewer">${svg('close')}</button><div class="gallery-top"><span id="gallery-title">Project screenshots</span><small>Illustrative project artwork</small></div><div class="gallery-image-wrap"><button data-action="gallery-previous" class="gallery-arrow" aria-label="Previous image">${svg('back')}</button><img id="gallery-image" alt=""/><button data-action="gallery-next" class="gallery-arrow" aria-label="Next image">${svg('arrow')}</button></div><div id="gallery-thumbs" class="gallery-thumbs"></div><span id="gallery-count"></span></dialog>
@@ -66,6 +75,23 @@ document.querySelector('#app').innerHTML = `
 
 const $ = selector => document.querySelector(selector);
 const card = $('#info-card');
+function renderZoom() {
+  const route = nav.state.route, name = route === 'hub' ? 'Home' : route === 'career' ? 'Career' : 'Projects';
+  $('#zoom-label').textContent = `${name.toUpperCase()} ZOOM`;
+  $('#zoom-slider').value = viewZoom[route];
+  $('#zoom-slider').setAttribute('aria-label', `${name} zoom`);
+  $('#zoom-slider').setAttribute('aria-valuetext', `${viewZoom[route]} percent`);
+  $('#zoom-value').value = `${viewZoom[route]}%`;
+}
+function changeZoom(value) {
+  const zoom = Number(value);
+  if (!Number.isFinite(zoom)) return;
+  viewZoom[nav.state.route] = Math.max(50, Math.min(300, Math.round(zoom)));
+  world?.setZoom(viewZoom[nav.state.route]);
+  renderZoom();
+  try { localStorage.setItem(zoomStorageKey, JSON.stringify(viewZoom)); } catch { /* Session settings remain usable. */ }
+}
+$('#zoom-slider').addEventListener('input', event => changeZoom(event.target.value));
 const unavailable = (kind = 'Link') => toast(`${kind} will be available when your real content is added.`);
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('visible'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => $('#toast').classList.remove('visible'), 3400); }
 function externalLink(url, label, icon = 'external', cls = 'secondary') {
@@ -141,6 +167,7 @@ function renderNavigation() {
   $('#route-title').innerHTML = route === 'hub' ? 'Take the scenic route<span>.</span>' : route === 'projects' ? 'Made to be explored<span>.</span>' : 'A few chapters so far<span>.</span>';
   $('#route-subtitle').textContent = route === 'hub' ? 'Nine years of Unity. A world of things to explore.' : route === 'projects' ? 'A collection of worlds, systems, and small discoveries.' : 'The roles, teams, and work that shaped the journey.';
   document.body.dataset.route = route;
+  renderZoom();
   document.title = `${route === 'hub' ? 'The Scenic Route' : `${route === 'projects' ? projects[index].name : companies[index].name} — ${route === 'projects' ? 'Projects' : 'Career'}`} · Unity Developer`;
 }
 function applyState(state) {
@@ -245,6 +272,7 @@ $('#orientation-gate').addEventListener('close', () => queueMicrotask(updateOrie
 window.addEventListener('resize', updateOrientation);
 document.addEventListener('fullscreenchange', updateOrientation);
 const actions = {
+  'reset-zoom': () => changeZoom(112),
   landscape: openLandscape,
   previous: () => driver.step(-1), next: () => driver.step(1),
   enter: () => { if (driver.busy) return; if (nav.state.route === 'hub' && [1, 2].includes(nav.state.index)) nav.enter(); else { hiddenCard = false; renderCard(); } },
@@ -308,6 +336,7 @@ $('#world').addEventListener('touchend', e => { if (!touchStart || sectionTransi
 
 try {
   world = new CoastalScene($('#world'), {
+    zoomLevels: viewZoom,
     reducedMotion: reducedMotionQuery.matches,
     onStop: index => driver.to(index),
     onApproach: () => driver.approach(),

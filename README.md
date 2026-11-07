@@ -14,6 +14,7 @@ Open the printed localhost URL. Build with `npm run build`; deploy the resulting
 ## Experience
 
 - The main coastal route has Intro, Career, Projects, Skills, and Contact stops.
+- The zoom slider ranges from 50% to 300%, with a live percentage and reset button. Home, Career, and Projects remember separate zoom values in browser storage; all default to 112%. You can use arrow keys while the slider is focused without driving the car.
 - The car accelerates from rest, cruises, and brakes smoothly into each stop. The selected landmark grows on arrival and returns to its resting size when leaving. Both effects respect reduced motion.
 - Arrow Up/Right advances; Arrow Down/Left returns to the previous stop. Repeated input cannot restart a trip. One opposite command reverses to the departure stop, then travel commands wait until arrival. Controls unlock immediately on arrival; in the last 0.25 seconds of a forward trip, another command can extend travel through the stop without resetting velocity. Click a physical landmark or bottom progress dot to jump directly. Touch buttons and swipes work on mobile.
 - The ocean has flowing water shading, drifting wave crests, rolling shoreline foam, 8–14 colorful fish schools, four staggered jumping fish with landing ripples and splash droplets, five or more drifting sailboats with wakes, and two bobbing wooden dinghies. Ambient animation pauses behind the phone orientation screen and freezes under reduced motion.

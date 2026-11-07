@@ -12,8 +12,9 @@ const pathZ = x => Math.sin(x * 0.19) * 1.5;
 const pathSlope = x => Math.cos(x * 0.19) * 1.5 * 0.19;
 
 export class CoastalScene {
-  constructor(canvas, { onStop, onMove, onApproach, onWaypoint, onReady, onError, reducedMotion = false } = {}) {
+  constructor(canvas, { onStop, onMove, onApproach, onWaypoint, onReady, onError, reducedMotion = false, zoomLevels = {} } = {}) {
     this.canvas = canvas;
+    this.zoomLevels = { hub: 112, career: 112, projects: 112, ...zoomLevels };
     this.onStop = onStop; this.onMove = onMove; this.onApproach = onApproach; this.onWaypoint = onWaypoint; this.carSpeed = 0; this.reducedMotion = reducedMotion;
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x069caa);
@@ -521,13 +522,13 @@ export class CoastalScene {
     this.fitOverview();
     this.camera.updateProjectionMatrix();
   }
-  fitOverview() {
+  fitOverview(reuseHomeBounds = false) {
     if (!this.overviewBounds) return;
     // Project the complete island into camera space, then fit it between the UI.
     const direction = new THREE.Vector3(-4.5, 24, 35).normalize();
     const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), direction).normalize();
     const up = new THREE.Vector3().crossVectors(direction, right).normalize();
-    if (this.route === 'hub' || !this.homeViewBounds) {
+    if (this.route === 'hub' && !reuseHomeBounds || !this.homeViewBounds) {
       let left = Infinity, rightEdge = -Infinity, bottom = Infinity, top = -Infinity;
       this.world.updateMatrixWorld(true);
       this.world.traverse(object => {
@@ -555,13 +556,20 @@ export class CoastalScene {
     const safeBottom = h - dockHeight - dockBottom - 16;
     const usableHeight = Math.max(40, safeBottom - safeTop);
     const usableWidth = Math.max(w * 0.35, safeRight - safeLeft);
-    this.overviewHalfHeight = Math.max((rightEdge - left) * h / (2 * usableWidth), (top - bottom) * h / (2 * usableHeight)) / 1.12;
+    this.overviewHalfHeight = Math.max((rightEdge - left) * h / (2 * usableWidth), (top - bottom) * h / (2 * usableHeight));
+    const halfHeight = this.viewHalfHeight();
     const centerY = 1 - (safeTop + safeBottom) / h;
     const centerX = (safeLeft + safeRight) / w - 1;
-    this.overviewLook = up.multiplyScalar((top + bottom) / 2 - centerY * this.overviewHalfHeight)
-      .add(right.multiplyScalar((left + rightEdge) / 2 - centerX * this.overviewHalfHeight * this.aspect));
+    this.overviewLook = up.multiplyScalar((top + bottom) / 2 - centerY * halfHeight)
+      .add(right.multiplyScalar((left + rightEdge) / 2 - centerX * halfHeight * this.aspect));
   }
-  viewHalfHeight() { return this.overviewHalfHeight || this.baseHalfHeight; }
+  viewHalfHeight() { return (this.overviewHalfHeight || this.baseHalfHeight) / ((this.zoomLevels?.[this.route] ?? 112) / 100); }
+  setZoom(value) {
+    if (!Number.isFinite(value)) return;
+    this.zoomLevels[this.route] = clamp(Math.round(value), 50, 300);
+    this.fitOverview(true);
+    this.visualZoom = this.viewHalfHeight();
+  }
   cameraFocusX() {
     if (this.routeItems.length <= 5) return 0;
     const limit = Math.max(0, this.islandLength / 2 - this.viewHalfHeight() * this.aspect + 4);

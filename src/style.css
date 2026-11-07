@@ -254,3 +254,8 @@ body[data-route=hub] .stop{flex-direction:column;gap:4px}body[data-route=hub] .s
  .show-card{inset:auto 22px 12px auto;font-size:11px;min-height:35px}.toast{top:110px;font-size:11px}
 }
 @media(max-width:730px) and (orientation:landscape){.journey-bar{left:138px;right:210px}.stops{gap:6px}.utility-controls>button[data-action=simple]{font-size:9px;padding:0}.utility-controls{gap:2px}#info-card #card-content{grid-template-columns:minmax(0,1fr) 210px;gap:17px}.brand{font-size:12px}.header-nav{gap:10px}}
+
+.zoom-control{position:fixed;z-index:11;top:158px;left:50%;transform:translateX(-50%);width:310px;height:34px;display:grid;grid-template-columns:80px minmax(0,1fr) 43px 24px;align-items:center;gap:7px;padding:3px 8px;color:#fff8e9;background:#086d7c38;border:1px solid #ffffff26;border-radius:20px;backdrop-filter:blur(8px)}
+.zoom-control label{font-size:9px;letter-spacing:.7px;font-weight:700;white-space:nowrap}.zoom-control output{font-size:13px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}.zoom-control button{width:24px;height:25px;border-radius:50%;font-size:19px;line-height:1;padding:0}.zoom-control button:hover{background:#ffffff20}.zoom-control input{width:100%;min-width:0;margin:0;accent-color:#ffc15b;cursor:ew-resize;height:22px}.zoom-control input:focus-visible{outline:2px solid #fff7dc;outline-offset:2px;border-radius:7px}
+.no-webgl .zoom-control{display:none}
+@media(max-height:550px) and (orientation:landscape){.zoom-control{top:98px;height:25px;width:270px;padding:1px 7px;grid-template-columns:74px minmax(0,1fr) 37px 20px;gap:5px}.zoom-control label{font-size:8px}.zoom-control output{font-size:11px}.zoom-control button{width:20px;height:21px;font-size:17px}.zoom-control input{height:20px}}
