@@ -135,6 +135,9 @@ body[data-route=projects] .route-heading p,body[data-route=career] .route-headin
 @media(max-width:1024px){#fullscreen-toggle{min-width:40px;padding:4px}.utility-controls{gap:6px}}
 @media(orientation:landscape) and (max-height:500px){.bottom-notes{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}.site-header{padding-left:max(28px,env(safe-area-inset-left));padding-right:max(28px,env(safe-area-inset-right))}}
 
+/* Section changes pass through near-black, separate from fully opaque stop cards. */
+#section-transition{position:fixed;inset:0;z-index:400;background:#06252c;opacity:0;pointer-events:all}
+#section-transition[hidden]{display:none!important}
 /* A stopped vehicle has a fully opaque card; travelling has no card at all. */
 .info-card,.info-card.driving,.info-card.transitioning,.info-card.is-hidden{opacity:1;transform:none;transition:none;visibility:visible;height:auto;max-height:none;overflow:visible}
 .info-card[hidden]{display:none!important}.info-card .thumbnail-strip{margin:12px 0}.info-card .card-description{margin:10px 0}
@@ -187,3 +190,67 @@ body[data-route=projects] .route-heading p,body[data-route=career] .route-headin
   .header-nav{margin-top:0}.header-nav>.contact-link{position:static;min-height:33px}.header-nav>button{min-height:33px}.control-hint{max-width:none;flex-wrap:nowrap;gap:4px;font-size:10px}.control-hint .divider{margin:0 2px}
   .info-card .project-links .primary,.info-card .project-links .secondary{min-height:31px;padding:6px 8px;font-size:11px}
 }
+
+/* Approved layout A: controls above the scene, image-rich details below it. */
+:root{--dock-height:218px;--dock-bottom:24px;--world-top:185px;--tools-top:111px}
+#card-tether,.enter-prompt{display:none!important}
+#info-card.info-card{position:fixed;inset:auto 28px var(--dock-bottom);width:auto;max-width:none;margin:0;height:var(--dock-height);max-height:none;overflow:visible;padding:21px 25px;border-radius:17px;opacity:1;transform:none;transition:none}
+#info-card #card-content{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;height:100%;align-items:center}
+#info-card #card-content>.dock-copy{grid-column:1;grid-row:1;min-width:0}
+#info-card #card-content>.dock-media{grid-column:2;grid-row:1;min-width:0}
+#info-card .card-close{top:5px;right:7px;width:26px;height:26px}
+#info-card .eyebrow{font-size:9px;margin-bottom:5px;letter-spacing:1.6px}
+#info-card h2,#info-card .card-person h2{font-size:26px;line-height:1.2}
+#info-card .card-subtitle{display:block;font-size:12px;margin-top:5px}
+#info-card .card-description{font-size:13px;line-height:1.5;margin:7px 0}
+#info-card .thumbnail-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+#info-card .thumbnail{height:91px;aspect-ratio:auto}
+#info-card .card-actions{display:flex;gap:7px;margin-top:10px}
+#info-card .primary,#info-card .secondary{min-height:39px;padding:9px 10px;font-size:12px}
+#info-card .dock-media>button.primary{margin-top:10px;width:100%;font-size:13px}
+#info-card .sample-label{display:flex;margin-top:5px;font-size:8px}
+#info-card .card-tabs{margin:5px 0;border-bottom:1px solid var(--line);justify-content:flex-start;gap:25px}
+#info-card .card-tabs button{flex:0;min-height:30px;padding:4px 0 7px;font-size:12px}
+#info-card .card-tabs button[aria-selected=true]:after{left:0;right:0}
+#info-card .company-heading{margin:0;gap:10px}#info-card .company-heading p{font-size:12px;margin-top:5px}
+#info-card .company-logo{width:39px;height:39px;font-size:18px}
+#info-card .detail-block{font-size:12px;line-height:1.4;margin:5px 0}
+#info-card .detail-block strong{font-size:11px}#info-card .detail-block p{display:inline;margin:0 7px 0 4px}
+#info-card .tags{margin-top:5px}#info-card .tags span{font-size:10px;padding:2px 6px}
+#info-card .related-return{min-height:23px;margin-top:3px;font-size:11px}
+#info-card .contact-banner{height:102px;margin:0;align-self:auto}
+#info-card .contact-minor{margin-top:5px;padding-top:4px;justify-content:flex-start;gap:25px}
+#info-card .contact-minor button{min-height:25px;font-size:11px}
+#info-card .availability{margin:5px 0;font-size:11px}
+#info-card .gateway-preview{padding:0;gap:15px}#info-card .gateway-preview>span{font-size:34px}#info-card .gateway-preview>div{font-size:14px}#info-card .gateway-preview small{font-size:10px}
+#info-card h3{font-size:15px;margin:4px 0}
+.route-heading{display:block;left:28px;top:124px;max-width:170px}.route-heading .back-link{font-size:12px;margin:0;white-space:nowrap}.route-heading>.eyebrow{position:fixed;left:28px;top:166px;font-size:9px;letter-spacing:1.6px}
+.journey-bar{top:var(--tools-top);bottom:auto;left:195px;right:245px;min-height:44px;height:44px;width:auto;padding:0;gap:13px;display:flex;background:none;border:0;box-shadow:none;backdrop-filter:none;color:#fff9e9;border-radius:0}
+.journey-meta{display:none}.stops{display:flex;align-items:center;justify-content:center;max-width:none;flex:1;gap:16px;margin:0;padding:0}.stops:before{display:none}
+.stop{flex-direction:row;align-items:center;min-height:32px;min-width:0;gap:5px;padding:0}.stop-dot{width:12px;height:12px;flex-shrink:0;background:transparent;border-color:#c7e2d1a6}.stop-dot i{width:4px;height:4px}.stop-name,.stop.active .stop-name{font-size:11px;color:#fff9e9;font-weight:500}.stop .stop-name{opacity:.65}.stop.active .stop-name{opacity:1;font-weight:800}.stop.visited .stop-dot{background:#b3d8bd85;border-color:#b3d8bd85}
+body[data-route=hub] .stop{flex-direction:column;gap:4px}body[data-route=hub] .stop-name{font-size:9px}
+.drive-controls{width:auto;display:flex;gap:5px;margin:0}.drive-button,.drive-button:last-child{min-width:29px;min-height:31px;height:31px;padding:0 5px;border-radius:6px;border:1px solid #ffffff45;background:#ffffff05;color:#fff9e9}.drive-button span{display:none}.drive-button .icon{width:17px;height:17px}
+.bottom-notes{position:fixed;left:auto;right:28px;top:var(--tools-top);bottom:auto;height:44px;display:flex;gap:0;color:#fff9e9}
+.control-hint{position:fixed;left:auto;right:28px;top:164px;max-width:none;display:flex;flex-wrap:nowrap;gap:4px;font-size:10px;opacity:.7}.control-hint kbd{font-size:10px;min-width:19px;height:20px;padding:2px 3px}.control-hint .divider{margin:0 4px}.mobile-hint{display:none}
+.utility-controls{gap:7px}.utility-controls>button{font-size:11px;padding:3px}.utility-controls .icon{width:23px;height:23px}.utility-controls .help-button{width:28px;height:28px;font-size:13px}.utility-controls>span{display:none}
+.show-card{inset:auto 28px 24px auto;width:auto;min-height:42px;font-size:13px}.toast{top:185px}
+@media(min-width:1100px){
+ #info-card.info-card{left:7%;right:7%;padding:22px 30px}#info-card #card-content{grid-template-columns:minmax(0,1fr) 380px;gap:40px}#info-card .thumbnail{height:101px}
+ .journey-bar{left:230px;right:280px}.stops{gap:27px}.stop-name,.stop.active .stop-name{font-size:12px}body[data-route=hub] .stop{flex-direction:row;gap:7px}body[data-route=hub] .stop-name{font-size:11px}
+}
+@media(max-height:550px) and (orientation:landscape){
+ :root{--dock-height:154px;--dock-bottom:12px;--world-top:112px;--tools-top:65px}
+ .site-header{height:59px;padding:8px 22px}.brand{font-size:13px;gap:9px}.unity-logo{width:34px;height:34px;padding:6px}.brand small{font-size:7px;margin-top:5px}.header-nav{gap:13px;margin:0;font-size:12px}.header-nav>button{font-size:12px;min-height:32px}.header-nav>.contact-link{position:static;font-size:12px;min-height:31px;padding:7px 10px}
+ .route-heading{left:22px;top:76px;display:block}.route-heading .back-link{font-size:10px}.route-heading>.eyebrow{left:22px;top:102px;font-size:7px}
+ .journey-bar{left:148px;right:220px;min-height:34px;height:34px;gap:7px}.stops{gap:10px}.stop{min-height:29px;min-width:0;gap:4px}.stop-name,.stop.active .stop-name{font-size:10px}body[data-route=hub] .stop-name{font-size:8px}.stop-dot{height:10px;width:10px}.drive-controls{gap:3px}.drive-button,.drive-button:last-child{min-width:25px;height:28px;min-height:28px;padding:0 3px}
+ .bottom-notes{right:22px;height:34px}.utility-controls{gap:4px}.utility-controls>button{font-size:10px}.utility-controls .icon{width:20px;height:20px}.utility-controls .help-button{width:25px;height:25px}.control-hint{display:none}
+ #info-card.info-card{left:22px;right:22px;height:var(--dock-height);top:auto;bottom:var(--dock-bottom);width:auto;padding:10px 16px;border-radius:12px}
+ #info-card #card-content{grid-template-columns:minmax(0,1fr) 235px;gap:22px;align-content:center}
+ #info-card h2,#info-card .card-person h2{font-size:20px}#info-card .eyebrow{font-size:7px;margin-bottom:3px}#info-card .card-subtitle{font-size:10px;margin-top:3px}#info-card .card-description{font-size:11px;line-height:1.35;margin:4px 0}
+ #info-card .thumbnail{height:65px;aspect-ratio:auto}#info-card .thumbnail-strip{grid-template-columns:1fr 1fr;gap:6px}#info-card .card-actions{margin-top:7px;gap:5px}#info-card .primary,#info-card .secondary,#info-card .project-links .primary,#info-card .project-links .secondary{font-size:10px;min-height:31px;padding:6px 7px}#info-card .dock-media>button.primary{font-size:11px;margin-top:7px;min-height:31px}
+ #info-card .card-tabs{gap:18px;margin:3px 0}#info-card .card-tabs button{font-size:10px;min-height:24px;padding:3px 0 5px}#info-card .company-heading p{font-size:10px;margin-top:3px}#info-card .company-logo{width:30px;height:30px;font-size:14px}#info-card .company-heading{gap:7px}
+ #info-card .sample-label{font-size:7px;margin-top:3px}#info-card .detail-block,#info-card .detail-block strong{font-size:10px;line-height:1.3}#info-card .detail-block{margin:3px 0}#info-card .tags{margin-top:3px}#info-card .tags span{font-size:8px;padding:1px 5px}#info-card .related-return{font-size:9px;min-height:18px;margin-top:2px}
+ #info-card .contact-banner{height:65px}#info-card .contact-minor{gap:15px;margin-top:3px;padding-top:2px}#info-card .contact-minor button{font-size:10px;min-height:21px}#info-card .availability{font-size:10px;margin:3px 0}#info-card .gateway-preview>span{font-size:25px}#info-card .gateway-preview>div{font-size:11px}#info-card .gateway-preview small{font-size:8px}#info-card h3{font-size:12px;margin:3px 0}
+ .show-card{inset:auto 22px 12px auto;font-size:11px;min-height:35px}.toast{top:110px;font-size:11px}
+}
+@media(max-width:730px) and (orientation:landscape){.journey-bar{left:138px;right:210px}.stops{gap:6px}.utility-controls>button[data-action=simple]{font-size:9px;padding:0}.utility-controls{gap:2px}#info-card #card-content{grid-template-columns:minmax(0,1fr) 210px;gap:17px}.brand{font-size:12px}.header-nav{gap:10px}}

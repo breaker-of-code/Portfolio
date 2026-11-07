@@ -32,10 +32,12 @@ const companySceneItems = companies.map(c => ({ ...c, icon: 'building' }));
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 let world, activeTab = 'overview', skillTab = 0, hiddenCard = false, moving = false, soundOn = false, audioContext;
 let galleryImages = [], galleryIndex = 0, returnLocation = null, toastTimeout;
+let sectionTransition = false, pendingState = null;
 
 document.querySelector('#app').innerHTML = `
   <canvas id="world" aria-label="Interactive low-poly coastal portfolio. Use the navigation buttons or arrow keys to move the orange car."></canvas>
   <div class="ocean-vignette" aria-hidden="true"></div>
+  <div id="section-transition" aria-hidden="true" hidden></div>
   <div id="loading" class="loading-screen"><div class="loading-card"><span class="eyebrow">A SMALL WORLD. A BIG HELLO.</span><div class="loading-car" aria-hidden="true">▰</div><h1>Preparing your journey<span>.</span></h1><p>A little coast, a little code, a little curiosity.</p><div class="loading-track"><span></span></div><small>Loading the island</small></div></div>
   <header class="site-header">
     <button class="brand" data-action="home" aria-label="Return to the main island"><img class="unity-logo" src="/media/unity-logo.png" alt="Unity"/><span>UNITY DEVELOPER<small><strong>9 YEARS</strong> OF EXPERIENCE</small></span></button>
@@ -109,7 +111,15 @@ function renderCard() {
   if (route === 'projects') html = renderProject();
   else if (route === 'career') html = renderCompany();
   else html = index === 0 ? renderIntro() : index === 1 || index === 2 ? renderGateway(HUB_STOPS[index]) : index === 3 ? renderSkills() : renderContact();
-  $('#card-content').innerHTML = html;
+  const content = $('#card-content');
+  content.innerHTML = html;
+  const copy = document.createElement('div'), media = document.createElement('div');
+  copy.className = 'dock-copy'; media.className = 'dock-media';
+  for (const child of [...content.children]) {
+    const target = child.matches('.thumbnail-strip,.contact-banner,.card-actions,.gateway-preview,.related-return,button.primary.full-width') ? media : copy;
+    target.append(child);
+  }
+  content.replaceChildren(copy, media);
   const gateway = route === 'hub' && (index === 1 || index === 2);
   $('#enter-prompt').hidden = !gateway || moving; $('#enter-name').textContent = index === 1 ? 'Career' : 'Projects';
   card.classList.toggle('is-gateway', gateway);
@@ -133,7 +143,7 @@ function renderNavigation() {
   document.body.dataset.route = route;
   document.title = `${route === 'hub' ? 'The Scenic Route' : `${route === 'projects' ? projects[index].name : companies[index].name} — ${route === 'projects' ? 'Projects' : 'Career'}`} · Unity Developer`;
 }
-function setState(state) {
+function applyState(state) {
   const items = state.route === 'hub' ? hub : state.route === 'projects' ? projects : companySceneItems;
   if (sceneRoute !== state.route) { driver.reset(); sceneRoute = state.route; }
   activeTab = 'overview'; hiddenCard = false;
@@ -142,6 +152,58 @@ function setState(state) {
   const label = state.route === 'hub' ? hub[state.index].name : state.route === 'projects' ? projects[state.index].name : companies[state.index].name;
   $('#arrival').textContent = `Now exploring ${label}`;
   if (soundOn && !moving) chime();
+}
+function setState(state) {
+  pendingState = state;
+  if (sectionTransition) return;
+  if (!world || sceneRoute === undefined || sceneRoute === state.route || reducedMotionQuery.matches) {
+    pendingState = null;
+    applyState(state);
+    return;
+  }
+  void transitionSection();
+}
+async function transitionSection() {
+  sectionTransition = true;
+  const app = $('#app'), veil = $('#section-transition');
+  app.inert = true;
+  app.setAttribute('aria-busy', 'true');
+  veil.hidden = false;
+  world.setPaused(true);
+  const fade = async (from, to, duration) => {
+    const animation = veil.animate([{ opacity: from }, { opacity: to }], {
+      duration: reducedMotionQuery.matches ? 0 : duration, easing: 'ease-in-out', fill: 'forwards',
+    });
+    await animation.finished;
+    veil.style.opacity = String(to);
+    animation.cancel();
+  };
+  try {
+    await fade(0, 1, 180);
+    // Apply the latest destination while the entire viewport is covered.
+    const destination = pendingState;
+    pendingState = null;
+    applyState(destination);
+    updateOrientation();
+    // Wait for the new camera to render and card images to decode before revealing it.
+    const images = [...card.querySelectorAll('img')];
+    let imageTimeout;
+    await Promise.race([
+      Promise.allSettled(images.map(image => image.decode())),
+      new Promise(resolve => { imageTimeout = setTimeout(resolve, 500); }),
+    ]);
+    clearTimeout(imageTimeout);
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await fade(1, 0, 240);
+  } finally {
+    veil.hidden = true;
+    veil.style.opacity = '0';
+    app.inert = false;
+    app.removeAttribute('aria-busy');
+    sectionTransition = false;
+    updateOrientation();
+    if (pendingState) setState(pendingState);
+  }
 }
 nav.subscribe(setState);
 
@@ -221,6 +283,7 @@ document.addEventListener('click', event => {
 });
 
 document.addEventListener('keydown', event => {
+  if (sectionTransition) { event.preventDefault(); return; }
   if (event.target.matches('input, textarea, select') || event.ctrlKey || event.metaKey || event.altKey) return;
   const dialog = document.querySelector('dialog[open]');
   if (dialog) {
@@ -237,32 +300,11 @@ document.addEventListener('keydown', event => {
 });
 document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } }));
 let wheelAt = 0;
-$('#world').addEventListener('wheel', event => { if (Math.abs(event.deltaY) < 12 || performance.now() - wheelAt < 650 || document.querySelector('dialog[open]')) return; event.preventDefault(); wheelAt = performance.now(); driver.step(event.deltaY > 0 ? 1 : -1); }, { passive: false });
+$('#world').addEventListener('wheel', event => { if (sectionTransition || Math.abs(event.deltaY) < 12 || performance.now() - wheelAt < 650 || document.querySelector('dialog[open]')) return; event.preventDefault(); wheelAt = performance.now(); driver.step(event.deltaY > 0 ? 1 : -1); }, { passive: false });
 let touchStart;
 $('#world').addEventListener('touchstart', e => { touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
-$('#world').addEventListener('touchend', e => { if (!touchStart) return; const dx = e.changedTouches[0].clientX - touchStart.x, dy = e.changedTouches[0].clientY - touchStart.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 50) driver.step((Math.abs(dx) > Math.abs(dy) ? dx : -dy) < 0 ? 1 : -1); touchStart = null; }, { passive: true });
+$('#world').addEventListener('touchend', e => { if (!touchStart || sectionTransition) { touchStart = null; return; } const dx = e.changedTouches[0].clientX - touchStart.x, dy = e.changedTouches[0].clientY - touchStart.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 50) driver.step((Math.abs(dx) > Math.abs(dy) ? dx : -dy) < 0 ? 1 : -1); touchStart = null; }, { passive: true });
 
-function tether() {
-  if (!world) return;
-  const anchor = world.getAnchor();
-  if (card.hidden) { $('#card-tether').style.opacity = '0'; requestAnimationFrame(tether); return; }
-  if (innerWidth > 1000) {
-    const width = card.offsetWidth, height = card.offsetHeight;
-    let left = anchor.x + 85;
-    if (left + width > innerWidth - 40) left = anchor.x - width - 65;
-    left = Math.max(40, Math.min(left, innerWidth - width - 40));
-    const footerTop = $('.journey-bar').getBoundingClientRect().top;
-    const top = Math.max(100, Math.min(anchor.y - height - 45, footerTop - height - 18));
-    card.style.left = `${left}px`; card.style.right = 'auto'; card.style.top = `${top}px`;
-  } else { card.style.removeProperty('left'); card.style.removeProperty('right'); card.style.removeProperty('top'); }
-  const bounds = card.getBoundingClientRect();
-  const x = bounds.left + Math.min(35, bounds.width / 2), y = bounds.bottom - 25;
-  const shown = !hiddenCard && !moving && innerWidth > 700 && bounds.left > anchor.x + 20;
-  $('#card-tether').style.opacity = shown ? '.7' : '0';
-  $('#tether-path').setAttribute('d', `M ${anchor.x} ${anchor.y} L ${x - 25} ${y} L ${x} ${y}`);
-  $('#tether-dot').setAttribute('cx', anchor.x); $('#tether-dot').setAttribute('cy', anchor.y);
-  requestAnimationFrame(tether);
-}
 
 try {
   world = new CoastalScene($('#world'), {
@@ -274,7 +316,7 @@ try {
     onReady: () => setTimeout(() => { $('#loading').classList.add('loaded'); document.body.classList.add('ready'); }, reducedMotionQuery.matches ? 50 : 850),
     onError: () => { $('#loading').hidden = true; document.body.classList.add('no-webgl'); renderSimple(); $('#simple-view').showModal(); },
   });
-  setState(nav.state); updateOrientation(); tether();
+  setState(nav.state); updateOrientation();
   reducedMotionQuery.addEventListener('change', event => { world.reducedMotion = event.matches; });
 } catch (error) {
   console.error('The 3D view could not start:', error);
