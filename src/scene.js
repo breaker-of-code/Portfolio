@@ -527,18 +527,8 @@ export class CoastalScene {
     const direction = new THREE.Vector3(-4.5, 24, 35).normalize();
     const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), direction).normalize();
     const up = new THREE.Vector3().crossVectors(direction, right).normalize();
-    const scrolls = this.routeItems.length > 5;
-    const min = scrolls ? new THREE.Vector3(-22, -1, -9) : this.overviewBounds.min;
-    const max = scrolls ? new THREE.Vector3(22, 9, 9) : this.overviewBounds.max;
-    let left = Infinity, rightEdge = -Infinity, bottom = Infinity, top = -Infinity;
-    const include = point => {
-      const px = point.dot(right), py = point.dot(up);
-      left = Math.min(left, px); rightEdge = Math.max(rightEdge, px); bottom = Math.min(bottom, py); top = Math.max(top, py);
-    };
-    if (scrolls) {
-      for (const x of [min.x, max.x]) for (const y of [min.y, max.y]) for (const z of [min.z, max.z]) include(new THREE.Vector3(x, y, z));
-    } else {
-      // Fit actual model bounds, avoiding empty corners of one oversized world box.
+    if (this.route === 'hub' || !this.homeViewBounds) {
+      let left = Infinity, rightEdge = -Infinity, bottom = Infinity, top = -Infinity;
       this.world.updateMatrixWorld(true);
       this.world.traverse(object => {
         if (!object.geometry) return;
@@ -546,11 +536,15 @@ export class CoastalScene {
         const bounds = object.geometry.boundingBox;
         if (!bounds) return;
         for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) {
-          include(new THREE.Vector3(x, y, z).applyMatrix4(object.matrixWorld));
+          const point = new THREE.Vector3(x, y, z).applyMatrix4(object.matrixWorld);
+          const px = point.dot(right), py = point.dot(up);
+          left = Math.min(left, px); rightEdge = Math.max(rightEdge, px); bottom = Math.min(bottom, py); top = Math.max(top, py);
         }
       });
-      left -= 0.8; rightEdge += 0.8; bottom -= 0.8; top += 0.8;
+      this.homeViewBounds = { left: left - 0.8, rightEdge: rightEdge + 0.8, bottom: bottom - 0.8, top: top + 0.8 };
     }
+    // Every section uses the Home frame, keeping cars and landmarks the same size.
+    const { left, rightEdge, bottom, top } = this.homeViewBounds;
     const h = innerHeight, w = innerWidth;
     const padding = Math.max(24, Math.min(70, w * 0.045));
     const safeLeft = padding, safeRight = w - padding;
@@ -561,7 +555,7 @@ export class CoastalScene {
     const safeBottom = h - dockHeight - dockBottom - 16;
     const usableHeight = Math.max(40, safeBottom - safeTop);
     const usableWidth = Math.max(w * 0.35, safeRight - safeLeft);
-    this.overviewHalfHeight = Math.max((rightEdge - left) * h / (2 * usableWidth), (top - bottom) * h / (2 * usableHeight));
+    this.overviewHalfHeight = Math.max((rightEdge - left) * h / (2 * usableWidth), (top - bottom) * h / (2 * usableHeight)) / 1.12;
     const centerY = 1 - (safeTop + safeBottom) / h;
     const centerX = (safeLeft + safeRight) / w - 1;
     this.overviewLook = up.multiplyScalar((top + bottom) / 2 - centerY * this.overviewHalfHeight)
