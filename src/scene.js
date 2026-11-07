@@ -378,8 +378,10 @@ export class CoastalScene {
   station(x, index, item) {
     const group = new THREE.Group(); group.userData.stop = index; group.position.set(x, 0.5, 0); this.world.add(group);
     const z = pathZ(x);
-    const pad = this.box(group, [3.05, 0.13, 1.95], [0, 0.14, z], 0x75eddf, 0.14);
-    this.box(group, [2.72, 0.05, 1.62], [0, 0.23, z], 0xbdf4d9, 0.1);
+    const heading = -Math.atan(pathSlope(x));
+    const pad = this.box(group, [3.95, 0.13, 2.35], [0, 0.14, z], 0x75eddf, 0.14);
+    const parkingSurface = this.box(group, [3.65, 0.05, 2.05], [0, 0.23, z], 0xbdf4d9, 0.1);
+    pad.rotation.y = parkingSurface.rotation.y = heading;
     const platformZ = z - 3.6;
     this.contactShadow(group, [0, -0.02, platformZ], 5.8, 4.3, 0.36);
     this.box(group, [3.9, 0.74, 2.9], [0, 0.37, platformZ], 0x9f9180, 0.12);
