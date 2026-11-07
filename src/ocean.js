@@ -63,7 +63,7 @@ export class CoastalOcean {
   }
   clearRoute() {
     const geometries = new Set();
-    this.life.traverse(object => { if (object.geometry) geometries.add(object.geometry); });
+    this.life.traverse(object => { if (object.geometry) geometries.add(object.geometry); if (object.isInstancedMesh) object.dispose(); });
     geometries.forEach(geometry => geometry.dispose());
     this.routeMaterials?.forEach(material => material.dispose());
     this.life.clear(); this.routeMaterials = [];
@@ -73,12 +73,27 @@ export class CoastalOcean {
     this.routeMaterials.push(material); return material;
   }
   createRoute(length) {
-    this.clearRoute(); this.lastTime = undefined; this.boats = []; this.schools = []; this.surf = [];
+    this.clearRoute(); this.lastTime = undefined; this.boats = []; this.schools = []; this.surf = []; this.jumpers = [];
     this.createSurf(length + 3);
-    this.createBoat(-length * 0.27, 17, 0, false);
-    this.createBoat(length * 0.19, -13.8, 2.8, false);
+    const columns = Math.max(3, Math.min(7, Math.ceil(length / 18)));
+    for (let i = 0; i < columns; i++) {
+      const x = (i / (columns - 1) - 0.5) * length * 0.6;
+      this.createBoat(x, i % 2 ? -13.7 : 14.5, i * 1.8 + 0.3, false, 0.8 + (i % 3) * 0.09);
+    }
+    this.createBoat(-length / 2 - 2.5, -12.2, 1.6, false, 0.72);
+    this.createBoat(length / 2 + 1.5, 13, 4.7, false, 0.8);
     this.createBoat(length / 2 - 4.4, 10.5, 4.1, true);
-    for (let i = 0; i < 3; i++) this.createSchool((i - 1) * length * 0.28, i === 1 ? -11.4 : 12.5 + i * 1.2, i);
+    this.createBoat(-length / 2 - 4.6, 8.8, 1.3, true, 0.88);
+    // Five fish share two instanced meshes per school, rather than ten draw calls.
+    this.fishBodyGeometry = new THREE.SphereGeometry(1, 7, 4); this.fishBodyGeometry.scale(0.43, 0.065, 0.16);
+    this.fishTailGeometry = new THREE.BufferGeometry();
+    this.fishTailGeometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, -0.32, 0, 0.2, -0.32, 0, -0.2], 3));
+    const schoolCount = Math.max(8, Math.min(14, Math.ceil(length / 7)));
+    for (let i = 0; i < schoolCount; i++) {
+      const x = (i / (schoolCount - 1) - 0.5) * length * 0.82;
+      this.createSchool(x, i % 2 ? -13.1 - (i % 3) * 0.5 : 13.3 + (i % 3) * 0.6, i);
+    }
+    for (let i = 0; i < 4; i++) this.createJumper((i / 3 - 0.5) * length * 0.66, i % 2 ? -11.7 : 11.8, i);
     this.update(0);
   }
   createSurf(length) {
@@ -96,22 +111,23 @@ export class CoastalOcean {
       this.life.add(mesh); this.surf.push(mesh);
     }
   }
-  createBoat(x, z, phase, moored) {
+  createBoat(x, z, phase, moored, scale = 1) {
     const b = this.builder, root = new THREE.Group(), model = new THREE.Group(); root.add(model); this.life.add(root);
     root.name = moored ? 'Bobbing wooden dinghy' : 'Drifting sailboat';
+    root.scale.setScalar((moored ? 0.78 : 1) * scale);
+    const sails = [[0xfff3d6, 0xe99776], [0xf5c169, 0xfff0d0], [0x88d5c8, 0xffe6b5]][Math.floor(phase) % 3];
     const hull = b.prism(model, [[-1.65, 0.2], [1.7, 0.2], [1.25, -0.42], [-1.25, -0.42]], 1.12, moored ? 0xb8783d : 0xffefd2);
     const deck = b.box(model, [2.6, 0.11, 0.92], [0, 0.2, 0], 0xc49154, 0.04);
     for (const side of [-1, 1]) b.box(model, [2.7, 0.12, 0.09], [0, 0.3, side * 0.51], moored ? 0xe2b26c : 0xe28b58, 0.02);
     if (moored) {
-      root.scale.setScalar(0.78);
       for (const bx of [-0.7, 0.55]) b.box(model, [0.25, 0.11, 0.94], [bx, 0.35, 0], 0xe4ba7e, 0.025);
       b.beam(model, [-1, 0.45, -0.9], [0.9, 0.45, 0.9], 0.035, 0x8f623d);
       b.box(model, [0.46, 0.05, 0.19], [0.92, 0.45, 0.92], 0xb47e44).rotation.y = -0.7;
     } else {
       b.beam(model, [-0.2, 0.3, 0], [-0.2, 3.65, 0], 0.045, 0x8b6b48);
       b.beam(model, [-0.25, 0.65, 0], [1.35, 0.65, 0], 0.028, 0x8b6b48);
-      b.polygon(model, [[-0.1, 3.5, 0.03], [-0.1, 0.72, 0.03], [1.32, 0.72, 0.03]], phase ? 0xf5c169 : 0xfff3d6);
-      b.polygon(model, [[-0.32, 3.2, 0], [-1.45, 0.72, 0], [-0.32, 0.72, 0]], phase ? 0xfff0d0 : 0xe99776);
+      b.polygon(model, [[-0.1, 3.5, 0.03], [-0.1, 0.72, 0.03], [1.32, 0.72, 0.03]], sails[0]);
+      b.polygon(model, [[-0.32, 3.2, 0], [-1.45, 0.72, 0], [-0.32, 0.72, 0]], sails[1]);
       b.polygon(model, [[-0.2, 3.65, 0], [-0.2, 3.32, 0], [0.38, 3.5, 0]], 0x67d7d4);
     }
     const wake = new THREE.Group(); root.add(wake);
@@ -123,20 +139,36 @@ export class CoastalOcean {
     root.position.set(x, -0.69, z);
     this.boats.push({ root, model, wake, x, z, phase, moored });
     // Tiny scenery uses the shared material cache; no downloaded model or texture.
-    hull.receiveShadow = deck.receiveShadow = false;
+    root.traverse(object => { object.castShadow = false; object.receiveShadow = false; });
   }
   createSchool(x, z, index) {
-    const b = this.builder, school = new THREE.Group(), tails = [];
-    school.name = 'Swimming fish school'; this.life.add(school);
-    const material = this.seaMaterial(index % 2 ? 0x2a7c83 : 0xf1c87b, 0.55);
-    for (let i = 0; i < 4; i++) {
-      const fish = new THREE.Group(); school.add(fish); fish.position.set(-i * 0.8, 0, (i % 2 ? -1 : 1) * 0.35 + i * 0.13);
-      fish.scale.setScalar(0.85 + random(i + index * 5) * 0.35);
-      const body = new THREE.Mesh(new THREE.SphereGeometry(1, 7, 4), material); body.scale.set(0.43, 0.055, 0.15); fish.add(body);
-      const tail = new THREE.Group(); tail.position.x = -0.37; fish.add(tail); tails.push(tail);
-      const fin = b.polygon(tail, [[0, 0, 0], [-0.32, 0, 0.2], [-0.32, 0, -0.2]], 0xf1c87b); fin.material = material; fin.castShadow = false;
+    const school = new THREE.Group(); school.name = 'Swimming fish school'; this.life.add(school);
+    const colors = [0xf6cf80, 0x225f72, 0xf2b491, 0xc5ead0];
+    const material = this.seaMaterial(colors[index % colors.length], 0.7);
+    const bodies = new THREE.InstancedMesh(this.fishBodyGeometry, material, 5);
+    const tails = new THREE.InstancedMesh(this.fishTailGeometry, material, 5);
+    bodies.frustumCulled = tails.frustumCulled = false;
+    tails.instanceMatrix.setUsage(THREE.DynamicDrawUsage); school.add(bodies, tails);
+    const fish = Array.from({ length: 5 }, (_, i) => ({ x: -i * 0.76, z: (i % 2 ? -1 : 1) * 0.38 + i * 0.12, scale: 0.9 + random(i + index * 5) * 0.35 }));
+    fish.forEach((f, i) => {
+      this.dummy.position.set(f.x, 0, f.z); this.dummy.rotation.set(0, 0, 0); this.dummy.scale.setScalar(f.scale); this.dummy.updateMatrix(); bodies.setMatrixAt(i, this.dummy.matrix);
+    });
+    school.position.set(x, -0.83, z); this.schools.push({ root: school, tails, fish, x, z, phase: index * 2.1 });
+  }
+  createJumper(x, z, index) {
+    const b = this.builder, root = new THREE.Group(); this.life.add(root); root.name = 'Jumping coastal fish';
+    const colors = [0xffcf73, 0xf29d76, 0xb7ddd0, 0xffdf9b];
+    const body = b.mesh(new THREE.SphereGeometry(1, 7, 4), colors[index], root); body.scale.set(0.51, 0.19, 0.2);
+    b.polygon(root, [[-0.4, 0, 0], [-0.82, 0.29, 0], [-0.82, -0.29, 0]], colors[index]);
+    b.polygon(root, [[-0.15, 0.14, 0], [-0.2, 0.39, 0], [0.14, 0.15, 0]], 0xe5a263);
+    for (const side of [-1, 1]) {
+      const eye = b.mesh(new THREE.SphereGeometry(0.045, 5, 3), 0x183e49, root); eye.position.set(0.31, 0.06, side * 0.15);
     }
-    school.position.set(x, -0.83, z); this.schools.push({ root: school, tails, x, z, phase: index * 2.1 });
+    root.traverse(object => { object.castShadow = false; object.receiveShadow = false; });
+    const splashMaterial = this.seaMaterial(0xdbfff2, 0.5);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.36, 0.4, 20), splashMaterial); ring.rotation.x = -Math.PI / 2; ring.name = 'Fish landing ripple'; this.life.add(ring);
+    const droplets = new THREE.InstancedMesh(new THREE.SphereGeometry(0.045, 4, 3), splashMaterial, 6); droplets.frustumCulled = false; droplets.instanceMatrix.setUsage(THREE.DynamicDrawUsage); this.life.add(droplets);
+    this.jumpers.push({ root, ring, droplets, splashMaterial, x, z, phase: 0.3 + index * 2.15, period: 8.8, height: 1 + index % 2 * 0.45 });
   }
   update(t) {
     if (this.lastTime === t) return;
@@ -165,11 +197,35 @@ export class CoastalOcean {
       const a = t * 0.19 + school.phase;
       school.root.position.set(school.x + Math.sin(a) * 3.2, -0.83, school.z + Math.cos(a) * 1.2);
       school.root.rotation.y = -Math.atan2(-Math.sin(a) * 1.2, Math.cos(a) * 3.2);
-      school.tails.forEach((tail, i) => { tail.rotation.y = Math.sin(t * 8 + i * 0.8) * 0.4; });
+      school.fish.forEach((fish, i) => {
+        this.dummy.position.set(fish.x - 0.37 * fish.scale, 0, fish.z); this.dummy.rotation.set(0, Math.sin(t * 8 + i * 0.8) * 0.4, 0); this.dummy.scale.setScalar(fish.scale); this.dummy.updateMatrix(); school.tails.setMatrixAt(i, this.dummy.matrix);
+      });
+      school.tails.instanceMatrix.needsUpdate = true;
+    });
+    this.jumpers?.forEach(fish => {
+      const cycle = (t + fish.phase) % fish.period, flight = 1.25, progress = Math.min(1, cycle / flight), direction = fish.z < 0 ? -1 : 1;
+      const landingX = fish.x + 1.25 * direction;
+      fish.root.visible = cycle < flight;
+      fish.root.position.set(fish.x + (progress - 0.5) * 2.5 * direction, -0.93 + Math.sin(progress * Math.PI) * fish.height, fish.z);
+      fish.root.rotation.set(0, fish.z < 0 ? Math.PI : 0, 0.75 - progress * 1.5);
+      const age = cycle - flight, splash = age >= 0 && age < 0.8;
+      fish.ring.visible = fish.droplets.visible = splash;
+      fish.ring.position.set(landingX, -0.87, fish.z);
+      fish.ring.scale.setScalar(0.4 + Math.max(0, age) * 2.1);
+      fish.splashMaterial.opacity = splash ? (1 - age / 0.8) * 0.55 : 0;
+      if (splash) {
+        const p = age / 0.8;
+        for (let i = 0; i < 6; i++) {
+          const a = i / 6 * Math.PI * 2, radius = 0.16 + p * 0.6;
+          this.dummy.position.set(landingX + Math.cos(a) * radius, -0.86 + Math.sin(p * Math.PI) * (0.3 + i % 2 * 0.24), fish.z + Math.sin(a) * radius);
+          this.dummy.rotation.set(0, 0, 0); this.dummy.scale.setScalar(1 - p * 0.65); this.dummy.updateMatrix(); fish.droplets.setMatrixAt(i, this.dummy.matrix);
+        }
+        fish.droplets.instanceMatrix.needsUpdate = true;
+      }
     });
   }
   dispose() {
     this.clearRoute(); this.life.removeFromParent();
-    for (const mesh of [this.water, this.ripples]) { mesh.geometry.dispose(); mesh.material.dispose(); mesh.removeFromParent(); }
+    for (const mesh of [this.water, this.ripples]) { mesh.geometry.dispose(); mesh.material.dispose(); if (mesh.isInstancedMesh) mesh.dispose(); mesh.removeFromParent(); }
   }
 }
