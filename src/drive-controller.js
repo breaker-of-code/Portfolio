@@ -1,17 +1,25 @@
 // One trip at a time. A single opposite command returns to its departure stop.
-export function createDriveController({ getIndex, getLength, go, now = () => performance.now() }) {
-  let trip = null, unlockAt = 0;
+export function createDriveController({ getIndex, getLength, go }) {
+  let trip = null;
   const controller = {
-    get busy() { return Boolean(trip) || now() < unlockAt; },
+    get busy() { return Boolean(trip); },
     get trip() { return trip ? { ...trip } : null; },
-    reset() { trip = null; unlockAt = 0; },
-    arrive() { if (trip) { trip = null; unlockAt = now() + 500; } },
+    reset() { trip = null; },
+    arrive() { trip = null; },
+    approach() { if (trip && !trip.reversed) trip.ready = true; },
+    passed(index) { if (trip && !trip.reversed && index !== trip.target) trip.origin = index; },
     step(delta) {
       const direction = Math.sign(delta);
       if (!direction) return false;
       if (trip) {
-        if (trip.reversed || direction === trip.direction) return false;
-        trip = { ...trip, target: trip.origin, direction, reversed: true };
+        if (trip.reversed) return false;
+        if (direction === trip.direction) {
+          const target = trip.target + direction;
+          if (!trip.ready || target < 0 || target >= getLength()) return false;
+          trip = { ...trip, target, ready: false };
+          go(target); return true;
+        }
+        trip = { ...trip, target: trip.origin, direction, reversed: true, ready: false };
         go(trip.target);
         return true;
       }
@@ -20,9 +28,12 @@ export function createDriveController({ getIndex, getLength, go, now = () => per
     to(index) {
       if (!Number.isFinite(index)) return false;
       const target = Math.max(0, Math.min(getLength() - 1, Math.trunc(index)));
-      if (trip) return target === trip.origin ? controller.step(-trip.direction) : false;
-      if (now() < unlockAt || target === getIndex()) return false;
-      trip = { origin: getIndex(), target, direction: Math.sign(target - getIndex()), reversed: false };
+      if (trip) {
+        if (target === trip.origin) return controller.step(-trip.direction);
+        return target === trip.target + trip.direction ? controller.step(trip.direction) : false;
+      }
+      if (target === getIndex()) return false;
+      trip = { origin: getIndex(), target, direction: Math.sign(target - getIndex()), reversed: false, ready: false };
       go(target);
       return true;
     },

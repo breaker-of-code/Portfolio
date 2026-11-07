@@ -31,7 +31,7 @@ let sceneRoute;
 const companySceneItems = companies.map(c => ({ ...c, icon: 'building' }));
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 let world, activeTab = 'overview', skillTab = 0, hiddenCard = false, moving = false, soundOn = false, audioContext;
-let galleryImages = [], galleryIndex = 0, returnLocation = null, toastTimeout, cardTimer;
+let galleryImages = [], galleryIndex = 0, returnLocation = null, toastTimeout;
 
 document.querySelector('#app').innerHTML = `
   <canvas id="world" aria-label="Interactive low-poly coastal portfolio. Use the navigation buttons or arrow keys to move the orange car."></canvas>
@@ -58,7 +58,7 @@ document.querySelector('#app').innerHTML = `
   <div id="toast" class="toast" role="status"></div>
   <dialog id="orientation-gate" closedby="none" class="orientation-gate" aria-labelledby="orientation-title" aria-describedby="orientation-note"><div class="orientation-card"><div class="rotate-device" aria-hidden="true"><span></span><b>↻</b></div><span class="eyebrow">A LITTLE MORE ROOM TO EXPLORE</span><h1 id="orientation-title">Let’s go landscape<span>.</span></h1><p id="orientation-note">Turn your device sideways to drive along the coast.</p><button class="primary" data-action="landscape">${svg('fullscreen')} Open landscape view</button><small>The journey starts when your screen is horizontal.</small></div></dialog>
   <dialog id="gallery" class="gallery-dialog" aria-label="Project image viewer"><button class="gallery-close icon-button" data-action="close-gallery" aria-label="Close image viewer">${svg('close')}</button><div class="gallery-top"><span id="gallery-title">Project screenshots</span><small>Illustrative project artwork</small></div><div class="gallery-image-wrap"><button data-action="gallery-previous" class="gallery-arrow" aria-label="Previous image">${svg('back')}</button><img id="gallery-image" alt=""/><button data-action="gallery-next" class="gallery-arrow" aria-label="Next image">${svg('arrow')}</button></div><div id="gallery-thumbs" class="gallery-thumbs"></div><span id="gallery-count"></span></dialog>
-  <dialog id="help" class="help-dialog"><button class="dialog-close icon-button" data-action="close-help" aria-label="Close controls">${svg('close')}</button><span class="eyebrow">A LITTLE FIELD GUIDE</span><h2>Enjoy the drive.</h2><p>Explore the main island, then enter Career or Projects for a longer journey.</p><ul><li><span><kbd>↑</kbd> / <kbd>→</kbd></span> Next stop</li><li><span><kbd>↓</kbd> / <kbd>←</kbd></span> Previous stop</li><li><span><kbd>Enter</kbd></span> Open a section or card</li><li><span><kbd>Esc</kbd></span> Close a viewer / return home</li><li><span>Tap / click</span> Jump to a destination</li></ul><p class="help-note">One press drives to a stop. You can reverse once during a trip; controls unlock 0.5 seconds after arrival. On touch screens, use the Previous and Next buttons. Sound starts off. Your system’s reduced-motion setting is respected.</p><button class="primary" data-action="close-help">Got it ${svg('arrow')}</button></dialog>
+  <dialog id="help" class="help-dialog"><button class="dialog-close icon-button" data-action="close-help" aria-label="Close controls">${svg('close')}</button><span class="eyebrow">A LITTLE FIELD GUIDE</span><h2>Enjoy the drive.</h2><p>Explore the main island, then enter Career or Projects for a longer journey.</p><ul><li><span><kbd>↑</kbd> / <kbd>→</kbd></span> Next stop</li><li><span><kbd>↓</kbd> / <kbd>←</kbd></span> Previous stop</li><li><span><kbd>Enter</kbd></span> Open a section or card</li><li><span><kbd>Esc</kbd></span> Close a viewer / return home</li><li><span>Tap / click</span> Jump to a destination</li></ul><p class="help-note">One press drives to a stop. You can reverse once during a trip; controls unlock on arrival. Press again in the final quarter-second to continue through the next stop. On touch screens, use the Previous and Next buttons. Sound starts off. Your system’s reduced-motion setting is respected.</p><button class="primary" data-action="close-help">Got it ${svg('arrow')}</button></dialog>
   <dialog id="simple-view" class="simple-dialog" aria-label="Simple portfolio view"><button class="dialog-close icon-button" data-action="close-simple" aria-label="Close simple view">${svg('close')}</button><div id="simple-content"></div></dialog>
 `;
 
@@ -92,7 +92,9 @@ function renderProject() {
 function renderCompany() {
   const c = companies[nav.state.index];
   const ps = c.projectIndices.map(i => projects[i]);
-  return `<div class="company-heading"><span class="company-logo">${String(nav.state.index + 1).padStart(2, '0')}</span><div><span class="eyebrow">A CHAPTER IN THE JOURNEY</span><h2>${escape(c.name)}</h2><p>${escape(c.role)} · ${escape(c.dates)}</p></div></div><span class="media-label">A glimpse of the work</span>${thumbnails(ps.map(p => p.images[0]), c.name, c.projectIndices)}<div class="detail-block"><strong>Ownership</strong><p>${escape(c.description)}</p><strong>Impact</strong><p>${escape(c.outcome)}</p></div><button class="primary full-width" data-related="${c.projectIndices[0]}">Explore related work ${svg('arrow')}</button>${demo}`;
+  const tabs = ['overview', 'impact', 'work'];
+  const description = activeTab === 'impact' ? c.outcome : activeTab === 'work' ? 'Choose a project image to explore the work from this chapter.' : c.description;
+  return `<div class="company-heading"><span class="company-logo">${String(nav.state.index + 1).padStart(2, '0')}</span><div><span class="eyebrow">A CHAPTER IN THE JOURNEY</span><h2>${escape(c.name)}</h2><p>${escape(c.role)} · ${escape(c.dates)}</p></div></div>${thumbnails(ps.map(p => p.images[0]), c.name, c.projectIndices)}<div class="card-tabs" role="tablist" aria-label="Company information">${tabs.map(t => `<button role="tab" aria-selected="${t === activeTab}" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div><p class="card-description">${escape(description)}</p><button class="primary full-width" data-related="${c.projectIndices[0]}">Explore related work ${svg('arrow')}</button>${demo}`;
 }
 function renderSkills() {
   const s = skillGroups[skillTab];
@@ -109,11 +111,12 @@ function renderCard() {
   else html = index === 0 ? renderIntro() : index === 1 || index === 2 ? renderGateway(HUB_STOPS[index]) : index === 3 ? renderSkills() : renderContact();
   $('#card-content').innerHTML = html;
   const gateway = route === 'hub' && (index === 1 || index === 2);
-  $('#enter-prompt').hidden = !gateway; $('#enter-name').textContent = index === 1 ? 'Career' : 'Projects';
+  $('#enter-prompt').hidden = !gateway || moving; $('#enter-name').textContent = index === 1 ? 'Career' : 'Projects';
   card.classList.toggle('is-gateway', gateway);
-  card.classList.toggle('is-hidden', hiddenCard);
-  $('#show-card').hidden = !hiddenCard;
-  card.scrollTop = 0;
+  card.classList.remove('is-hidden', 'driving', 'transitioning');
+  card.hidden = hiddenCard || moving;
+  card.setAttribute('aria-hidden', String(card.hidden));
+  $('#show-card').hidden = !hiddenCard || moving;
 }
 function renderNavigation() {
   const { route, index } = nav.state; const items = route === 'hub' ? hub : route === 'projects' ? projects : companies;
@@ -138,8 +141,7 @@ function setState(state) {
   renderCard(); renderNavigation();
   const label = state.route === 'hub' ? hub[state.index].name : state.route === 'projects' ? projects[state.index].name : companies[state.index].name;
   $('#arrival').textContent = `Now exploring ${label}`;
-  clearTimeout(cardTimer); card.classList.add('transitioning'); cardTimer = setTimeout(() => card.classList.remove('transitioning'), reducedMotionQuery.matches ? 0 : 420);
-  if (soundOn) chime();
+  if (soundOn && !moving) chime();
 }
 nav.subscribe(setState);
 
@@ -243,12 +245,14 @@ $('#world').addEventListener('touchend', e => { if (!touchStart) return; const d
 function tether() {
   if (!world) return;
   const anchor = world.getAnchor();
-  if (innerWidth > 1000 && nav.state.route !== 'hub') {
+  if (card.hidden) { $('#card-tether').style.opacity = '0'; requestAnimationFrame(tether); return; }
+  if (innerWidth > 1000) {
     const width = card.offsetWidth, height = card.offsetHeight;
     let left = anchor.x + 85;
     if (left + width > innerWidth - 40) left = anchor.x - width - 65;
     left = Math.max(40, Math.min(left, innerWidth - width - 40));
-    const top = Math.max(100, Math.min(anchor.y - height - 45, innerHeight - height - 210));
+    const footerTop = $('.journey-bar').getBoundingClientRect().top;
+    const top = Math.max(100, Math.min(anchor.y - height - 45, footerTop - height - 18));
     card.style.left = `${left}px`; card.style.right = 'auto'; card.style.top = `${top}px`;
   } else { card.style.removeProperty('left'); card.style.removeProperty('right'); card.style.removeProperty('top'); }
   const bounds = card.getBoundingClientRect();
@@ -264,7 +268,9 @@ try {
   world = new CoastalScene($('#world'), {
     reducedMotion: reducedMotionQuery.matches,
     onStop: index => driver.to(index),
-    onMove: value => { moving = value; if (!value) driver.arrive(); card.classList.toggle('driving', value); $('#enter-prompt').classList.toggle('is-travelling', value); },
+    onApproach: () => driver.approach(),
+    onWaypoint: index => driver.passed(index),
+    onMove: value => { moving = value; if (!value) driver.arrive(); renderCard(); },
     onReady: () => setTimeout(() => { $('#loading').classList.add('loaded'); document.body.classList.add('ready'); }, reducedMotionQuery.matches ? 50 : 850),
     onError: () => { $('#loading').hidden = true; document.body.classList.add('no-webgl'); renderSimple(); $('#simple-view').showModal(); },
   });

@@ -9,14 +9,22 @@ function setup(index = 0) {
     now: () => time, go: i => { selected = i; visits.push(i); } });
   return { driver, visits, advance: ms => { time += ms; } };
 }
-test('repeated travel input is ignored and arrival has a 500ms cooldown', () => {
+test('repeated travel input is ignored and arrival unlocks immediately', () => {
   const { driver, visits, advance } = setup();
   assert.equal(driver.step(1), true);
   for (let i = 0; i < 30; i++) assert.equal(driver.step(1), false);
   advance(2000); assert.equal(driver.step(1), false); // arrival, not a timer, unlocks travel
-  driver.arrive(); advance(499); assert.equal(driver.step(1), false);
-  advance(1); assert.equal(driver.step(1), true);
+  driver.arrive(); assert.equal(driver.step(1), true);
   assert.deepEqual(visits, [1, 2]);
+});
+test('the approach window allows exactly one continuation, and reversal uses the last passed stop', () => {
+  const { driver, visits } = setup();
+  driver.step(1); assert.equal(driver.step(1), false);
+  driver.approach(); assert.equal(driver.step(1), true);
+  assert.equal(driver.step(1), false);
+  driver.passed(1); assert.equal(driver.step(-1), true);
+  assert.equal(driver.step(-1), false);
+  assert.deepEqual(visits, [1, 2, 1]);
 });
 test('one reversal returns to departure and all further input waits for arrival', () => {
   for (const direction of [-1, 1]) {

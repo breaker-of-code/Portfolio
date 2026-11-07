@@ -9,20 +9,20 @@ npm install
 npm run dev
 ```
 
-Open the printed localhost URL. Build with `npm run build`; deploy the resulting `dist/` directory to a static host. `npm run preview` serves the production output locally. `npm test` checks route boundaries, return navigation, the speed curve, repeated travel commands, reversal limits, and the arrival cooldown.
+Open the printed localhost URL. Build with `npm run build`; deploy the resulting `dist/` directory to a static host. `npm run preview` serves the production output locally. `npm test` checks route boundaries, return navigation, the speed curve, repeated travel commands, reversal limits, and immediate arrival unlock, continuation, and velocity-preserving travel.
 
 ## Experience
 
 - The main coastal route has Intro, Career, Projects, Skills, and Contact stops.
 - The car accelerates from rest, cruises, and brakes smoothly into each stop. The selected landmark grows on arrival and returns to its resting size when leaving. Both effects respect reduced motion.
-- Arrow Up/Right advances; Arrow Down/Left returns to the previous stop. Repeated input cannot restart a trip. One opposite command reverses to the departure stop, then all travel commands wait until 500 ms after arrival. Click a physical landmark or bottom progress dot to jump directly. Touch buttons and swipes work on mobile.
+- Arrow Up/Right advances; Arrow Down/Left returns to the previous stop. Repeated input cannot restart a trip. One opposite command reverses to the departure stop, then travel commands wait until arrival. Controls unlock immediately on arrival; in the last 0.25 seconds of a forward trip, another command can extend travel through the stop without resetting velocity. Click a physical landmark or bottom progress dot to jump directly. Touch buttons and swipes work on mobile.
 - The ocean has flowing water shading, drifting wave crests, rolling shoreline foam, three fish schools, two drifting sailboats with wakes, and a bobbing wooden dinghy near the pier. Ambient animation pauses behind the phone orientation screen and freezes under reduced motion.
 - Faceted coastal tunnels hide the road cut at both ends of every route, with recessed dark interiors, stone portal arches, and warm entrance lights.
-- The home camera fits both island ends into view. Cards sit beside the overview on larger screens and above it on phones. The gently curved road controls car orientation through its tangent.
+- The home camera fits both island ends across the screen with horizontal padding. Projects use a wider camera view. Cards anchor to stops on larger screens and use a compact image-and-text layout on landscape phones. All stop cards disappear during travel and appear at full opacity on arrival, with no internal scrolling. The gently curved road controls car orientation through its tangent.
 - Press Enter at Career or Projects to enter its separate, longer route. The camera follows the car; only nearby stops need to be in the viewport.
 - Escape returns from a section to its originating stop, or closes the native image viewer.
 - Project cards keep two images visible while Overview, My role, and Media tabs switch the text. Clicking an image opens an accessible modal gallery.
-- Company images link to related projects and provide a return action.
+- Career has parallel 3D timeline rails, a moving progress marker, company milestones, and date plates. Placeholder records show “DATES TO ADD” until real employment dates are supplied. Company cards use Overview, Impact, and Work tabs; images link to related projects with a return action.
 - Intro, Skills, and Contact use compact image-rich cards in the hub.
 - Simple view provides a text-and-image version and is also offered if WebGL cannot initialize.
 - Phones and touch tablets require landscape for the 3D experience. Portrait shows a rotate-device screen and pauses animation/travel. A user-initiated fullscreen button attempts `screen.orientation.lock("landscape")`; browsers without support continue after manual device rotation. Native orientation lock needs physical-device validation.
