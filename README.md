@@ -14,6 +14,7 @@ Open the printed localhost URL. Build with `npm run build`; deploy the resulting
 ## Experience
 
 - The main coastal route has Intro, Career, Projects, Skills, and Contact stops.
+- The car accelerates from rest, cruises, and brakes smoothly into each stop. The selected landmark grows on arrival and returns to its resting size when leaving. Both effects respect reduced motion.
 - Arrow Up/Right advances; Arrow Down/Left returns to the previous stop. Click a physical landmark or bottom progress dot to jump directly. Touch buttons and swipes work on mobile.
 - Press Enter at Career or Projects to enter its separate, longer route. The camera follows the car; only nearby stops need to be in the viewport.
 - Escape returns from a section to its originating stop, or closes the native image viewer.
@@ -37,7 +38,7 @@ All 3D models are built directly from low-poly geometry in `src/scene.js`: car w
 
 Three illustrative preview images were generated with the built-in image generation tool; prompts are recorded in `public/media/provenance.json`. They are compressed JPEG files and loaded as images rather than as 3D textures. Fonts are bundled locally with their licenses in `public/fonts/`.
 
-The only production JavaScript dependency is Three.js. Vite is used only for development and bundling. Pixel ratio is capped, materials are reused, there are no expensive postprocessing passes, and old route geometry/textures are disposed when changing sections.
+The only production JavaScript dependency is Three.js. Vite is used only for development and bundling. Pixel ratio is capped, materials are reused, there are no expensive postprocessing passes, and old route geometry/textures are disposed when changing sections. Soft contact shadows use small shared procedural textures. The visual revision adds beveled plinths, a shaped hatchback with inset glass and wheel details, segmented palms, masonry arches and vines, a racing landmark, and a lower three-quarter camera oriented to follow the approved reference composition.
 
 ## Current limits
 

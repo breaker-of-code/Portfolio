@@ -34,7 +34,7 @@ document.querySelector('#app').innerHTML = `
   <div class="ocean-vignette" aria-hidden="true"></div>
   <div id="loading" class="loading-screen"><div class="loading-card"><span class="eyebrow">A SMALL WORLD. A BIG HELLO.</span><div class="loading-car" aria-hidden="true">▰</div><h1>Preparing your journey<span>.</span></h1><p>A little coast, a little code, a little curiosity.</p><div class="loading-track"><span></span></div><small>Loading the island</small></div></div>
   <header class="site-header">
-    <button class="brand" data-action="home" aria-label="Return to the main island"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>THE SCENIC ROUTE<small>UNITY DEVELOPER · 9 YEARS</small></span></button>
+    <button class="brand" data-action="home" aria-label="Return to the main island"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>UNITY DEVELOPER<small>9 YEARS OF EXPERIENCE</small></span></button>
     <nav class="header-nav" aria-label="Quick navigation"><button data-route="projects">Projects</button><button data-route="career">Career</button><button data-action="resume">Résumé ${svg('external')}</button><button class="contact-link" data-stop="4">Say hello ${svg('arrow')}</button></nav>
   </header>
   <main id="experience" aria-label="Interactive portfolio">
@@ -119,7 +119,7 @@ function renderNavigation() {
   $('#next').disabled = index === items.length - 1;
   $('#next span').textContent = route !== 'hub' && index === items.length - 1 ? 'End of route' : 'Next stop';
   $('#back-home').hidden = route === 'hub';
-  $('#route-eyebrow').textContent = route === 'hub' ? 'WELCOME TO MY LITTLE CORNER' : `HOME / ${route.toUpperCase()}`;
+  $('#route-eyebrow').textContent = route === 'hub' ? `HOME / ${hub[index].name.toUpperCase()}` : `HOME / ${route.toUpperCase()}`;
   $('#route-title').innerHTML = route === 'hub' ? 'Take the scenic route<span>.</span>' : route === 'projects' ? 'Made to be explored<span>.</span>' : 'A few chapters so far<span>.</span>';
   $('#route-subtitle').textContent = route === 'hub' ? 'Nine years of Unity. A world of things to explore.' : route === 'projects' ? 'A collection of worlds, systems, and small discoveries.' : 'The roles, teams, and work that shaped the journey.';
   document.body.dataset.route = route;
@@ -212,7 +212,16 @@ $('#world').addEventListener('touchend', e => { if (!touchStart) return; const d
 
 function tether() {
   if (!world) return;
-  const anchor = world.getAnchor(), bounds = card.getBoundingClientRect();
+  const anchor = world.getAnchor();
+  if (innerWidth > 1000) {
+    const width = card.offsetWidth, height = card.offsetHeight;
+    let left = anchor.x + 85;
+    if (left + width > innerWidth - 40) left = anchor.x - width - 65;
+    left = Math.max(40, Math.min(left, innerWidth - width - 40));
+    const top = Math.max(100, Math.min(anchor.y - height - 45, innerHeight - height - 210));
+    card.style.left = `${left}px`; card.style.right = 'auto'; card.style.top = `${top}px`;
+  } else { card.style.removeProperty('left'); card.style.removeProperty('right'); card.style.removeProperty('top'); }
+  const bounds = card.getBoundingClientRect();
   const x = bounds.left + Math.min(35, bounds.width / 2), y = bounds.bottom - 25;
   const shown = !hiddenCard && !moving && innerWidth > 700 && bounds.left > anchor.x + 20;
   $('#card-tether').style.opacity = shown ? '.7' : '0';

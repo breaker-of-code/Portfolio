@@ -14,7 +14,7 @@ export const profile = {
 export const projects = [
   ['Orbit Runner', 'space', 'Gameplay', 'A little adventure beyond the atmosphere.'],
   ['Puzzle Garden', 'puzzle', 'Puzzle', 'Small puzzles. Playful worlds. Satisfying discoveries.'],
-  ['Co-op Arena', 'arena', 'Multiplayer', 'A colorful space built around playing together.'],
+  ['Drift Circuit', 'race', 'Racing', 'A playful experiment in speed, handling, and feel.'],
   ['Island Builder', 'puzzle', 'Simulation', 'A miniature world with room for big ideas.'],
   ['Mission Control', 'space', 'Tools', 'Making complex workflows feel simple.'],
   ['Castle Quest', 'arena', 'Gameplay', 'A bite-sized journey through a handcrafted world.'],
@@ -22,7 +22,7 @@ export const projects = [
   ['Beyond the Coast', 'space', 'Prototype', 'An experiment in movement, mood, and discovery.'],
 ].map(([name, visual, category, summary], index) => ({
   name, visual, category, summary, demo: true,
-  images: [`/media/${visual}.jpg`, `/media/${visual === 'puzzle' ? 'arena' : 'puzzle'}.jpg`],
+  images: [`/media/${visual === 'race' ? 'arena' : visual}.jpg`, `/media/${visual === 'puzzle' ? 'arena' : 'puzzle'}.jpg`],
   role: 'Your responsibilities and technical decisions will appear here.',
   outcome: 'Add verified results, improvements, and what you delivered.',
   technologies: ['Unity', 'C#'],
