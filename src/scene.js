@@ -174,15 +174,63 @@ export class CoastalScene {
       wave.position.set(x, -0.97, z); wave.scale.x = 0.8 + seeded(i + 33) * 3; wave.userData.baseX = x; this.wavelets.add(wave);
     }
   }
+  coastalPath(x) {
+    const edgeStart = this.islandLength / 2 - 5.2, side = Math.sign(x);
+    const distance = Math.abs(x) - edgeStart;
+    if (distance <= 0) return { z: pathZ(x), slope: pathSlope(x) };
+    // Only the unused road beyond the stops bends into the coastal portals.
+    const edgeX = side * edgeStart, initialSlope = side * pathSlope(edgeX);
+    const bend = (-0.75 - initialSlope) / 2.8;
+    return { z: pathZ(edgeX) + initialSlope * distance + bend * distance ** 2 / 2, slope: side * (initialSlope + bend * distance) };
+  }
   road(start, end) {
     const positions = [], uv = [], indices = [], n = Math.ceil((end - start) * 4);
-    for (let i = 0; i <= n; i++) { const x = lerp(start, end, i / n), z = pathZ(x); positions.push(x, 0.56, z - 1.7, x, 0.56, z + 1.7); uv.push(i / n, 0, i / n, 1); if (i < n) { const k = i * 2; indices.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); } }
+    for (let i = 0; i <= n; i++) { const x = lerp(start, end, i / n), z = this.coastalPath(x).z; positions.push(x, 0.56, z - 1.7, x, 0.56, z + 1.7); uv.push(i / n, 0, i / n, 1); if (i < n) { const k = i * 2; indices.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); } }
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(indices); geo.computeVertexNormals();
     const road = this.mesh(geo, C.road); road.castShadow = false;
-    const points = Array.from({ length: 120 }, (_, i) => { const x = lerp(start, end, i / 119); return new THREE.Vector3(x, 0.595, pathZ(x)); });
+    const points = Array.from({ length: 120 }, (_, i) => { const x = lerp(start, end, i / 119); return new THREE.Vector3(x, 0.595, this.coastalPath(x).z); });
     const glow = this.mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 140, 0.055, 5, false), C.aqua, this.world, { emissive: C.aqua, emissiveIntensity: 0.7 });
     if (!this.materials.has('cyan-route')) this.materials.set('cyan-route', new THREE.MeshBasicMaterial({ color: 0x55fff0, toneMapped: false }));
     glow.material = this.materials.get('cyan-route'); glow.castShadow = false;
+  }
+  coastalTunnel(x, outward) {
+    const tunnel = new THREE.Group();
+    tunnel.name = outward < 0 ? 'Coastal entrance tunnel' : 'Coastal exit tunnel';
+    const { z, slope } = this.coastalPath(x);
+    tunnel.position.set(x, 0.56, z);
+    // Local +Z faces onto the island; the road continues behind the portal.
+    tunnel.rotation.y = (outward < 0 ? Math.PI / 2 : -Math.PI / 2) - Math.atan(slope);
+    this.world.add(tunnel);
+    this.rockFootprints.push({ x: x + outward * 1.2, z, radius: 3.5 });
+
+    const inner = 2.12, outer = 2.84, spring = 2.05;
+    const stones = [0xb9ad99, 0xc6b79e, 0xa99c8a, 0xc0b29b];
+    for (const side of [-1, 1]) {
+      // Thick side walls and individual portal stones leave a real opening.
+      this.box(tunnel, [outer - inner, spring, 2.9], [side * (inner + outer) / 2, spring / 2, -1.3], 0x928b80, 0.06);
+      for (let row = 0; row < 3; row++) this.box(tunnel, [0.79, 0.67, 0.58], [side * 2.48, 0.34 + row * 0.69, 0.12], stones[row], 0.035);
+    }
+    for (let i = 0; i < 11; i++) {
+      const a = i * Math.PI / 11 + 0.007, b = (i + 1) * Math.PI / 11 - 0.007;
+      const wedge = [[Math.cos(a) * inner, spring + Math.sin(a) * inner], [Math.cos(a) * outer, spring + Math.sin(a) * outer], [Math.cos(b) * outer, spring + Math.sin(b) * outer], [Math.cos(b) * inner, spring + Math.sin(b) * inner]];
+      this.prism(tunnel, wedge, 2.6, i % 2 ? 0x8e887d : 0xa29888).position.z = -1.4;
+      this.prism(tunnel, wedge, 0.56, stones[i % stones.length]).position.z = 0.15;
+    }
+    // A recessed, unlit end hides the actual road edge and gives the bore depth.
+    const bore = new THREE.Shape(); bore.moveTo(-inner, -0.04); bore.lineTo(inner, -0.04); bore.lineTo(inner, spring);
+    for (let i = 0; i <= 16; i++) { const angle = i * Math.PI / 16; bore.lineTo(Math.cos(angle) * inner, spring + Math.sin(angle) * inner); }
+    bore.closePath();
+    const darkness = new THREE.Mesh(new THREE.ShapeGeometry(bore), this.glowMaterial(0x142a2c));
+    darkness.position.z = -2.62; tunnel.add(darkness);
+    for (const side of [-1, 1]) {
+      const boulder = this.mesh(new THREE.IcosahedronGeometry(1, 1), side < 0 ? 0xa89d8c : 0xb6a994, tunnel);
+      boulder.position.set(side * 3.05, 1.6, -1.35); boulder.scale.set(0.95, 1.9, 1.55); boulder.rotation.y = side * 0.4;
+      this.box(tunnel, [0.24, 0.42, 0.25], [side * 2.15, 1.7, -0.25], 0x59574e, 0.03);
+      this.glow(tunnel, [0.12, 0.27, 0.08], [side * 2.15, 1.7, -0.09], 0xffd18a);
+    }
+    const crown = this.mesh(new THREE.IcosahedronGeometry(1, 1), 0xaa9f8e, tunnel);
+    crown.position.set(-0.2, 4.65, -1.5); crown.scale.set(2.7, 1.05, 1.45); crown.rotation.y = 0.2;
+    this.contactShadow(tunnel, [0, 0.015, 0.3], 6.8, 4.8, 0.36);
   }
   rock(x, z, size = 1.5, seed = 1) {
     const geo = new THREE.IcosahedronGeometry(1, 1), p = geo.attributes.position;
@@ -370,7 +418,9 @@ export class CoastalScene {
     this.positions = items.map((_, i) => (i - (items.length - 1) / 2) * this.spacing);
     const length = Math.max(45, (items.length - 1) * this.spacing + 13);
     this.islandLength = length;
-    this.createIsland(length); this.road(-length / 2 + 1, length / 2 - 1);
+    this.createIsland(length + 3); this.road(-length / 2 + 1, length / 2 - 1);
+    this.coastalTunnel(-length / 2 + 2.4, -1);
+    this.coastalTunnel(length / 2 - 2.4, 1);
     items.forEach((item, i) => this.station(this.positions[i], i, item));
     // Place rock clusters before foliage so trees can find a clear footprint.
     this.positions.forEach((x, i) => {

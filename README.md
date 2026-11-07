@@ -16,6 +16,7 @@ Open the printed localhost URL. Build with `npm run build`; deploy the resulting
 - The main coastal route has Intro, Career, Projects, Skills, and Contact stops.
 - The car accelerates from rest, cruises, and brakes smoothly into each stop. The selected landmark grows on arrival and returns to its resting size when leaving. Both effects respect reduced motion.
 - Arrow Up/Right advances; Arrow Down/Left returns to the previous stop. Repeated input cannot restart a trip. One opposite command reverses to the departure stop, then all travel commands wait until 500 ms after arrival. Click a physical landmark or bottom progress dot to jump directly. Touch buttons and swipes work on mobile.
+- Faceted coastal tunnels hide the road cut at both ends of every route, with recessed dark interiors, stone portal arches, and warm entrance lights.
 - The home camera fits both island ends into view. Cards sit beside the overview on larger screens and above it on phones. The gently curved road controls car orientation through its tangent.
 - Press Enter at Career or Projects to enter its separate, longer route. The camera follows the car; only nearby stops need to be in the viewport.
 - Escape returns from a section to its originating stop, or closes the native image viewer.
