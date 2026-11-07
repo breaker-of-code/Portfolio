@@ -1,0 +1,9 @@
+{
+  "type": "Illustrative placeholder artwork, not screenshots of the developer's actual projects",
+  "generator": "Built-in image_gen tool",
+  "assets": [
+    { "file": "puzzle.jpg", "prompt": "Landscape 3D low-poly game illustration: tiny lush puzzle island, cream stone arch, turquoise stream, pink yellow cyan pushable cubes, soft warm sunlight, orthographic isometric composition, matte simple geometry, playful handcrafted diorama. No text, UI, logos, or watermark." },
+    { "file": "space.jpg", "prompt": "Landscape 3D low-poly game illustration: tiny white and orange explorer rocket on a miniature dark violet moon island, aqua crystal clusters, orange landing pad, lavender starry backdrop, soft cinematic light, isometric matte simple geometry, playful handcrafted diorama. No text, UI, logos, or watermark." },
+    { "file": "arena.jpg", "prompt": "Landscape 3D low-poly game illustration: compact sunny multiplayer arena diorama with cream stone battlements, orange and aqua flags, little crates and green grass, inviting soft daylight, isometric matte simple geometry. No people, text, UI, logos, or watermark." }
+  ]
+}
