@@ -259,3 +259,20 @@ body[data-route=hub] .stop{flex-direction:column;gap:4px}body[data-route=hub] .s
 .zoom-control label{font-size:9px;letter-spacing:.7px;font-weight:700;white-space:nowrap}.zoom-control output{font-size:13px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}.zoom-control button{width:24px;height:25px;border-radius:50%;font-size:19px;line-height:1;padding:0}.zoom-control button:hover{background:#ffffff20}.zoom-control input{width:100%;min-width:0;margin:0;accent-color:#ffc15b;cursor:ew-resize;height:22px}.zoom-control input:focus-visible{outline:2px solid #fff7dc;outline-offset:2px;border-radius:7px}
 .no-webgl .zoom-control{display:none}
 @media(max-height:550px) and (orientation:landscape){.zoom-control{top:98px;height:25px;width:270px;padding:1px 7px;grid-template-columns:74px minmax(0,1fr) 37px 20px;gap:5px}.zoom-control label{font-size:8px}.zoom-control output{font-size:11px}.zoom-control button{width:20px;height:21px;font-size:17px}.zoom-control input{height:20px}}
+
+/* Touch driving stays beside the dock, independently of its visibility. */
+@media (max-height:550px) and (orientation:landscape), (pointer:coarse) and (orientation:landscape) {
+ #info-card.info-card{left:calc(max(12px,env(safe-area-inset-left)) + 62px);right:calc(max(12px,env(safe-area-inset-right)) + 62px);padding-left:14px;padding-right:14px}
+ #info-card #card-content{grid-template-columns:minmax(0,1fr) clamp(155px,26vw,220px);gap:16px}
+ #info-card .dock-media:has(.project-links) .thumbnail{height:55px}
+ #info-card .project-links{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
+ #info-card .project-links>:last-child{grid-column:1/-1}
+ #info-card .project-links .primary,#info-card .project-links .secondary{min-width:0;min-height:28px;padding:5px;font-size:10px}
+ .drive-controls{position:fixed;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));top:auto;bottom:calc(var(--dock-bottom) + var(--dock-height)/2 - 28px);width:auto;height:56px;margin:0;display:flex;align-items:center;justify-content:space-between;gap:0;pointer-events:none}
+ .drive-controls .drive-button,.drive-controls .drive-button:last-child{pointer-events:auto;touch-action:manipulation;flex:none;width:48px;min-width:48px;height:56px;min-height:56px;padding:0;border:1px solid #fff5d882;border-radius:13px;background:#fff8e9f5;color:#183f49;box-shadow:0 4px 15px #174b5230;transition:background .15s,transform .15s}
+ .drive-controls .drive-button .icon{width:26px;height:26px}
+ .drive-controls .drive-button:disabled{opacity:.4}
+ .drive-controls .drive-button:hover:not(:disabled){background:#ffce72;color:#183f49;border-color:#ffdf9f}
+ .drive-controls .drive-button:active:not(:disabled){transform:scale(.94)}
+ .show-card{right:calc(max(12px,env(safe-area-inset-right)) + 62px)}
+}
