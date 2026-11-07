@@ -47,3 +47,90 @@ body[data-route=projects] .route-heading p,body[data-route=career] .route-headin
 .drive-button{font-size:12px}
 @media(max-width:1000px) and (min-width:701px){.stop-name{font-size:12px}.stop.active .stop-name{font-size:13px}}
 @media(max-width:700px){.stop-name,.stop.active .stop-name{font-size:11px}.stop-dot{height:17px;width:17px}.stops:before{top:8px}.drive-button{font-size:12px;min-height:44px;height:44px}}
+
+/* Readable controls and cards across the compact coastal experience. */
+.unity-logo{display:block;width:48px;height:48px;object-fit:contain;padding:7px;background:#fff;border-radius:12px;flex-shrink:0}
+.brand{font-size:19px;letter-spacing:.6px;gap:14px}
+.brand small{display:block;opacity:1;font-size:11px;letter-spacing:1.3px;font-weight:600;margin-top:9px;color:#fff1cb}
+.brand small strong{background:#ffc55d;color:#173e49;padding:3px 6px;border-radius:4px;font-weight:800;margin-right:3px}
+.header-nav{font-size:16px;gap:27px}.header-nav button{min-height:44px}.header-nav .icon{height:17px;width:17px}
+.header-nav .contact-link{padding:12px 20px}
+.stop-name,.stop.active .stop-name{font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.35px}
+.stop-dot{height:24px;width:24px}.stops:before{top:11px}.stop{min-height:54px;min-width:60px}
+.journey-bar{bottom:88px;min-height:112px;padding:20px;gap:24px}
+.journey-meta{min-width:120px}.journey-meta .eyebrow{font-size:9px}.journey-meta>span:last-child{font-size:25px}
+.drive-button{min-height:46px;font-size:13px}.drive-button .icon{width:20px;height:20px}
+.bottom-notes{bottom:24px;font-size:13px;gap:12px}
+.control-hint{opacity:1;gap:8px}.control-hint kbd{min-width:30px;height:30px;font-size:15px;border-radius:6px;background:#174d5733}.control-hint kbd:nth-of-type(3){min-width:57px}
+.utility-controls{gap:13px}.utility-controls>button{font-size:13px;min-height:44px;padding:6px}
+.utility-controls .icon{width:24px;height:24px}.utility-controls .help-button{height:34px;width:34px;font-size:17px}
+#sound-toggle{min-width:44px}.info-card{width:380px;padding:26px 24px 20px;max-height:calc(100dvh - 330px)}
+.info-card h2,.company-heading h2{font-size:26px}.card-person h2{font-size:24px}.info-card h3{font-size:17px}
+.info-card .eyebrow,.card-person .eyebrow{font-size:10px}.card-subtitle{font-size:13px}.card-description,.detail-block,.detail-block strong{font-size:14px;line-height:1.65}
+.primary,.secondary,.is-gateway .primary,.project-links .primary,.project-links .secondary{font-size:13px;min-height:44px;padding:11px 12px}
+.primary .icon,.secondary .icon{width:17px;height:17px}.card-tabs button{font-size:13px;min-height:42px}
+.tags{flex-wrap:wrap}.tags span{font-size:11px}.sample-label{font-size:10px}
+.gateway-preview>div{font-size:15px}.gateway-preview small{font-size:11px}.is-gateway{width:350px}
+.company-heading p,.media-label,.contact-minor button,.related-return,.availability{font-size:12px}.contact-minor button,.related-return{min-height:36px}
+.card-close{width:34px;height:34px}.card-close .icon{height:20px;width:20px}
+.enter-prompt{bottom:220px}.enter-prompt button{min-height:54px;font-size:16px;padding:12px 23px;gap:14px}.enter-prompt kbd{font-size:19px;min-width:32px;height:30px}.enter-prompt .icon{width:20px;height:20px}
+.enter-prompt.is-travelling{opacity:0;pointer-events:none}
+.is-gateway>.primary kbd,.full-width kbd{min-width:27px;height:25px;font-size:16px}
+.gallery-top>span{font-size:18px}.gallery-top small,#gallery-count{font-size:12px}
+.help-dialog>p,.help-dialog li,.help-dialog .help-note{font-size:14px}.help-dialog kbd{font-size:13px;min-width:25px;min-height:25px}
+.simple-dialog p{font-size:15px}.simple-project strong,.simple-career h3{font-size:15px}.simple-project small,.simple-career small{font-size:12px}
+@media(min-width:1700px){.info-card{width:410px}}
+@media(min-width:701px) and (max-width:1100px){
+  .brand{font-size:16px}.brand small{font-size:10px}.header-nav{gap:17px;font-size:14px}.unity-logo{width:42px;height:42px}
+  .journey-bar{gap:14px;padding:17px}.journey-meta{min-width:87px;padding-right:12px}.journey-meta .eyebrow{font-size:7px}
+  .stop-name,.stop.active .stop-name{font-size:14px}.stop{min-width:49px}.drive-button span{display:none}.drive-button,.drive-button:last-child{min-width:43px;padding:0 10px}
+  .info-card{width:345px}.info-card h2{font-size:24px}
+}
+@media(max-width:700px){
+  .site-header{display:block;height:127px;padding:18px 18px 12px}.brand{font-size:14px;letter-spacing:.5px;gap:10px}.unity-logo{width:40px;height:40px;padding:6px;border-radius:9px}
+  .brand small{font-size:9px;letter-spacing:.6px;margin-top:8px}.brand small strong{padding:2px 4px;margin-right:1px}
+  .header-nav{margin-top:12px;display:flex;gap:25px;font-size:13px}.header-nav>button{display:block;min-height:36px;padding:4px 0}.header-nav .icon{height:14px;width:14px}
+  .header-nav>.contact-link{position:absolute;right:18px;top:20px;display:flex;padding:8px 10px;font-size:11px;min-height:37px;gap:4px}
+  .route-heading{top:128px;left:20px}.route-heading .eyebrow{font-size:9px}.back-link{font-size:12px;margin-bottom:6px}
+  .info-card,.is-gateway{top:166px;left:18px;right:18px;width:auto;max-width:420px;max-height:34dvh;padding:20px 19px 15px}
+  .info-card h2,.company-heading h2{font-size:24px}.card-person h2{font-size:22px}.info-card .eyebrow,.card-person .eyebrow{font-size:9px}
+  .card-subtitle{font-size:12px}.card-description,.detail-block,.detail-block strong{font-size:13px;line-height:1.55}.info-card .card-description{font-size:13px}
+  .card-tabs button{font-size:12px;padding:8px 3px;min-height:38px}.tags span{font-size:10px}.sample-label{font-size:9px}
+  .primary,.secondary,.is-gateway .primary,.project-links .primary,.project-links .secondary{font-size:12px;padding:10px 9px;min-height:44px}
+  .company-heading p,.media-label,.availability,.contact-minor button{font-size:11px}.gateway-preview>div{font-size:13px}.gateway-preview small{font-size:10px}
+  .thumbnail{aspect-ratio:2}.info-card:has(.contact-banner){max-height:34dvh}
+  .journey-bar{left:14px;right:14px;bottom:calc(80px + env(safe-area-inset-bottom));min-height:127px;padding:14px 10px 11px;gap:12px}
+  .stop-name,.stop.active .stop-name{font-size:12px;letter-spacing:0}.stop{min-width:28px;min-height:38px;gap:9px}.stop-dot{width:19px;height:19px}.stops:before{top:9px}
+  .drive-button,.drive-button:last-child{min-width:105px;min-height:44px;height:44px;font-size:12px}.drive-button .icon{height:17px;width:17px}
+  .journey-meta{bottom:23px;min-width:0}.journey-meta>span:last-child{font-size:17px}
+  .bottom-notes{left:18px;right:18px;bottom:calc(14px + env(safe-area-inset-bottom));font-size:11px;gap:7px}
+  .mobile-hint{display:none}.control-hint{display:flex;flex-wrap:wrap;max-width:175px;gap:4px;font-size:10px}.control-hint kbd{min-width:25px;height:25px;font-size:13px}.control-hint kbd:nth-of-type(3){min-width:43px}.control-hint .divider{margin:0 2px}
+  .utility-controls{gap:5px}.utility-controls>button{font-size:11px;padding:4px}.utility-controls>span{display:none}.utility-controls .icon{width:23px;height:23px}.utility-controls .help-button{width:31px;height:31px;font-size:15px}
+  .enter-prompt{bottom:calc(223px + env(safe-area-inset-bottom))}.enter-prompt button{font-size:14px;min-height:48px;padding:10px 18px}.enter-prompt kbd{display:grid;height:27px;min-width:27px;font-size:17px}
+  .show-card{top:167px}.help-dialog{max-height:85dvh}.simple-dialog .card-actions{gap:8px}
+}
+@media(max-width:370px){
+  .brand{font-size:12px;gap:8px}.brand small{font-size:8px}.unity-logo{height:35px;width:35px}.header-nav>.contact-link{font-size:10px;right:14px;padding:7px 8px}.site-header{padding-left:14px;padding-right:14px}
+  .stop-name,.stop.active .stop-name{font-size:10px}.bottom-notes{left:13px;right:13px}.control-hint{max-width:154px;font-size:9px}.utility-controls{gap:2px}.utility-controls>button{font-size:10px}
+}
+@media(max-height:650px){
+  .site-header{height:80px;padding-top:13px;padding-bottom:13px}.route-heading{top:85px}.info-card,.is-gateway{top:116px;max-height:calc(100dvh - 345px)}
+  .journey-bar{bottom:70px;min-height:94px;padding-top:12px;padding-bottom:12px}.bottom-notes{bottom:12px}.enter-prompt{bottom:182px}.thumbnail{aspect-ratio:2.5}
+}
+@media(max-height:500px) and (min-width:701px){
+  .site-header{height:68px;padding-top:8px;padding-bottom:8px}.route-heading{top:72px}.info-card,.is-gateway{top:83px;max-height:calc(100dvh - 260px);width:330px}.journey-meta{display:none}.journey-bar{min-height:83px;bottom:60px;padding:10px 17px}.bottom-notes{bottom:6px}.enter-prompt{bottom:156px}
+}
+@media(min-width:701px){.info-card,.is-gateway{top:112px;max-height:min(42dvh,calc(100dvh - 380px))}}
+@media(max-height:650px) and (min-width:701px){.info-card,.is-gateway{top:88px;max-height:calc(100dvh - 260px)}}
+@media(max-height:650px) and (max-width:700px){
+  .site-header{height:111px;padding-top:13px}.route-heading{display:none}.info-card,.is-gateway{top:120px;max-height:26dvh}.info-card:has(.contact-banner){max-height:26dvh}
+  .journey-bar{bottom:70px}.enter-prompt{bottom:208px}.bottom-notes{bottom:9px}
+}
+.orientation-gate{position:fixed;inset:0;max-width:none;max-height:none;width:100vw;height:100dvh;margin:0;padding:24px;border:0;border-radius:0;background:radial-gradient(ellipse at 50% 25%,#38aeb8,#087c8b 75%);color:#fff8e9;z-index:500;overflow:auto}
+.orientation-gate[open]{display:grid;place-items:center}.orientation-gate::backdrop{background:#087c8b;backdrop-filter:none}
+.orientation-card{text-align:center;width:min(380px,100%)}.orientation-card .eyebrow{font-size:10px;letter-spacing:1.6px;opacity:.8}
+.orientation-card h1{font-size:clamp(27px,7vw,35px);letter-spacing:-1px;line-height:1.25;margin:14px 0}.orientation-card h1 span{color:#ffc55d}
+.orientation-card p{font-size:16px;line-height:1.65;max-width:300px;margin:0 auto 24px}.orientation-card .primary{min-height:50px;font-size:14px;padding:13px 22px}.orientation-card small{display:block;font-size:11px;opacity:.7;line-height:1.6;margin:18px auto 0;max-width:250px}
+.rotate-device{width:110px;height:100px;margin:0 auto 25px;position:relative}.rotate-device>span{position:absolute;top:10px;left:28px;width:48px;height:75px;border:3px solid #fff6df;border-radius:10px;transform:rotate(-70deg);box-shadow:0 0 0 7px #ffffff0d}.rotate-device>span:after{content:'';position:absolute;bottom:5px;left:19px;width:5px;height:5px;border-radius:50%;background:#ffc55d}.rotate-device>b{position:absolute;right:0;top:-10px;font-size:48px;color:#ffc55d;font-weight:400}
+@media(max-width:1024px){#fullscreen-toggle{min-width:40px;padding:4px}.utility-controls{gap:6px}}
+@media(orientation:landscape) and (max-height:500px){.bottom-notes{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}.site-header{padding-left:max(28px,env(safe-area-inset-left));padding-right:max(28px,env(safe-area-inset-right))}}

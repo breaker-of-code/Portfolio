@@ -6,7 +6,8 @@ const C = { sand: 0xf6c77f, shore: 0xffe1a1, rock: 0xa49a91, road: 0x505c67, aqu
 const clamp = THREE.MathUtils.clamp;
 const lerp = THREE.MathUtils.lerp;
 const seeded = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
-const pathZ = x => Math.sin(x * 0.155) * 0.95;
+const pathZ = x => Math.sin(x * 0.19) * 1.5;
+const pathSlope = x => Math.cos(x * 0.19) * 1.5 * 0.19;
 
 export class CoastalScene {
   constructor(canvas, { onStop, onMove, onReady, onError, reducedMotion = false } = {}) {
@@ -191,6 +192,7 @@ export class CoastalScene {
       p.setXYZ(i, px * n, py * n, pz * n);
     }
     geo.computeVertexNormals();
+    this.rockFootprints?.push({ x, z, radius: size * 0.85 });
     const m = this.mesh(geo, [0xa79a92, 0xb4a398, 0x9d9291][Math.floor(seeded(seed) * 3)]);
     this.contactShadow(this.world, [x, 0.47, z], size * 2, size * 1.55, 0.3);
     m.position.set(x, 0.42 + size * 0.39, z); m.scale.set(size * 0.8, size, size * 0.72); m.rotation.y = seeded(seed + 4) * 3; return m;
@@ -204,6 +206,18 @@ export class CoastalScene {
     }
   }
   palm(x, z, scale = 1, flip = false) {
+    // Reserve canopy clearance as well as trunk clearance against every rock.
+    const clear = (px, pz) => this.rockFootprints.every(r => Math.hypot(px - r.x, pz - r.z) > r.radius + 2.7 * scale) && this.palmFootprints.every(p => Math.hypot(px - p.x, pz - p.z) > 3.6) && this.positions.every(sx => Math.abs(px - sx) > 2.7 || Math.abs(pz - (pathZ(sx) - 3.6)) > 2.1);
+    if (!clear(x, z)) {
+      let position;
+      for (const offset of [3, -3, 6, -6, 9, -9, 12, -12, 15, -15]) {
+        const px = clamp(x + offset, -this.islandLength / 2 + 2, this.islandLength / 2 - 2);
+        if (clear(px, z)) { position = px; break; }
+      }
+      if (position === undefined) return;
+      x = position;
+    }
+    this.palmFootprints.push({ x, z });
     const g = new THREE.Group(); g.position.set(x, 0.4, z); g.scale.setScalar(scale); this.world.add(g);
     this.contactShadow(this.world, [x, 0.47, z], 2.3 * scale, 1.8 * scale, 0.2);
     const lean = flip ? -0.75 : 0.75, height = 3.9;
@@ -256,7 +270,7 @@ export class CoastalScene {
       this.box(g, [0.75, 0.15, 0.18], [0, 1.75, 0], 0x956538);
       for (const x of [-0.3, 0.3]) this.box(g, [0.14, 0.35, 0.18], [x, 1.58, 0], 0x956538);
     } else if (type === 'game') {
-      g.position.y = -0.25;
+      g.position.y = 0.35;
       this.box(g, [2.4, 1.05, 0.55], [0, 0.8, 0], 0xfff3d5, 0.3);
       for (const [x, y, col] of [[0.7, 0.92, 0xffb949], [0.95, 0.7, 0xea8b83], [0.45, 0.7, 0x71c8d2]]) this.cylinder(g, 0.14, 0.14, 0.1, [x, y, 0.34], col).rotation.x = Math.PI / 2;
       this.box(g, [0.65, 0.18, 0.1], [-0.6, 0.8, 0.34], 0x415359); this.box(g, [0.18, 0.65, 0.1], [-0.6, 0.8, 0.34], 0x415359);
@@ -338,7 +352,7 @@ export class CoastalScene {
     light.material = this.material(C.orange, { emissive: C.orange, emissiveIntensity: 0.3 });
     const iconRoot = new THREE.Group(); iconRoot.position.set(0, 0.88, platformZ); group.add(iconRoot);
     this.makeIcon(item.icon || item.visual || 'building', iconRoot);
-    this.text(group, `${this.route === 'hub' ? '' : `${String(index + 1).padStart(2, '0')} / `}${item.name}`, [0, 0.46, z + 1.95], this.route === 'hub' ? 3.1 : 4.9, 0.9, { fontSize: this.route === 'hub' ? 100 : 74 });
+    this.text(group, `${this.route === 'hub' ? '' : `${String(index + 1).padStart(2, '0')} / `}${item.name.toUpperCase()}`, [0, 0.5, z + 2.05], this.route === 'hub' ? 3.85 : 5.2, 1.12, { fontSize: this.route === 'hub' ? 108 : 76 });
     const marker = this.mesh(new THREE.ConeGeometry(0.25, 0.42, 3), C.aqua, group, { emissive: C.aqua, emissiveIntensity: 0.6 });
     marker.rotation.z = Math.PI; marker.position.set(0, 4.65, platformZ); marker.visible = index === this.index;
     const iconHeight = new THREE.Box3().setFromObject(iconRoot).getSize(new THREE.Vector3()).y;
@@ -351,12 +365,18 @@ export class CoastalScene {
   }
   setRoute(route, items, selected = 0, immediate = false) {
     if (this.route === route && this.routeItems === items && this.stations?.length) { this.go(selected, immediate); return; }
-    this.clearWorld(); this.route = route; this.routeItems = items; this.index = selected; this.stations = [];
+    this.clearWorld(); this.rockFootprints = []; this.palmFootprints = []; this.route = route; this.routeItems = items; this.index = selected; this.stations = [];
     this.spacing = route === 'hub' ? 8 : 9.5;
     this.positions = items.map((_, i) => (i - (items.length - 1) / 2) * this.spacing);
     const length = Math.max(45, (items.length - 1) * this.spacing + 13);
+    this.islandLength = length;
     this.createIsland(length); this.road(-length / 2 + 1, length / 2 - 1);
     items.forEach((item, i) => this.station(this.positions[i], i, item));
+    // Place rock clusters before foliage so trees can find a clear footprint.
+    this.positions.forEach((x, i) => {
+      if (i % 3 === 0) { this.rock(x - 1.5, -6.2, 3.2 + seeded(i + 2) * 0.6, i); this.rock(x + 0.8, -5.9, 2.2, i + 37); }
+    });
+    this.rock(-length / 2 + 4.4, -4.8, 2.6, 55);
     for (let i = 0; i < Math.ceil(length / 5); i++) {
       const x = -length / 2 + 2 + i * 5;
       this.fence(x, 4.4, 4.5);
@@ -367,16 +387,15 @@ export class CoastalScene {
       this.grass(x + 1, 3.5, i + 23);
       if (i % 2 === 1) { this.rock(x + 1.7, 5.6, 0.55, i + 211); this.starFish(x - 0.8, 5.4); }
     }
-    this.positions.forEach((x, i) => {
-      if (i % 3 === 0) { this.rock(x - 1.5, -6.2, 3.2 + seeded(i + 2) * 0.6, i); this.rock(x + 0.8, -5.9, 2.2, i + 37); }
-    });
     this.palm(-length / 2 + 2, -3.5, 1.1);
-    this.rock(-length / 2 + 4.4, -4.8, 2.6, 55);
     this.createPier(length / 2 - 3);
     this.carX = this.positions[selected]; this.destinationX = this.carX; this.moving = false;
-    this.go(selected, true); this.resize();
-    this.focusX = route === 'hub' && !this.mobile ? 0 : this.carX;
-    this.visualZoom = route === 'hub' && !this.mobile ? this.baseHalfHeight : this.mobile ? 10.7 : Math.min(this.baseHalfHeight, 9.7);
+    this.go(selected, true);
+    this.world.updateMatrixWorld(true);
+    this.overviewBounds = new THREE.Box3().setFromObject(this.world).expandByScalar(0.65);
+    this.resize();
+    this.focusX = route === 'hub' ? 0 : this.carX;
+    this.visualZoom = this.viewHalfHeight();
   }
   createPier(x) {
     const g = new THREE.Group(); g.position.set(x, 0.2, 4.4); this.world.add(g);
@@ -436,6 +455,7 @@ export class CoastalScene {
   }
   go(index, immediate = false) {
     this.index = index; this.destinationX = this.positions?.[index] ?? 0;
+    if (this.drive && this.destinationX === this.drive.to) return;
     if (immediate || this.reducedMotion) {
       this.carX = this.destinationX; this.drive = null; this.moving = false; this.onMove?.(false);
     } else {
@@ -450,10 +470,44 @@ export class CoastalScene {
     });
   }
   resize() {
-    const w = window.innerWidth, h = window.innerHeight; this.mobile = w < 700; this.aspect = w / h;
+    const w = window.innerWidth, h = window.innerHeight; this.mobile = w <= 700; this.aspect = w / h;
     this.renderer.setSize(w, h); this.baseHalfHeight = this.mobile ? 13.2 : clamp(24 / this.aspect, 10.5, 19);
-    if (this.mobile) this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.mobile ? 1.5 : 1.7));
+    this.fitOverview();
     this.camera.updateProjectionMatrix();
+  }
+  fitOverview() {
+    if (!this.overviewBounds) return;
+    // Project the complete island into camera space, then fit it between the UI.
+    const direction = new THREE.Vector3(-4.5, 24, 35).normalize();
+    const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), direction).normalize();
+    const up = new THREE.Vector3().crossVectors(direction, right).normalize();
+    const min = this.overviewBounds.min, max = this.overviewBounds.max;
+    let left = Infinity, rightEdge = -Infinity, bottom = Infinity, top = -Infinity;
+    for (const x of [min.x, max.x]) for (const y of [min.y, max.y]) for (const z of [min.z, max.z]) {
+      const point = new THREE.Vector3(x, y, z), px = point.dot(right), py = point.dot(up);
+      left = Math.min(left, px); rightEdge = Math.max(rightEdge, px); bottom = Math.min(bottom, py); top = Math.max(top, py);
+    }
+    const h = innerHeight, w = innerWidth;
+    const cardWidth = w >= 1700 ? 410 : w > 1100 ? 380 : 345;
+    const safeLeft = this.mobile ? 18 : 32;
+    const safeRight = this.mobile ? w - 18 : w - cardWidth - 64;
+    const safeTop = this.mobile ? h * (h <= 650 ? 0.50 : 0.57) : Math.min(180, h * 0.23);
+    const safeBottom = h - (this.mobile ? 225 : h <= 500 ? 155 : 220);
+    const usableHeight = Math.max(40, safeBottom - safeTop);
+    const usableWidth = Math.max(w * 0.35, safeRight - safeLeft);
+    this.overviewHalfHeight = Math.max((rightEdge - left) * h / (2 * usableWidth), (top - bottom) * h / (2 * usableHeight));
+    const centerY = 1 - (safeTop + safeBottom) / h;
+    const centerX = (safeLeft + safeRight) / w - 1;
+    this.overviewLook = up.multiplyScalar((top + bottom) / 2 - centerY * this.overviewHalfHeight)
+      .add(right.multiplyScalar((left + rightEdge) / 2 - centerX * this.overviewHalfHeight * this.aspect));
+  }
+  viewHalfHeight() { return this.route === 'hub' ? (this.overviewHalfHeight || this.baseHalfHeight) : this.mobile ? 12 : Math.min(this.baseHalfHeight, 11.5); }
+  setPaused(paused) {
+    if (Boolean(this.paused) === paused) return;
+    if (paused) this.pauseStarted = performance.now();
+    else if (this.drive) this.drive.started += performance.now() - this.pauseStarted;
+    this.paused = paused;
   }
   getAnchor() {
     const a = this.stations?.[this.index]?.anchor; if (!a) return { x: innerWidth / 2, y: innerHeight / 2 };
@@ -462,6 +516,7 @@ export class CoastalScene {
   animate(now) {
     if (this.disposed) return;
     const dt = Math.min((now - this.lastTime) / 1000, 0.05); this.lastTime = now; const t = now / 1000;
+    if (this.paused) return;
     const previousX = this.carX;
     if (this.drive) {
       const p = (now - this.drive.started) / this.drive.duration;
@@ -474,16 +529,17 @@ export class CoastalScene {
     const padLift = 0.14 * Math.max(0, 1 - Math.abs(this.destinationX - this.carX) / 1.7);
     this.car.position.set(this.carX, 0.63 + padLift + (moving && !this.reducedMotion ? Math.sin(t * 24) * 0.013 : 0), pathZ(this.carX));
     this.carShadow.position.set(this.carX, 0.608, pathZ(this.carX));
-    this.car.rotation.y = -Math.atan(Math.cos(this.carX * 0.155) * 0.95 * 0.155);
+    this.car.rotation.y = -Math.atan(pathSlope(this.carX));
+    this.carShadow.rotation.z = this.car.rotation.y;
     this.wheels.forEach(w => { w.rotation.z -= delta / 0.32; });
-    const focus = this.route === 'hub' && !this.mobile ? 0 : this.carX;
+    const focus = this.route === 'hub' ? 0 : this.carX;
     this.focusX = lerp(this.focusX, focus, 1 - Math.exp(-dt * 3));
-    const halfH = this.route === 'hub' && !this.mobile ? this.baseHalfHeight : this.mobile ? 10.7 : Math.min(this.baseHalfHeight, 9.7);
+    const halfH = this.viewHalfHeight();
     this.visualZoom = lerp(this.visualZoom, halfH, 1 - Math.exp(-dt * 3));
     this.camera.left = -this.visualZoom * this.aspect; this.camera.right = this.visualZoom * this.aspect;
     this.camera.top = this.visualZoom; this.camera.bottom = -this.visualZoom; this.camera.updateProjectionMatrix();
     // Offset the look target toward sea: the car stays below the compact card.
-    const look = new THREE.Vector3(this.focusX + (this.mobile ? 0 : this.route === 'hub' ? 0 : 0.6), 0, this.mobile ? -8.3 : -3.8);
+    const look = this.route === 'hub' && this.overviewLook ? this.overviewLook.clone() : new THREE.Vector3(this.focusX + (this.mobile ? 0 : 0.6), 0, this.mobile ? -8.3 : -3.8);
     this.camera.position.copy(look).add(new THREE.Vector3(-4.5, 24, 35)); this.camera.lookAt(look);
     this.sun.position.set(this.focusX - 12, 27, 11); this.sun.target.position.set(this.focusX, 0, 0); this.sun.target.updateMatrixWorld();
     this.stations?.forEach((s, i) => {

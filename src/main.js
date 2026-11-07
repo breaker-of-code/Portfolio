@@ -1,6 +1,7 @@
 import './style.css';
 import { CoastalScene } from './scene.js';
 import { createNavigation, HUB_STOPS } from './navigation.js';
+import { createDriveController } from './drive-controller.js';
 import { profile, projects, companies, skillGroups, hub } from './content.js';
 
 const icons = {
@@ -18,12 +19,15 @@ const icons = {
   home: '<path d="m3 10 9-7 9 7v11H3V10Z"/><path d="M9 21v-8h6v8"/>',
   person: '<circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/>',
   sound: '<path d="m11 4-5 5H2v6h4l5 5V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
+  fullscreen: '<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
   mute: '<path d="m11 4-5 5H2v6h4l5 5V4Zm5 5 6 6m0-6-6 6"/>',
 };
 const svg = (name, cls = '') => `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.arrow}</svg>`;
 const escape = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const demo = '<span class="sample-label"><i></i>Illustrative content</span>';
 const nav = createNavigation({ hub: hub.length, projects: projects.length, career: companies.length });
+const driver = createDriveController({ getIndex: () => nav.state.index, getLength: () => ({ hub: hub.length, projects: projects.length, career: companies.length })[nav.state.route], go: index => nav.go(index) });
+let sceneRoute;
 const companySceneItems = companies.map(c => ({ ...c, icon: 'building' }));
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 let world, activeTab = 'overview', skillTab = 0, hiddenCard = false, moving = false, soundOn = false, audioContext;
@@ -34,8 +38,8 @@ document.querySelector('#app').innerHTML = `
   <div class="ocean-vignette" aria-hidden="true"></div>
   <div id="loading" class="loading-screen"><div class="loading-card"><span class="eyebrow">A SMALL WORLD. A BIG HELLO.</span><div class="loading-car" aria-hidden="true">▰</div><h1>Preparing your journey<span>.</span></h1><p>A little coast, a little code, a little curiosity.</p><div class="loading-track"><span></span></div><small>Loading the island</small></div></div>
   <header class="site-header">
-    <button class="brand" data-action="home" aria-label="Return to the main island"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>UNITY DEVELOPER<small>9 YEARS OF EXPERIENCE</small></span></button>
-    <nav class="header-nav" aria-label="Quick navigation"><button data-route="projects">Projects</button><button data-route="career">Career</button><button data-action="resume">Résumé ${svg('external')}</button><button class="contact-link" data-stop="4">Say hello ${svg('arrow')}</button></nav>
+    <button class="brand" data-action="home" aria-label="Return to the main island"><img class="unity-logo" src="/media/unity-logo.png" alt="Unity"/><span>UNITY DEVELOPER<small><strong>9 YEARS</strong> OF EXPERIENCE</small></span></button>
+    <nav class="header-nav" aria-label="Quick navigation"><button data-route="projects">Projects</button><button data-route="career">Career</button><button data-action="resume">Resume ${svg('external')}</button><button class="contact-link" data-stop="4">Say hello ${svg('arrow')}</button></nav>
   </header>
   <main id="experience" aria-label="Interactive portfolio">
     <div class="route-heading"><button class="back-link" data-action="home" id="back-home" hidden>${svg('back')} Back to the island</button><span class="eyebrow" id="route-eyebrow">WELCOME TO MY LITTLE CORNER</span><h1 id="route-title">Take the scenic route<span>.</span></h1><p id="route-subtitle">Nine years of Unity. A world of things to explore.</p></div>
@@ -50,10 +54,11 @@ document.querySelector('#app').innerHTML = `
     <nav id="stops" class="stops" aria-label="Choose a destination"></nav>
     <div class="drive-controls"><button id="previous" class="drive-button" data-action="previous" aria-label="Previous stop">${svg('back')}<span>Previous</span></button><button id="next" class="drive-button" data-action="next" aria-label="Next stop"><span>Next stop</span>${svg('arrow')}</button></div>
   </footer>
-  <div class="bottom-notes"><span class="control-hint"><kbd>↑</kbd><kbd>↓</kbd> to drive <span class="divider">·</span> <kbd>Enter</kbd> to explore</span><span class="mobile-hint">Tap a stop. Take your time.</span><div class="utility-controls"><button data-action="simple">Simple view</button><span>·</span><button id="sound-toggle" data-action="sound" aria-label="Enable sound" aria-pressed="false">${svg('mute')}</button><button data-action="help" class="help-button" aria-label="Show controls">?</button></div></div>
+  <div class="bottom-notes"><span class="control-hint"><kbd>↑</kbd><kbd>↓</kbd> to drive <span class="divider">·</span> <kbd>Enter</kbd> to explore</span><span class="mobile-hint">Tap a stop. Take your time.</span><div class="utility-controls"><button data-action="simple">Simple view</button><span>·</span><button id="fullscreen-toggle" data-action="landscape" aria-label="Open fullscreen landscape view" hidden>${svg('fullscreen')}</button><button id="sound-toggle" data-action="sound" aria-label="Enable sound" aria-pressed="false">${svg('mute')}</button><button data-action="help" class="help-button" aria-label="Show controls">?</button></div></div>
   <div id="toast" class="toast" role="status"></div>
+  <dialog id="orientation-gate" closedby="none" class="orientation-gate" aria-labelledby="orientation-title" aria-describedby="orientation-note"><div class="orientation-card"><div class="rotate-device" aria-hidden="true"><span></span><b>↻</b></div><span class="eyebrow">A LITTLE MORE ROOM TO EXPLORE</span><h1 id="orientation-title">Let’s go landscape<span>.</span></h1><p id="orientation-note">Turn your device sideways to drive along the coast.</p><button class="primary" data-action="landscape">${svg('fullscreen')} Open landscape view</button><small>The journey starts when your screen is horizontal.</small></div></dialog>
   <dialog id="gallery" class="gallery-dialog" aria-label="Project image viewer"><button class="gallery-close icon-button" data-action="close-gallery" aria-label="Close image viewer">${svg('close')}</button><div class="gallery-top"><span id="gallery-title">Project screenshots</span><small>Illustrative project artwork</small></div><div class="gallery-image-wrap"><button data-action="gallery-previous" class="gallery-arrow" aria-label="Previous image">${svg('back')}</button><img id="gallery-image" alt=""/><button data-action="gallery-next" class="gallery-arrow" aria-label="Next image">${svg('arrow')}</button></div><div id="gallery-thumbs" class="gallery-thumbs"></div><span id="gallery-count"></span></dialog>
-  <dialog id="help" class="help-dialog"><button class="dialog-close icon-button" data-action="close-help" aria-label="Close controls">${svg('close')}</button><span class="eyebrow">A LITTLE FIELD GUIDE</span><h2>Enjoy the drive.</h2><p>Explore the main island, then enter Career or Projects for a longer journey.</p><ul><li><span><kbd>↑</kbd> / <kbd>→</kbd></span> Next stop</li><li><span><kbd>↓</kbd> / <kbd>←</kbd></span> Previous stop</li><li><span><kbd>Enter</kbd></span> Open a section or card</li><li><span><kbd>Esc</kbd></span> Close a viewer / return home</li><li><span>Tap / click</span> Jump to a destination</li></ul><p class="help-note">On touch screens, use the Previous and Next buttons. Sound starts off. Your system’s reduced-motion setting is respected.</p><button class="primary" data-action="close-help">Got it ${svg('arrow')}</button></dialog>
+  <dialog id="help" class="help-dialog"><button class="dialog-close icon-button" data-action="close-help" aria-label="Close controls">${svg('close')}</button><span class="eyebrow">A LITTLE FIELD GUIDE</span><h2>Enjoy the drive.</h2><p>Explore the main island, then enter Career or Projects for a longer journey.</p><ul><li><span><kbd>↑</kbd> / <kbd>→</kbd></span> Next stop</li><li><span><kbd>↓</kbd> / <kbd>←</kbd></span> Previous stop</li><li><span><kbd>Enter</kbd></span> Open a section or card</li><li><span><kbd>Esc</kbd></span> Close a viewer / return home</li><li><span>Tap / click</span> Jump to a destination</li></ul><p class="help-note">One press drives to a stop. You can reverse once during a trip; controls unlock 0.5 seconds after arrival. On touch screens, use the Previous and Next buttons. Sound starts off. Your system’s reduced-motion setting is respected.</p><button class="primary" data-action="close-help">Got it ${svg('arrow')}</button></dialog>
   <dialog id="simple-view" class="simple-dialog" aria-label="Simple portfolio view"><button class="dialog-close icon-button" data-action="close-simple" aria-label="Close simple view">${svg('close')}</button><div id="simple-content"></div></dialog>
 `;
 
@@ -69,7 +74,7 @@ function thumbnails(images, title, indices = null) {
   return `<div class="thumbnail-strip">${images.map((src, i) => `<button class="thumbnail" data-image="${i}" ${indices ? `data-project="${indices[i]}"` : ''} aria-label="${indices ? 'View related project' : 'Enlarge image'}: ${escape(title)} ${i + 1}"><img src="${escape(src)}" alt="Illustrative ${escape(title)} preview ${i + 1}" loading="lazy" decoding="async"/><span>${svg(indices ? 'arrow' : 'expand')}</span></button>`).join('')}</div>`;
 }
 function renderIntro() {
-  return `<div class="card-person"><span class="avatar">${profile.portrait ? `<img src="${escape(profile.portrait)}" alt="${escape(profile.name)}"/>` : svg('person')}</span><div><span class="eyebrow">HELLO, WORLD</span><h2>Hi, I’m ${escape(profile.name)}<span>.</span></h2></div></div><p class="card-subtitle">${escape(profile.title)} · ${profile.years} years of experience</p>${thumbnails(['/media/puzzle.jpg', '/media/space.jpg'], 'selected work')}<p class="card-description">${escape(profile.bio)}</p><div class="card-actions">${externalLink(profile.resume, 'Résumé', 'download')}<button class="primary" data-action="explore">Let’s explore ${svg('arrow')}</button></div>${demo}`;
+  return `<div class="card-person"><span class="avatar">${profile.portrait ? `<img src="${escape(profile.portrait)}" alt="${escape(profile.name)}"/>` : svg('person')}</span><div><span class="eyebrow">HELLO, WORLD</span><h2>Hi, I’m ${escape(profile.name)}<span>.</span></h2></div></div><p class="card-subtitle">${escape(profile.title)} · ${profile.years} years of experience</p>${thumbnails(['/media/puzzle.jpg', '/media/space.jpg'], 'selected work')}<p class="card-description">${escape(profile.bio)}</p><div class="card-actions">${externalLink(profile.resume, 'Resume', 'download')}<button class="primary" data-action="explore">Let’s explore ${svg('arrow')}</button></div>${demo}`;
 }
 function renderGateway(id) {
   const isProjects = id === 'projects';
@@ -94,7 +99,7 @@ function renderSkills() {
   return `<span class="eyebrow">TOOLS OF THE TRADE</span><h2>A curious toolkit<span>.</span></h2><div class="card-tabs" role="tablist" aria-label="Skill categories">${skillGroups.map((s, i) => `<button role="tab" aria-selected="${i === skillTab}" data-skill="${i}">${s.name}</button>`).join('')}</div>${thumbnails(s.images.map(i => `/media/${i}.jpg`), s.title)}<h3>${escape(s.title)}</h3><p class="card-description">${escape(s.summary)}</p><button class="primary full-width" data-route="projects">See it in the work ${svg('arrow')}</button>${demo}`;
 }
 function renderContact() {
-  return `<div class="contact-banner"><img src="/media/puzzle.jpg" alt="Illustrative little island" loading="lazy"/><span>${svg('mail')}</span></div><span class="eyebrow">THE NEXT CHAPTER</span><h2>Let’s build something<span>.</span></h2><p class="card-description">A team to join. An idea to explore.<br/>A game worth making together.</p><span class="availability"><i></i>Roles & freelance conversations</span><div class="card-actions">${externalLink(profile.email ? `mailto:${profile.email}` : '', 'Email me', 'mail', 'primary')}${externalLink(profile.linkedin, 'LinkedIn')}</div><div class="contact-minor"><button data-action="copy-email">${svg('copy')} Copy email</button><button data-action="resume">${svg('download')} Résumé</button></div>${demo}`;
+  return `<div class="contact-banner"><img src="/media/puzzle.jpg" alt="Illustrative little island" loading="lazy"/><span>${svg('mail')}</span></div><span class="eyebrow">THE NEXT CHAPTER</span><h2>Let’s build something<span>.</span></h2><p class="card-description">A team to join. An idea to explore.<br/>A game worth making together.</p><span class="availability"><i></i>Roles & freelance conversations</span><div class="card-actions">${externalLink(profile.email ? `mailto:${profile.email}` : '', 'Email me', 'mail', 'primary')}${externalLink(profile.linkedin, 'LinkedIn')}</div><div class="contact-minor"><button data-action="copy-email">${svg('copy')} Copy email</button><button data-action="resume">${svg('download')} Resume</button></div>${demo}`;
 }
 function renderCard() {
   const { route, index } = nav.state;
@@ -127,6 +132,7 @@ function renderNavigation() {
 }
 function setState(state) {
   const items = state.route === 'hub' ? hub : state.route === 'projects' ? projects : companySceneItems;
+  if (sceneRoute !== state.route) { driver.reset(); sceneRoute = state.route; }
   activeTab = 'overview'; hiddenCard = false;
   world?.setRoute(state.route, items, state.index);
   renderCard(); renderNavigation();
@@ -150,16 +156,39 @@ function chime() {
 }
 function relatedProject(index) { returnLocation = { ...nav.state }; nav.open('projects'); nav.go(index); }
 function renderSimple() {
-  $('#simple-content').innerHTML = `<span class="eyebrow">THE SCENIC ROUTE / SIMPLE VIEW</span><h1>${escape(profile.name)}<span>.</span></h1><p class="simple-lead">${escape(profile.title)} · ${profile.years} years of experience</p><p>${escape(profile.bio)}</p><p class="simple-notice">This is a working portfolio template. Project artwork, company records, and unfilled personal details are illustrative placeholders.</p><h2>Selected projects</h2><div class="simple-projects">${projects.map((p, i) => `<button class="simple-project" data-simple-project="${i}"><img src="${p.images[0]}" alt="Illustrative ${escape(p.name)}" loading="lazy"/><span><strong>${escape(p.name)}</strong><small>${escape(p.category)} · Sample project</small></span>${svg('arrow')}</button>`).join('')}</div><h2>Career</h2><div class="simple-career">${companies.map(c => `<article><h3>${escape(c.name)}</h3><small>${escape(c.role)} · ${escape(c.dates)}</small><p>${escape(c.description)}</p></article>`).join('')}</div><h2>Say hello</h2><div class="card-actions">${externalLink(profile.email ? `mailto:${profile.email}` : '', 'Email me', 'mail', 'primary')}${externalLink(profile.linkedin, 'LinkedIn')}${externalLink(profile.resume, 'Résumé', 'download')}</div>`;
+  $('#simple-content').innerHTML = `<span class="eyebrow">THE SCENIC ROUTE / SIMPLE VIEW</span><h1>${escape(profile.name)}<span>.</span></h1><p class="simple-lead">${escape(profile.title)} · ${profile.years} years of experience</p><p>${escape(profile.bio)}</p><p class="simple-notice">This is a working portfolio template. Project artwork, company records, and unfilled personal details are illustrative placeholders.</p><h2>Selected projects</h2><div class="simple-projects">${projects.map((p, i) => `<button class="simple-project" data-simple-project="${i}"><img src="${p.images[0]}" alt="Illustrative ${escape(p.name)}" loading="lazy"/><span><strong>${escape(p.name)}</strong><small>${escape(p.category)} · Sample project</small></span>${svg('arrow')}</button>`).join('')}</div><h2>Career</h2><div class="simple-career">${companies.map(c => `<article><h3>${escape(c.name)}</h3><small>${escape(c.role)} · ${escape(c.dates)}</small><p>${escape(c.description)}</p></article>`).join('')}</div><h2>Say hello</h2><div class="card-actions">${externalLink(profile.email ? `mailto:${profile.email}` : '', 'Email me', 'mail', 'primary')}${externalLink(profile.linkedin, 'LinkedIn')}${externalLink(profile.resume, 'Resume', 'download')}</div>`;
 }
+function updateOrientation() {
+  const mobileDevice = Math.min(innerWidth, innerHeight) <= 700 || (matchMedia('(pointer: coarse)').matches && Math.min(innerWidth, innerHeight) <= 1024);
+  const portrait = mobileDevice && innerHeight > innerWidth;
+  const gate = $('#orientation-gate');
+  if (portrait && !gate.open) gate.showModal();
+  else if (!portrait && gate.open) gate.close();
+  world?.setPaused(portrait);
+  $('#fullscreen-toggle').hidden = !mobileDevice;
+  $('#orientation-gate [data-action=landscape]').hidden = !document.documentElement.requestFullscreen && !screen.orientation?.lock;
+}
+async function openLandscape() {
+  try {
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+    if (screen.orientation?.lock) await screen.orientation.lock('landscape');
+  } catch { /* Manual device rotation remains available when the browser declines. */ }
+  $('#orientation-note').textContent = 'Turn your device sideways to continue. If it stays upright, enable auto-rotate on your device.';
+  updateOrientation();
+}
+$('#orientation-gate').addEventListener('cancel', event => event.preventDefault());
+$('#orientation-gate').addEventListener('close', () => queueMicrotask(updateOrientation));
+window.addEventListener('resize', updateOrientation);
+document.addEventListener('fullscreenchange', updateOrientation);
 const actions = {
-  previous: () => nav.move(-1), next: () => nav.move(1),
-  enter: () => { if (nav.state.route === 'hub' && [1, 2].includes(nav.state.index)) nav.enter(); else { hiddenCard = false; renderCard(); } },
+  landscape: openLandscape,
+  previous: () => driver.step(-1), next: () => driver.step(1),
+  enter: () => { if (driver.busy) return; if (nav.state.route === 'hub' && [1, 2].includes(nav.state.index)) nav.enter(); else { hiddenCard = false; renderCard(); } },
   home: () => { returnLocation = null; nav.home(); },
-  explore: () => nav.go(1),
+  explore: () => driver.to(1),
   'hide-card': () => { hiddenCard = true; renderCard(); },
   'show-card': () => { hiddenCard = false; renderCard(); },
-  resume: () => profile.resume ? window.open(profile.resume, '_blank', 'noopener,noreferrer') : unavailable('Résumé'),
+  resume: () => profile.resume ? window.open(profile.resume, '_blank', 'noopener,noreferrer') : unavailable('Resume'),
   'copy-email': async () => { if (!profile.email) return unavailable('Email address'); try { await navigator.clipboard.writeText(profile.email); toast('Email copied. Say hello!'); } catch { toast(`Email: ${profile.email}`); } },
   'return-company': () => { if (!returnLocation) return; const target = returnLocation; returnLocation = null; nav.open('career'); nav.go(target.index); },
   'close-gallery': () => $('#gallery').close(),
@@ -173,8 +202,8 @@ document.addEventListener('click', event => {
   const el = event.target.closest('button, a'); if (!el) return;
   if (el.dataset.action) actions[el.dataset.action]?.();
   if (el.dataset.route) { returnLocation = null; nav.open(el.dataset.route); }
-  if (el.dataset.stop !== undefined) { if (nav.state.route !== 'hub') nav.home(); nav.go(Number(el.dataset.stop)); }
-  if (el.dataset.node !== undefined) nav.go(Number(el.dataset.node));
+  if (el.dataset.stop !== undefined) { if (nav.state.route !== 'hub') nav.home(); driver.to(Number(el.dataset.stop)); }
+  if (el.dataset.node !== undefined) driver.to(Number(el.dataset.node));
   if (el.dataset.tab) { activeTab = el.dataset.tab; renderCard(); }
   if (el.dataset.skill !== undefined) { skillTab = Number(el.dataset.skill); renderCard(); }
   if (el.dataset.related !== undefined || el.dataset.project !== undefined) relatedProject(Number(el.dataset.related ?? el.dataset.project));
@@ -193,6 +222,7 @@ document.addEventListener('keydown', event => {
   if (event.target.matches('input, textarea, select') || event.ctrlKey || event.metaKey || event.altKey) return;
   const dialog = document.querySelector('dialog[open]');
   if (dialog) {
+    if (dialog.id === 'orientation-gate' && event.key === 'Escape') { event.preventDefault(); return; }
     if (dialog.id === 'gallery' && ['ArrowRight', 'ArrowLeft'].includes(event.key)) { event.preventDefault(); actions[event.key === 'ArrowRight' ? 'gallery-next' : 'gallery-previous'](); }
     return;
   }
@@ -205,15 +235,15 @@ document.addEventListener('keydown', event => {
 });
 document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } }));
 let wheelAt = 0;
-$('#world').addEventListener('wheel', event => { if (Math.abs(event.deltaY) < 12 || performance.now() - wheelAt < 650 || document.querySelector('dialog[open]')) return; event.preventDefault(); wheelAt = performance.now(); nav.move(event.deltaY > 0 ? 1 : -1); }, { passive: false });
+$('#world').addEventListener('wheel', event => { if (Math.abs(event.deltaY) < 12 || performance.now() - wheelAt < 650 || document.querySelector('dialog[open]')) return; event.preventDefault(); wheelAt = performance.now(); driver.step(event.deltaY > 0 ? 1 : -1); }, { passive: false });
 let touchStart;
 $('#world').addEventListener('touchstart', e => { touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
-$('#world').addEventListener('touchend', e => { if (!touchStart) return; const dx = e.changedTouches[0].clientX - touchStart.x, dy = e.changedTouches[0].clientY - touchStart.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 50) nav.move((Math.abs(dx) > Math.abs(dy) ? dx : -dy) < 0 ? 1 : -1); touchStart = null; }, { passive: true });
+$('#world').addEventListener('touchend', e => { if (!touchStart) return; const dx = e.changedTouches[0].clientX - touchStart.x, dy = e.changedTouches[0].clientY - touchStart.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 50) driver.step((Math.abs(dx) > Math.abs(dy) ? dx : -dy) < 0 ? 1 : -1); touchStart = null; }, { passive: true });
 
 function tether() {
   if (!world) return;
   const anchor = world.getAnchor();
-  if (innerWidth > 1000) {
+  if (innerWidth > 1000 && nav.state.route !== 'hub') {
     const width = card.offsetWidth, height = card.offsetHeight;
     let left = anchor.x + 85;
     if (left + width > innerWidth - 40) left = anchor.x - width - 65;
@@ -233,12 +263,12 @@ function tether() {
 try {
   world = new CoastalScene($('#world'), {
     reducedMotion: reducedMotionQuery.matches,
-    onStop: index => nav.go(index),
-    onMove: value => { moving = value; card.classList.toggle('driving', value); },
+    onStop: index => driver.to(index),
+    onMove: value => { moving = value; if (!value) driver.arrive(); card.classList.toggle('driving', value); $('#enter-prompt').classList.toggle('is-travelling', value); },
     onReady: () => setTimeout(() => { $('#loading').classList.add('loaded'); document.body.classList.add('ready'); }, reducedMotionQuery.matches ? 50 : 850),
     onError: () => { $('#loading').hidden = true; document.body.classList.add('no-webgl'); renderSimple(); $('#simple-view').showModal(); },
   });
-  setState(nav.state); tether();
+  setState(nav.state); updateOrientation(); tether();
   reducedMotionQuery.addEventListener('change', event => { world.reducedMotion = event.matches; });
 } catch (error) {
   console.error('The 3D view could not start:', error);
