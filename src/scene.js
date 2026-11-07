@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { drivingProgress } from './motion.js';
+import { CoastalOcean } from './ocean.js';
 
 const C = { sand: 0xf6c77f, shore: 0xffe1a1, rock: 0xa49a91, road: 0x505c67, aqua: 0x33f5ed, orange: 0xf77b08, dark: 0x183b44, green: 0x91af35, cream: 0xfff4d9 };
 const clamp = THREE.MathUtils.clamp;
@@ -15,8 +16,8 @@ export class CoastalScene {
     this.onStop = onStop; this.onMove = onMove; this.reducedMotion = reducedMotion;
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x069caa);
-    this.scene.fog = new THREE.Fog(0x069caa, 100, 240);
-    this.camera = new THREE.OrthographicCamera(-30, 30, 20, -20, 0.1, 200);
+    this.scene.fog = new THREE.Fog(0x069caa, 250, 600);
+    this.camera = new THREE.OrthographicCamera(-30, 30, 20, -20, 0.1, 800);
     this.camera.position.set(18, 30, 39);
     this.target = new THREE.Vector3(); this.cameraCenter = new THREE.Vector3();
     this.materials = new Map(); this.disposed = false; this.route = 'hub'; this.index = 0;
@@ -41,7 +42,7 @@ export class CoastalScene {
     sunlight.shadow.radius = 3;
     this.sun = sunlight; this.scene.add(sunlight, sunlight.target);
     this.world = new THREE.Group(); this.scene.add(this.world);
-    this.createWater(); this.createCar(); this.createBirds();
+    this.ocean = new CoastalOcean(this); this.oceanTime = 0; this.createCar(); this.createBirds();
     this.raycaster = new THREE.Raycaster(); this.pointer = new THREE.Vector2();
     this.pointerDown = e => { this.pointerStart = { x: e.clientX, y: e.clientY }; };
     this.pointerUp = e => {
@@ -157,22 +158,6 @@ export class CoastalScene {
     // A translucent pale shallow-water shelf, with the same faceted shoreline.
     const shelf = this.mesh(new THREE.ShapeGeometry(shape), 0x70f0d1, this.world, { transparent: true, opacity: 0.35, depthWrite: false });
     shelf.rotation.x = -Math.PI / 2; shelf.scale.set(1.08, 1.16, 1); shelf.position.y = -0.78; shelf.castShadow = false;
-  }
-  createWater() {
-    const geo = new THREE.PlaneGeometry(450, 260, 110, 80).toNonIndexed(); geo.rotateX(-Math.PI / 2);
-    const colors = [], positions = geo.getAttribute('position');
-    const deep = new THREE.Color(0x0095a7), shallow = new THREE.Color(0x1bb2b8);
-    for (let i = 0; i < positions.count; i++) { const col = deep.clone().lerp(shallow, 0.08 + seeded(Math.floor(i / 3)) * 0.12); colors.push(col.r, col.g, col.b); }
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    this.water = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, fog: false }));
-    this.water.position.y = -1.05; this.water.receiveShadow = true; this.scene.add(this.water);
-    this.wavelets = new THREE.Group(); this.scene.add(this.wavelets);
-    const waveGeo = new THREE.PlaneGeometry(0.65, 0.035); waveGeo.rotateX(-Math.PI / 2);
-    const waveMaterial = new THREE.MeshBasicMaterial({ color: 0xd8fff3, transparent: true, opacity: 0.3, depthWrite: false });
-    for (let i = 0; i < 125; i++) {
-      const wave = new THREE.Mesh(waveGeo, waveMaterial); const x = (seeded(i + 1) - 0.5) * 150, z = (seeded(i + 190) - 0.5) * 85;
-      wave.position.set(x, -0.97, z); wave.scale.x = 0.8 + seeded(i + 33) * 3; wave.userData.baseX = x; this.wavelets.add(wave);
-    }
   }
   coastalPath(x) {
     const edgeStart = this.islandLength / 2 - 5.2, side = Math.sign(x);
@@ -443,6 +428,7 @@ export class CoastalScene {
     this.go(selected, true);
     this.world.updateMatrixWorld(true);
     this.overviewBounds = new THREE.Box3().setFromObject(this.world).expandByScalar(0.65);
+    this.ocean.createRoute(length); this.ocean.update(this.oceanTime);
     this.resize();
     this.focusX = route === 'hub' ? 0 : this.carX;
     this.visualZoom = this.viewHalfHeight();
@@ -567,6 +553,8 @@ export class CoastalScene {
     if (this.disposed) return;
     const dt = Math.min((now - this.lastTime) / 1000, 0.05); this.lastTime = now; const t = now / 1000;
     if (this.paused) return;
+    if (!this.reducedMotion) this.oceanTime += dt;
+    this.ocean.update(this.oceanTime);
     const previousX = this.carX;
     if (this.drive) {
       const p = (now - this.drive.started) / this.drive.duration;
@@ -590,7 +578,7 @@ export class CoastalScene {
     this.camera.top = this.visualZoom; this.camera.bottom = -this.visualZoom; this.camera.updateProjectionMatrix();
     // Offset the look target toward sea: the car stays below the compact card.
     const look = this.route === 'hub' && this.overviewLook ? this.overviewLook.clone() : new THREE.Vector3(this.focusX + (this.mobile ? 0 : 0.6), 0, this.mobile ? -8.3 : -3.8);
-    this.camera.position.copy(look).add(new THREE.Vector3(-4.5, 24, 35)); this.camera.lookAt(look);
+    this.camera.position.copy(look).add(new THREE.Vector3(-18, 96, 140)); this.camera.lookAt(look);
     this.sun.position.set(this.focusX - 12, 27, 11); this.sun.target.position.set(this.focusX, 0, 0); this.sun.target.updateMatrixWorld();
     this.stations?.forEach((s, i) => {
       if (s.marker.visible) s.marker.position.y = s.marker.userData.baseY + (this.reducedMotion ? 0 : Math.sin(t * 2.5) * 0.12);
@@ -601,7 +589,6 @@ export class CoastalScene {
       s.anchor.y = 0.5 + s.iconRoot.position.y + s.iconHeight * s.iconScale;
     });
     if (!this.reducedMotion) {
-      this.wavelets.children.forEach((w, i) => { w.position.x = w.userData.baseX + Math.sin(t * 0.3 + i) * 0.35; });
       this.birds.children.forEach((b, i) => { const a = t * 0.08 + b.userData.phase; b.position.set(this.focusX + Math.sin(a) * 17, 8 + i * 0.65, -13 + Math.cos(a) * 7); b.rotation.y = -a; b.rotation.z = Math.sin(t * 1.7 + i) * 0.07; });
     }
     this.renderer.render(this.scene, this.camera);
@@ -609,6 +596,6 @@ export class CoastalScene {
   dispose() {
     this.disposed = true; this.renderer.setAnimationLoop(null); window.removeEventListener('resize', this.resize);
     this.canvas.removeEventListener('pointerdown', this.pointerDown); this.canvas.removeEventListener('pointerup', this.pointerUp);
-    this.clearWorld(); this.scene.traverse(o => { o.geometry?.dispose(); }); this.materials.forEach(m => { m.map?.dispose(); m.dispose(); }); this.renderer.dispose();
+    this.ocean.dispose(); this.clearWorld(); this.scene.traverse(o => { o.geometry?.dispose(); }); this.materials.forEach(m => { m.map?.dispose(); m.dispose(); }); this.renderer.dispose();
   }
 }
