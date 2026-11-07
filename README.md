@@ -34,11 +34,11 @@ Edit `src/content.js`. Replace `profile`, `projects`, `companies`, and `skillGro
 
 The existing project names, company records, and generated artwork are explicitly illustrative. They do not represent the developer's actual employment or work. The `demo` flags are ready to be removed or set false when replacing those records; the template's sample labels should also be removed for a final personalized release.
 
-Route length is derived from the number of records. Adding a project or company automatically extends its modular coast and navigation. The scene implementation lives in `src/scene.js`, interface behavior in `src/main.js`, and responsive styling in `src/style.css`.
+Route length is derived from the number of records. Adding a project or company automatically extends its modular coast and navigation. The scene implementation lives in `src/scene.js`, the reusable Jeep model in `src/jeep.js`, interface behavior in `src/main.js`, and responsive styling in `src/style.css`.
 
 ## Assets and performance
 
-All 3D models are built directly from low-poly geometry in `src/scene.js`: car with independent wheels, faceted coastline, road, palms, rocks, grass, railings, pier, lamps, and section/project landmarks. This first version does not depend on Blender or downloaded model packs. Those meshes can later be replaced with Blender-exported GLB assets while retaining the route and interface code.
+All 3D models are built directly from low-poly geometry in `src/scene.js`: open-top orange off-road Jeep with a roll cage, spare tyre, independent treaded wheels and speed-matched wheel rotation, faceted coastline, road, palms, rocks, grass, railings, pier, lamps, and section/project landmarks. This first version does not depend on Blender or downloaded model packs. Those meshes can later be replaced with Blender-exported GLB assets while retaining the route and interface code.
 
 Three illustrative preview images were generated with the built-in image generation tool; prompts are recorded in `public/media/provenance.json`. They are compressed JPEG files and loaded as images rather than as 3D textures. Fonts are bundled locally with their licenses in `public/fonts/`. The Unity cube image is the unmodified official asset linked from https://unity.com/legal/branding-trademarks and bundled as `public/media/unity-logo.png`.
 

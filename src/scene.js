@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { drivingProgress } from './motion.js';
 import { CoastalOcean } from './ocean.js';
+import { createJeep } from './jeep.js';
 
 const C = { sand: 0xf6c77f, shore: 0xffe1a1, rock: 0xa49a91, road: 0x505c67, aqua: 0x33f5ed, orange: 0xf77b08, dark: 0x183b44, green: 0x91af35, cream: 0xfff4d9 };
 const clamp = THREE.MathUtils.clamp;
@@ -440,45 +441,11 @@ export class CoastalScene {
     if (this.route !== 'hub') this.text(g, 'END OF THE ROUTE', [0, 1, 3], 2.8, 0.65, { fontSize: 36 });
   }
   createCar() {
-    this.car = new THREE.Group(); this.scene.add(this.car);
-    this.carShadow = this.contactShadow(this.scene, [this.carX, 0.608, pathZ(this.carX)], 4.5, 2.5, 0.3);
-    this.prism(this.car, [[-1.31, 0.38], [1.31, 0.38], [1.32, 0.76], [1.13, 0.9], [-1.19, 0.9], [-1.32, 0.72]], 1.2, C.orange);
-    this.box(this.car, [2.45, 0.11, 1.26], [0, 0.38, 0], 0xa9551d, 0.035);
-    this.prism(this.car, [[-0.99, 0.87], [0.6, 0.87], [0.2, 1.55], [-0.77, 1.55]], 1.04, C.orange);
-    this.box(this.car, [0.97, 0.045, 1.07], [-0.28, 1.58, 0], 0xfb8b14, 0.025);
-    for (const side of [-1, 1]) {
-      const z = side * 0.59;
-      this.polygon(this.car, [[-0.74, 1.43, z], [-0.23, 1.43, z], [-0.23, 1.01, z], [-0.88, 1.01, z]], 0x22444f, { roughness: 0.28 });
-      this.polygon(this.car, [[-0.14, 1.43, z], [0.16, 1.43, z], [0.42, 1.01, z], [-0.14, 1.01, z]], 0x2b5362, { roughness: 0.28 });
-      this.box(this.car, [0.16, 0.04, 0.04], [-0.38, 0.86, side * 0.629], 0x583f25, 0.012);
-      this.box(this.car, [0.16, 0.04, 0.04], [0.3, 0.86, side * 0.629], 0x583f25, 0.012);
-      this.box(this.car, [2.27, 0.035, 0.028], [0, 0.52, side * 0.631], 0xeac075);
-      this.box(this.car, [0.2, 0.16, 0.12], [0.4, 1.01, side * 0.69], C.orange, 0.025);
-      this.beam(this.car, [-0.17, 0.46, side * 0.634], [-0.17, 0.92, side * 0.634], 0.008, 0xc06314, 3);
-    }
-    this.polygon(this.car, [[0.28, 1.44, -0.45], [0.28, 1.44, 0.45], [0.55, 0.99, 0.49], [0.55, 0.99, -0.49]], 0x234c5b, { roughness: 0.3 });
-    this.polygon(this.car, [[-0.85, 1.44, -0.44], [-0.85, 1.44, 0.44], [-1.01, 1, 0.48], [-1.01, 1, -0.48]], 0x284852, { roughness: 0.3 });
-    this.box(this.car, [0.58, 0.045, 1.03], [0.89, 0.9, 0], 0xfa8711, 0.025);
-    this.box(this.car, [0.09, 0.15, 1.23], [1.35, 0.43, 0], 0x657276, 0.025);
-    this.box(this.car, [0.09, 0.14, 1.23], [-1.35, 0.43, 0], 0x657276, 0.025);
-    this.box(this.car, [0.03, 0.2, 0.43], [1.367, 0.65, 0], 0x243e43);
-    for (const z of [-0.43, 0.43]) {
-      this.glow(this.car, [0.035, 0.2, 0.27], [1.36, 0.73, z], 0xfff2c7);
-      this.box(this.car, [0.03, 0.19, 0.18], [-1.34, 0.69, z], 0xc84732, 0.025);
-    }
-    this.box(this.car, [0.025, 0.11, 0.3], [-1.39, 0.49, 0], 0xfff4ce);
-    for (const x of [-0.88, 0.87]) for (const z of [-0.65, 0.65]) {
-      const pivot = new THREE.Group(); pivot.position.set(x, 0.34, z); this.car.add(pivot);
-      const wheel = this.cylinder(pivot, 0.35, 0.35, 0.24, [0, 0, 0], 0x293238, 14); wheel.rotation.x = Math.PI / 2;
-      const hub = this.cylinder(pivot, 0.22, 0.22, 0.255, [0, 0, 0], 0x8e9b9b, 12); hub.rotation.x = Math.PI / 2;
-      const cap = this.cylinder(pivot, 0.14, 0.14, 0.27, [0, 0, 0], 0xced3c7, 10); cap.rotation.x = Math.PI / 2;
-      for (let i = 0; i < 5; i++) {
-        const a = i / 5 * Math.PI * 2;
-        this.box(pivot, [0.035, 0.09, 0.277], [Math.sin(a) * 0.17, Math.cos(a) * 0.17, 0], 0x546468).rotation.z = -a;
-      }
-      this.wheels.push(pivot);
-    }
-    this.car.scale.setScalar(1.18);
+    this.car = createJeep(this, 'open'); this.scene.add(this.car);
+    this.car.scale.setScalar(0.92);
+    this.wheels = this.car.userData.wheels;
+    this.wheelRadius = 0.56 * 0.92;
+    this.carShadow = this.contactShadow(this.scene, [this.carX, 0.608, pathZ(this.carX)], 4.8, 2.8, 0.3);
     this.car.position.set(this.carX, 0.63, pathZ(this.carX));
   }
   createBirds() {
@@ -564,12 +531,12 @@ export class CoastalScene {
     const moving = Boolean(this.drive);
     if (moving !== this.moving) { this.moving = moving; this.onMove?.(moving); }
     const delta = this.carX - previousX;
-    const padLift = 0.14 * Math.max(0, 1 - Math.abs(this.destinationX - this.carX) / 1.7);
+    const padLift = 0.16 * Math.max(0, 1 - Math.abs(this.destinationX - this.carX) / 1.7);
     this.car.position.set(this.carX, 0.63 + padLift + (moving && !this.reducedMotion ? Math.sin(t * 24) * 0.013 : 0), pathZ(this.carX));
     this.carShadow.position.set(this.carX, 0.608, pathZ(this.carX));
     this.car.rotation.y = -Math.atan(pathSlope(this.carX));
     this.carShadow.rotation.z = this.car.rotation.y;
-    this.wheels.forEach(w => { w.rotation.z -= delta / 0.32; });
+    this.wheels.forEach(w => { w.rotation.z -= delta / this.wheelRadius; });
     const focus = this.route === 'hub' ? 0 : this.carX;
     this.focusX = lerp(this.focusX, focus, 1 - Math.exp(-dt * 3));
     const halfH = this.viewHalfHeight();
