@@ -42,3 +42,18 @@ test('direct destinations share the lock and reset allows a new route', () => {
   assert.deepEqual(visits, [3, 0]); driver.arrive(); driver.reset();
   assert.equal(driver.to(4), true);
 });
+test('clicked stops cannot retarget a trip, including its approach window', () => {
+  const { driver, visits } = setup();
+  assert.equal(driver.selectStop(3), true);
+  assert.equal(driver.selectStop(1), false);
+  assert.equal(driver.selectStop(0), false);
+  driver.approach();
+  assert.equal(driver.selectStop(4), false);
+  assert.deepEqual(visits, [3]);
+  // The existing one-time keyboard reversal remains available.
+  assert.equal(driver.step(-1), true);
+  assert.equal(driver.selectStop(4), false);
+  driver.arrive();
+  assert.equal(driver.selectStop(4), true);
+  assert.deepEqual(visits, [3, 0, 4]);
+});

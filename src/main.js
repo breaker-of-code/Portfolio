@@ -295,7 +295,7 @@ document.addEventListener('click', event => {
   if (el.dataset.action) actions[el.dataset.action]?.();
   if (el.dataset.route) { returnLocation = null; nav.open(el.dataset.route); }
   if (el.dataset.stop !== undefined) { if (nav.state.route !== 'hub') nav.home(); driver.to(Number(el.dataset.stop)); }
-  if (el.dataset.node !== undefined) driver.to(Number(el.dataset.node));
+  if (el.dataset.node !== undefined) driver.selectStop(Number(el.dataset.node));
   if (el.dataset.tab) { activeTab = el.dataset.tab; renderCard(); }
   if (el.dataset.skill !== undefined) { skillTab = Number(el.dataset.skill); renderCard(); }
   if (el.dataset.related !== undefined || el.dataset.project !== undefined) relatedProject(Number(el.dataset.related ?? el.dataset.project));
@@ -338,7 +338,7 @@ try {
   world = new CoastalScene($('#world'), {
     zoomLevels: viewZoom,
     reducedMotion: reducedMotionQuery.matches,
-    onStop: index => driver.to(index),
+    onStop: index => { if (!sectionTransition) driver.selectStop(index); },
     onApproach: () => driver.approach(),
     onWaypoint: index => driver.passed(index),
     onMove: value => { moving = value; if (!value) driver.arrive(); renderCard(); },

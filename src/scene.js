@@ -46,20 +46,40 @@ export class CoastalScene {
     this.world = new THREE.Group(); this.scene.add(this.world);
     this.ocean = new CoastalOcean(this); this.oceanTime = 0; this.createCar(); this.createBirds();
     this.raycaster = new THREE.Raycaster(); this.pointer = new THREE.Vector2();
-    this.pointerDown = e => { this.pointerStart = { x: e.clientX, y: e.clientY }; };
+    this.pointerDown = e => { this.pointerStart = !this.moving && !this.paused && e.button === 0 && e.isPrimary !== false ? { x: e.clientX, y: e.clientY } : null; };
     this.pointerUp = e => {
-      if (!this.pointerStart || Math.hypot(e.clientX - this.pointerStart.x, e.clientY - this.pointerStart.y) > 10) return;
-      this.pointer.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-      this.raycaster.setFromCamera(this.pointer, this.camera);
-      const hit = this.raycaster.intersectObjects(this.world.children, true).find(h => {
-        let o = h.object; while (o) { if (o.userData.stop !== undefined) return true; o = o.parent; } return false;
-      });
-      if (hit) { let o = hit.object; while (o && o.userData.stop === undefined) o = o.parent; if (o) this.onStop?.(o.userData.stop); }
+      const start = this.pointerStart; this.pointerStart = null;
+      if (this.moving || this.paused || !start || Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
+      const stop = this.pickStop(e.clientX, e.clientY);
+      if (stop !== null) { this.canvas.style.cursor = 'default'; this.onStop?.(stop); }
     };
+    this.pointerMove = e => {
+      if (e.pointerType === 'touch') return;
+      this.canvas.style.cursor = !this.moving && !this.paused && this.pickStop(e.clientX, e.clientY, false) !== null ? 'pointer' : 'default';
+    };
+    this.pointerCancel = () => { this.pointerStart = null; this.canvas.style.cursor = 'default'; };
     canvas.addEventListener('pointerdown', this.pointerDown); canvas.addEventListener('pointerup', this.pointerUp);
+    canvas.addEventListener('pointermove', this.pointerMove); canvas.addEventListener('pointercancel', this.pointerCancel); canvas.addEventListener('pointerleave', this.pointerCancel);
     this.resize = this.resize.bind(this); window.addEventListener('resize', this.resize); this.resize(); this.visualZoom = this.baseHalfHeight;
     this.lastTime = performance.now(); this.animate = this.animate.bind(this); this.renderer.setAnimationLoop(this.animate);
     requestAnimationFrame(() => requestAnimationFrame(() => onReady?.()));
+  }
+
+  pickStop(clientX, clientY, includeLandmarks = true) {
+    const bounds = this.canvas.getBoundingClientRect();
+    if (!bounds.width || !bounds.height || clientX < bounds.left || clientX > bounds.right || clientY < bounds.top || clientY > bounds.bottom) return null;
+    this.pointer.set((clientX - bounds.left) / bounds.width * 2 - 1, -((clientY - bounds.top) / bounds.height) * 2 + 1);
+    this.camera.updateMatrixWorld();
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    const stations = this.stations || [];
+    const bays = stations.flatMap(station => [station.pad, station.parkingSurface]);
+    // Test the actual white bay and its border first, then preserve landmark selection.
+    const hit = this.raycaster.intersectObjects(bays, false)[0]
+      || (includeLandmarks ? this.raycaster.intersectObjects(stations.map(station => station.group), true)[0] : null);
+    if (!hit) return null;
+    let object = hit.object;
+    while (object && object.userData.stop === undefined) object = object.parent;
+    return object?.userData.stop ?? null;
   }
 
   material(color, options = {}) {
@@ -382,6 +402,7 @@ export class CoastalScene {
     const pad = this.box(group, [3.95, 0.13, 2.35], [0, 0.14, z], 0x75eddf, 0.14);
     const parkingSurface = this.box(group, [3.65, 0.05, 2.05], [0, 0.23, z], 0xbdf4d9, 0.1);
     pad.rotation.y = parkingSurface.rotation.y = heading;
+    pad.userData.stop = parkingSurface.userData.stop = index;
     const platformZ = z - 3.6;
     this.contactShadow(group, [0, -0.02, platformZ], 5.8, 4.3, 0.36);
     this.box(group, [3.9, 0.74, 2.9], [0, 0.37, platformZ], 0x9f9180, 0.12);
@@ -395,7 +416,7 @@ export class CoastalScene {
     marker.rotation.z = Math.PI; marker.position.set(0, 4.65, platformZ); marker.visible = index === this.index;
     const iconHeight = new THREE.Box3().setFromObject(iconRoot).getSize(new THREE.Vector3()).y;
     marker.userData.baseY = 0.88 + iconHeight * 1.24 + 0.7;
-    this.stations.push({ group, iconRoot, iconHeight, iconScale: 1, scaleVelocity: 0, marker, pad, light, anchor: new THREE.Vector3(x, 0.5 + 0.88 + iconHeight, platformZ) });
+    this.stations.push({ group, iconRoot, iconHeight, iconScale: 1, scaleVelocity: 0, marker, pad, parkingSurface, light, anchor: new THREE.Vector3(x, 0.5 + 0.88 + iconHeight, platformZ) });
   }
   createCareerTimeline(items) {
     const start = this.positions[0] - 2.8, end = this.positions.at(-1) + 2.8, segments = 120;
@@ -638,6 +659,7 @@ export class CoastalScene {
   dispose() {
     this.disposed = true; this.renderer.setAnimationLoop(null); window.removeEventListener('resize', this.resize);
     this.canvas.removeEventListener('pointerdown', this.pointerDown); this.canvas.removeEventListener('pointerup', this.pointerUp);
+    this.canvas.removeEventListener('pointermove', this.pointerMove); this.canvas.removeEventListener('pointercancel', this.pointerCancel); this.canvas.removeEventListener('pointerleave', this.pointerCancel);
     this.ocean.dispose(); this.clearWorld(); this.scene.traverse(o => { o.geometry?.dispose(); }); this.materials.forEach(m => { m.map?.dispose(); m.dispose(); }); this.renderer.dispose();
   }
 }

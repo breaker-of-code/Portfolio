@@ -8,6 +8,7 @@ export function createDriveController({ getIndex, getLength, go }) {
     arrive() { trip = null; },
     approach() { if (trip && !trip.reversed) trip.ready = true; },
     passed(index) { if (trip && !trip.reversed && index !== trip.target) trip.origin = index; },
+    selectStop(index) { return trip ? false : controller.to(index); },
     step(delta) {
       const direction = Math.sign(delta);
       if (!direction) return false;
