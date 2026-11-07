@@ -101,5 +101,11 @@ export function createJeep(b, variant = 'classic') {
   const spare = new THREE.Group(); spare.position.set(-1.99, 1.39, 0); jeep.add(spare);
   b.cylinder(spare, .49, .49, .3, [0, 0, 0], trim, 14).rotation.z = Math.PI / 2;
   b.cylinder(spare, .28, .28, .33, [0, 0, 0], 0xa0aaa3, 12).rotation.z = Math.PI / 2;
+  // Suspend the body independently so engine vibration leaves the tyres planted.
+  const body = new THREE.Group(); body.name = 'Jeep suspended body';
+  for (const child of [...jeep.children]) {
+    if (!jeep.userData.wheels.includes(child)) body.add(child);
+  }
+  jeep.add(body); jeep.userData.body = body;
   return jeep;
 }

@@ -626,6 +626,12 @@ export class CoastalScene {
     const moving = Boolean(this.drive);
     if (moving !== this.moving) { this.moving = moving; this.onMove?.(moving); }
     const delta = this.carX - previousX;
+    this.idleStrength = this.reducedMotion ? 0 : THREE.MathUtils.damp(this.idleStrength ?? 1, moving ? 0 : 1, 12, dt);
+    const engineTime = this.oceanTime * Math.PI * 2;
+    const body = this.car.userData.body;
+    body.position.y = (Math.sin(engineTime * 8) * .009 + Math.sin(engineTime * 11.3) * .003) * this.idleStrength;
+    body.rotation.x = Math.sin(engineTime * 7.7 + .6) * .0025 * this.idleStrength;
+    body.rotation.z = Math.sin(engineTime * 8.3) * .0018 * this.idleStrength;
     const padLift = 0.16 * Math.max(0, 1 - Math.abs(this.destinationX - this.carX) / 1.7);
     this.car.position.set(this.carX, 0.63 + padLift + (moving && !this.reducedMotion ? Math.sin(t * 24) * 0.013 : 0), pathZ(this.carX));
     this.carShadow.position.set(this.carX, 0.608, pathZ(this.carX));
