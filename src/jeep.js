@@ -101,6 +101,12 @@ export function createJeep(b, variant = 'classic') {
   const spare = new THREE.Group(); spare.position.set(-1.99, 1.39, 0); jeep.add(spare);
   b.cylinder(spare, .49, .49, .3, [0, 0, 0], trim, 14).rotation.z = Math.PI / 2;
   b.cylinder(spare, .28, .28, .33, [0, 0, 0], 0xa0aaa3, 12).rotation.z = Math.PI / 2;
+  // A short rear exhaust outlet, beneath the bumper and clear of the spare tyre.
+  const tailpipe = b.cylinder(jeep, .09, .09, .36, [-1.98, .59, .55], 0x677777, 10);
+  tailpipe.rotation.z = Math.PI / 2;
+  const opening = b.cylinder(jeep, .067, .067, .015, [-2.168, .59, .55], 0x233338, 10);
+  opening.rotation.z = Math.PI / 2;
+  jeep.userData.exhaustOutlet = new THREE.Vector3(-2.19, .59, .55);
   // Suspend the body independently so engine vibration leaves the tyres planted.
   const body = new THREE.Group(); body.name = 'Jeep suspended body';
   for (const child of [...jeep.children]) {

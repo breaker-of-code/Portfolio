@@ -1,8 +1,19 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { advanceDriving } from './motion.js';
+import { advanceDriving, MAX_DRIVING_SPEED } from './motion.js';
+import { referenceHalfHeight, viewportHalfHeight, fittedZoom } from './camera-layout.js';
 import { CoastalOcean } from './ocean.js';
 import { createJeep } from './jeep.js';
+import { JeepExhaust } from './exhaust.js';
+import { createArcade } from './arcade.js';
+import { createDeveloperDesk } from './developer-desk.js';
+import { createSkillsGears } from './skills-gears.js';
+import { createIntroAvatar } from './intro-avatar.js';
+import { createContactMailbox } from './contact-mailbox.js';
+import { createRouteAssetLoader } from './route-assets.js';
+import { createPerformanceProbe } from './performance-probe.js';
+import { AdaptiveQuality, QUALITY_PROFILES, initialQuality, cappedPixelRatio } from './quality.js';
+import { batchStaticMeshes } from './mesh-batching.js';
 
 const C = { sand: 0xf6c77f, shore: 0xffe1a1, rock: 0xa49a91, road: 0x505c67, aqua: 0x33f5ed, orange: 0xf77b08, dark: 0x183b44, green: 0x91af35, cream: 0xfff4d9 };
 const clamp = THREE.MathUtils.clamp;
@@ -12,22 +23,31 @@ const pathZ = x => Math.sin(x * 0.19) * 1.5;
 const pathSlope = x => Math.cos(x * 0.19) * 1.5 * 0.19;
 
 export class CoastalScene {
-  constructor(canvas, { onStop, onMove, onApproach, onWaypoint, onReady, onError, reducedMotion = false, zoomLevels = {} } = {}) {
+  constructor(canvas, { onStop, onCar, onMove, onSpeed, onSplash, onApproach, onWaypoint, onReady, onError, reducedMotion = false, zoomLevels = {} } = {}) {
     this.canvas = canvas;
-    this.zoomLevels = { hub: 112, career: 112, projects: 112, ...zoomLevels };
-    this.onStop = onStop; this.onMove = onMove; this.onApproach = onApproach; this.onWaypoint = onWaypoint; this.carSpeed = 0; this.reducedMotion = reducedMotion;
+    this.onCar = onCar;
+    this.onSplash = onSplash;
+    this.zoomLevels = { hub: null, career: null, projects: null, ...zoomLevels };
+    this.onStop = onStop; this.onMove = onMove; this.onSpeed = onSpeed; this.onApproach = onApproach; this.onWaypoint = onWaypoint; this.carSpeed = 0; this.reducedMotion = reducedMotion;
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x069caa);
     this.scene.fog = new THREE.Fog(0x069caa, 250, 600);
     this.camera = new THREE.OrthographicCamera(-30, 30, 20, -20, 0.1, 800);
     this.camera.position.set(18, 30, 39);
     this.target = new THREE.Vector3(); this.cameraCenter = new THREE.Vector3();
+    this.routeAssets = createRouteAssetLoader();
     this.materials = new Map(); this.disposed = false; this.route = 'hub'; this.index = 0;
     this.carX = -16; this.destinationX = -16; this.moving = false; this.routeItems = [];
     this.focusX = 0; this.visualZoom = 1; this.activeHalo = null; this.wheels = [];
+    const params = new URLSearchParams(location.search);
+    this.fixedQuality = params.has('benchmark') && Object.hasOwn(QUALITY_PROFILES, params.get('quality')) ? params.get('quality') : null;
+    this.qualityLevel = this.fixedQuality || initialQuality({ mobile: this.isMobileViewport(), memory: navigator.deviceMemory, cores: navigator.hardwareConcurrency });
+    this.qualityProfile = QUALITY_PROFILES[this.qualityLevel];
+    this.qualityController = new AdaptiveQuality(this.qualityLevel, performance.now());
+    canvas.dataset.quality = this.qualityLevel;
     try {
       this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+      this.renderer.setPixelRatio(cappedPixelRatio(window.devicePixelRatio, this.qualityLevel, this.isMobileViewport()));
       this.renderer.outputColorSpace = THREE.SRGBColorSpace;
       this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
       this.renderer.toneMappingExposure = 1.12;
@@ -37,7 +57,7 @@ export class CoastalScene {
     this.scene.add(new THREE.HemisphereLight(0xe5f9ff, 0xab825c, 1.1));
     const sunlight = new THREE.DirectionalLight(0xffedce, 3.1);
     sunlight.position.set(-12, 27, 11); sunlight.castShadow = true;
-    sunlight.shadow.mapSize.set(2048, 2048);
+    sunlight.shadow.mapSize.set(this.qualityProfile.shadowSize, this.qualityProfile.shadowSize);
     sunlight.shadow.camera.left = -45; sunlight.shadow.camera.right = 45;
     sunlight.shadow.camera.top = 28; sunlight.shadow.camera.bottom = -28;
     sunlight.shadow.normalBias = 0.03; sunlight.shadow.bias = -0.0004;
@@ -45,32 +65,59 @@ export class CoastalScene {
     this.sun = sunlight; this.scene.add(sunlight, sunlight.target);
     this.world = new THREE.Group(); this.scene.add(this.world);
     this.ocean = new CoastalOcean(this); this.oceanTime = 0; this.createCar(); this.createBirds();
+    this.exhaust.movingInterval = this.qualityProfile.exhaustInterval;
     this.raycaster = new THREE.Raycaster(); this.pointer = new THREE.Vector2();
     this.pointerDown = e => { this.pointerStart = !this.moving && !this.paused && e.button === 0 && e.isPrimary !== false ? { x: e.clientX, y: e.clientY } : null; };
     this.pointerUp = e => {
       const start = this.pointerStart; this.pointerStart = null;
       if (this.moving || this.paused || !start || Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
+      if (this.pickCar(e.clientX, e.clientY)) { this.canvas.style.cursor = 'default'; this.onCar?.(); return; }
       const stop = this.pickStop(e.clientX, e.clientY);
       if (stop !== null) { this.canvas.style.cursor = 'default'; this.onStop?.(stop); }
     };
     this.pointerMove = e => {
       if (e.pointerType === 'touch') return;
-      this.canvas.style.cursor = !this.moving && !this.paused && this.pickStop(e.clientX, e.clientY, false) !== null ? 'pointer' : 'default';
+      this.canvas.style.cursor = !this.moving && !this.paused && (this.pickCar(e.clientX, e.clientY) || this.pickStop(e.clientX, e.clientY, false) !== null) ? 'pointer' : 'default';
     };
     this.pointerCancel = () => { this.pointerStart = null; this.canvas.style.cursor = 'default'; };
     canvas.addEventListener('pointerdown', this.pointerDown); canvas.addEventListener('pointerup', this.pointerUp);
     canvas.addEventListener('pointermove', this.pointerMove); canvas.addEventListener('pointercancel', this.pointerCancel); canvas.addEventListener('pointerleave', this.pointerCancel);
     this.resize = this.resize.bind(this); window.addEventListener('resize', this.resize); this.resize(); this.visualZoom = this.baseHalfHeight;
+    this.performanceProbe = createPerformanceProbe(this.renderer, canvas);
     this.lastTime = performance.now(); this.animate = this.animate.bind(this); this.renderer.setAnimationLoop(this.animate);
     requestAnimationFrame(() => requestAnimationFrame(() => onReady?.()));
   }
 
-  pickStop(clientX, clientY, includeLandmarks = true) {
+  isMobileViewport() {
+    return (matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0) && Math.min(innerWidth, innerHeight) <= 1024
+      || innerHeight <= 550 && innerWidth > innerHeight;
+  }
+  setQuality(level) {
+    if (this.qualityLevel === level) return;
+    this.qualityLevel = level; this.qualityProfile = QUALITY_PROFILES[level];
+    this.canvas.dataset.quality = level;
+    this.renderer.setPixelRatio(cappedPixelRatio(devicePixelRatio, level, this.isMobileViewport()));
+    this.sun.shadow.map?.dispose(); this.sun.shadow.map = null;
+    this.sun.shadow.mapSize.set(this.qualityProfile.shadowSize, this.qualityProfile.shadowSize);
+    this.ocean.setQuality(this.qualityProfile);
+    this.exhaust.movingInterval = this.qualityProfile.exhaustInterval;
+  }
+
+  setPickRay(clientX, clientY) {
     const bounds = this.canvas.getBoundingClientRect();
-    if (!bounds.width || !bounds.height || clientX < bounds.left || clientX > bounds.right || clientY < bounds.top || clientY > bounds.bottom) return null;
+    if (!bounds.width || !bounds.height || clientX < bounds.left || clientX > bounds.right || clientY < bounds.top || clientY > bounds.bottom) return false;
     this.pointer.set((clientX - bounds.left) / bounds.width * 2 - 1, -((clientY - bounds.top) / bounds.height) * 2 + 1);
     this.camera.updateMatrixWorld();
     this.raycaster.setFromCamera(this.pointer, this.camera);
+    return true;
+  }
+  pickCar(clientX, clientY) {
+    if (!this.car || !this.setPickRay(clientX, clientY)) return false;
+    this.car.updateWorldMatrix(true, true);
+    return this.raycaster.intersectObject(this.car, true).length > 0;
+  }
+  pickStop(clientX, clientY, includeLandmarks = true) {
+    if (!this.setPickRay(clientX, clientY)) return null;
     const stations = this.stations || [];
     const bays = stations.flatMap(station => [station.pad, station.parkingSurface]);
     // Test the actual white bay and its border first, then preserve landmark selection.
@@ -156,6 +203,28 @@ export class CoastalScene {
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
     if (alwaysOnTop) { material.depthTest = false; material.depthWrite = false; plane.renderOrder = 30; }
     plane.position.set(...position); plane.rotation.x = -0.38; parent.add(plane); this.routeTextures?.push(tex); return plane;
+  }
+  stopLabel(parent, name, index, subtitle, position, width = 5, palette = {}) {
+    const boardColor = palette.board ?? 0x194b55, badgeColor = palette.badge ?? 0xffbe4b;
+    const label = new THREE.Group(); label.name = `Stop label: ${name}`;
+    label.position.set(...position); label.rotation.x = -0.38; parent.add(label);
+    const scale = width / 5 * 1.25;
+    const plaque = this.box(label, [5, 0.85, 0.16], [0, 0, 0], boardColor, 0.075);
+    plaque.material = this.material(boardColor, { depthTest: false, depthWrite: false }); plaque.renderOrder = 28;
+    const badge = this.box(label, [0.78, 0.74, 0.045], [-2.04, 0, 0.105], badgeColor, 0.06);
+    badge.material = this.material(badgeColor, { depthTest: false, depthWrite: false }); badge.renderOrder = 29;
+    const canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 218;
+    const ctx = canvas.getContext('2d'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = palette.number ?? '#214d55'; ctx.font = '700 114px system-ui, sans-serif';
+    ctx.fillText(String(index + 1).padStart(2, '0'), 118, 109, 168);
+    ctx.fillStyle = palette.text ?? '#fff4d9';
+    ctx.font = `700 ${width < 4 ? 175 : 118}px system-ui, sans-serif`; ctx.fillText(name.toUpperCase(), 748, 109, 930);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 4;
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(5, 0.85), new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, depthTest: false, depthWrite: false, toneMapped: false }));
+    face.position.z = 0.14; face.renderOrder = 30; label.add(face); this.routeTextures?.push(texture);
+    label.scale.setScalar(scale);
+    label.userData.baseScale = scale;
+    return label;
   }
   islandShape(length, width, seed) {
     const s = new THREE.Shape();
@@ -263,7 +332,12 @@ export class CoastalScene {
   }
   palm(x, z, scale = 1, flip = false) {
     // Reserve canopy clearance as well as trunk clearance against every rock.
-    const clear = (px, pz) => this.rockFootprints.every(r => Math.hypot(px - r.x, pz - r.z) > r.radius + 2.7 * scale) && this.palmFootprints.every(p => Math.hypot(px - p.x, pz - p.z) > 3.6) && this.positions.every(sx => Math.abs(px - sx) > 2.7 || Math.abs(pz - (pathZ(sx) - 3.6)) > 2.1);
+    const canopyClear = (px, pz) => this.route !== 'career' || this.positions.every(sx => {
+      const dx = Math.max(0, Math.abs(px + (flip ? -.75 : .75) * scale - sx) - 2.25);
+      const dz = Math.max(0, Math.abs(pz - (pathZ(sx) - 3.6)) - 1.85);
+      return Math.hypot(dx, dz) > 3.05 * scale + .12;
+    });
+    const clear = (px, pz) => canopyClear(px, pz) && this.rockFootprints.every(r => Math.hypot(px - r.x, pz - r.z) > r.radius + 2.7 * scale) && this.palmFootprints.every(p => Math.hypot(px - p.x, pz - p.z) > 3.6) && this.positions.every(sx => Math.abs(px - sx) > 2.7 || Math.abs(pz - (pathZ(sx) - 3.6)) > 2.1);
     if (!clear(x, z)) {
       let position;
       for (const offset of [3, -3, 6, -6, 9, -9, 12, -12, 15, -15]) {
@@ -287,6 +361,7 @@ export class CoastalScene {
       for (let j = 0; j < 4; j++) { const k = j * 3; indices.push(k, k + 3, k + 1, k + 1, k + 3, k + 4, k + 1, k + 4, k + 2, k + 2, k + 4, k + 5); }
       const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3)); geo.setIndex(indices); geo.computeVertexNormals();
       const leaf = this.mesh(geo, i % 2 ? 0xa9bf30 : 0x88ad24, g, { side: THREE.DoubleSide }); leaf.position.set(lean, height, 0); leaf.rotation.y = i / 8 * Math.PI * 2; leaf.scale.x = 0.85 + seeded(i + x) * 0.2;
+      (this.palmLeaves ??= []).push({ leaf, phase: x * .37 + i * .8 });
     }
     for (let i = 0; i < 3; i++) this.mesh(new THREE.IcosahedronGeometry(0.19, 1), 0x926333, g).position.set(lean + Math.cos(i * 2) * 0.22, height - 0.25, Math.sin(i * 2) * 0.22);
     return g;
@@ -311,87 +386,24 @@ export class CoastalScene {
     const star = this.mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 1 }), 0xe8a136);
     star.rotation.x = -Math.PI / 2; star.position.set(x, 0.48, z);
   }
-  makeIcon(type, parent) {
+  prepareRoute(route) { return this.routeAssets.prepare(route); }
+  hasRouteAssets(route) { return this.routeAssets.has(route); }
+  makeIcon(type, parent, variant = 0) {
     const g = new THREE.Group(); parent.add(g);
     if (type === 'hello') {
-      this.box(g, [2.6, 1.15, 0.2], [0, 1.05, 0], 0xc78a4b, 0.08);
-      this.text(g, 'HELLO', [0, 1.07, 0.13], 2.4, 0.8, { background: '#c78a4b', color: '#fff3d4', fontSize: 70 });
-      for (const x of [-1, 1]) this.box(g, [0.14, 1.4, 0.2], [x, 0.35, 0], 0xa8743f);
-      this.mesh(new THREE.IcosahedronGeometry(0.22, 0), 0xf2a2a6, g).position.set(1.5, 0.3, 0.3);
+      g.add(createIntroAvatar(this));
     } else if (type === 'case') {
-      g.position.y = -0.15;
-      this.box(g, [2, 1.3, 0.65], [0, 0.8, 0], 0xbb813f, 0.12);
-      this.box(g, [2.04, 0.45, 0.67], [0, 1.1, 0], 0xdca257, 0.04);
-      this.box(g, [0.3, 0.35, 0.08], [0, 0.88, 0.38], 0xffd076);
-      this.box(g, [0.75, 0.15, 0.18], [0, 1.75, 0], 0x956538);
-      for (const x of [-0.3, 0.3]) this.box(g, [0.14, 0.35, 0.18], [x, 1.58, 0], 0x956538);
+      g.position.y = 0.24;
+      g.add(createDeveloperDesk(this));
     } else if (type === 'game') {
-      g.position.y = 0.35;
-      this.box(g, [2.4, 1.05, 0.55], [0, 0.8, 0], 0xfff3d5, 0.3);
-      for (const [x, y, col] of [[0.7, 0.92, 0xffb949], [0.95, 0.7, 0xea8b83], [0.45, 0.7, 0x71c8d2]]) this.cylinder(g, 0.14, 0.14, 0.1, [x, y, 0.34], col).rotation.x = Math.PI / 2;
-      this.box(g, [0.65, 0.18, 0.1], [-0.6, 0.8, 0.34], 0x415359); this.box(g, [0.18, 0.65, 0.1], [-0.6, 0.8, 0.34], 0x415359);
-    } else if (type === 'blocks' || type === 'puzzle') {
-      for (const [x, y, col] of [[-0.5, 0.45, 0x44bcd4], [0.5, 0.45, 0xec91aa], [0, 1.4, 0xffcf45]]) { this.box(g, [0.92, 0.92, 0.92], [x, y, 0], col, 0.05); this.box(g, [0.4, 0.4, 0.035], [x, y, 0.48], col === 0xffcf45 ? 0xefb631 : col === 0x44bcd4 ? 0x35a9c2 : 0xd97f9a); }
-      if (type === 'puzzle') {
-        for (const side of [-1, 1]) for (let i = 0; i < 4; i++) this.box(g, [0.45, 0.46, 0.57], [side * 1.22, 0.23 + i * 0.49, -0.45], i % 2 ? 0xc9b18a : 0xe0c59a, 0.025);
-        for (let i = 0; i < 9; i++) {
-          const a = i / 9 * Math.PI, b = (i + 1) / 9 * Math.PI - 0.018;
-          const outline = [[Math.cos(a) * 1, 1.96 + Math.sin(a) * 1], [Math.cos(a) * 1.46, 1.96 + Math.sin(a) * 1.46], [Math.cos(b) * 1.46, 1.96 + Math.sin(b) * 1.46], [Math.cos(b) * 1, 1.96 + Math.sin(b) * 1]];
-          this.prism(g, outline, 0.55, i % 2 ? 0xd6bb91 : 0xe7cfa5).position.z = -0.45;
-        }
-        for (const side of [-1, 1]) {
-          const points = [];
-          for (let j = 0; j < 12; j++) { const a = (side < 0 ? Math.PI : 0) + side * j * 0.045; points.push(new THREE.Vector3(Math.cos(a) * 1.45, 1.7 + Math.sin(Math.abs(a)) * 1.25 + j * 0.09, -0.08)); }
-          this.mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 14, 0.045, 4, false), 0x7e9c2f, g);
-          for (let j = 0; j < 5; j++) {
-            const leaf = this.mesh(new THREE.SphereGeometry(0.2, 5, 3), j % 2 ? 0x9cbb31 : 0x789e28, g);
-            leaf.position.set(side * (1.3 - j * 0.09), 1.6 + j * 0.31, 0.07); leaf.scale.set(1, 0.45, 0.55); leaf.rotation.z = side * 0.5;
-          }
-        }
-        this.flower(g, 1.45, 0.4, 0.65, 0.3); this.flower(g, -1.17, 2.9, 0.02, 0.21);
-        for (const side of [-1, 1]) this.mesh(new THREE.IcosahedronGeometry(0.3, 0), 0x92ac38, g).position.set(side * 1.4, 0.2, 0.4);
-      }
+      g.position.y = 0.27;
+      g.add(createArcade(this));
+    } else if (type === 'blocks') {
+      g.add(createSkillsGears(this));
     } else if (type === 'mail') {
-      g.position.y = -0.15;
-      this.box(g, [2.15, 1.45, 0.3], [0, 0.9, 0], C.cream, 0.1);
-      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute([-1.02, 1.6, 0.17, 1.02, 1.6, 0.17, 0, 0.8, 0.2], 3)); geo.computeVertexNormals(); this.mesh(geo, 0xf6b84b, g, { side: THREE.DoubleSide });
-    } else if (type === 'space') {
-      g.scale.set(1.12, 1.45, 1.12);
-      const profile = [[0.32, 0.22], [0.42, 0.45], [0.49, 1.0], [0.47, 1.55], [0.35, 2.05]].map(([r, y]) => new THREE.Vector2(r, y));
-      this.mesh(new THREE.LatheGeometry(profile, 12), 0xfff0d2, g);
-      const nose = [[0.35, 2.04], [0.26, 2.36], [0, 2.7]].map(([r, y]) => new THREE.Vector2(r, y));
-      this.mesh(new THREE.LatheGeometry(nose, 12), C.orange, g);
-      const rim = this.cylinder(g, 0.31, 0.31, 0.13, [0, 1.42, 0.47], 0x5e7a7f, 16); rim.rotation.x = Math.PI / 2;
-      const glass = this.cylinder(g, 0.235, 0.235, 0.145, [0, 1.42, 0.51], 0x32c5d2, 16); glass.rotation.x = Math.PI / 2;
-      for (const x of [-0.63, 0.63]) this.prism(g, [[x * 0.55, 0.25], [x * 1.4, 0], [x * 1.35, 0.85], [x * 0.65, 1.1]], 0.2, C.orange);
-      this.cylinder(g, 0.28, 0.36, 0.28, [0, 0.15, 0], 0x9d9d8c, 10);
-      this.cylinder(g, 0.58, 0.66, 0.12, [0, 0.03, 0], 0xc2b9a0, 12);
-    } else if (type === 'race') {
-      this.cylinder(g, 1.02, 1.02, 0.13, [0, 0.09, 0], 0x788071, 24);
-      const track = this.mesh(new THREE.TorusGeometry(0.8, 0.22, 4, 24), 0x586368, g); track.rotation.x = -Math.PI / 2; track.position.y = 0.2;
-      for (const x of [-1, 1]) this.beam(g, [x, 0, -0.3], [x, 2.4, -0.3], 0.045, 0x876846);
-      for (let row = 0; row < 3; row++) for (let col = 0; col < 8; col++) this.box(g, [0.25, 0.25, 0.055], [-0.875 + col * 0.25, 2.15 - row * 0.25, -0.28], (row + col) % 2 ? 0xf9eed5 : 0x2e3b40);
-      for (let j = 0; j < 3; j++) {
-        const tyre = this.mesh(new THREE.TorusGeometry(0.25, 0.13, 6, 12), 0x2c3435, g); tyre.rotation.x = Math.PI / 2; tyre.position.set(0.75, 0.14 + j * 0.2, 0.5);
-      }
-      this.box(g, [0.75, 0.25, 0.25], [-0.45, 0.24, 0.5], C.orange, 0.02);
-    } else if (type === 'arena') {
-      this.box(g, [2.4, 0.3, 1.4], [0, 0.2, 0], 0x9ab362);
-      for (const x of [-0.85, 0.85]) {
-        this.box(g, [0.65, 1.45, 0.75], [x, 1, 0], 0xdfcfad);
-        for (const dx of [-0.22, 0.22]) this.box(g, [0.2, 0.35, 0.75], [x + dx, 1.85, 0], 0xe9dabb);
-        this.beam(g, [x, 1.8, 0], [x, 2.5, 0], 0.035, 0x976d43);
-        this.box(g, [0.45, 0.3, 0.04], [x + 0.2, 2.35, 0], x < 0 ? 0xf1a64b : 0x4bc2d0);
-      }
-      this.box(g, [1.3, 0.75, 0.4], [0, 0.6, -0.25], 0xd4c19e);
-    } else if (type === 'building') {
-      this.box(g, [2.85, 0.22, 1.6], [0, 0.11, 0], 0x99ae51, 0.07);
-      this.box(g, [2.4, 1.6, 1.3], [0, 1, 0], 0xf5e9d0);
-      this.box(g, [1.6, 0.8, 1.25], [-0.1, 2.1, 0], 0xfff3dc);
-      for (const x of [-0.75, 0, 0.75]) this.box(g, [0.5, 0.46, 0.03], [x, 1.4, 0.67], 0x72b7c7);
-      this.box(g, [1.4, 0.15, 0.6], [0, 0.9, 0.9], 0xf1b744);
-      this.box(g, [0.65, 0.8, 0.05], [0, 0.45, 0.67], 0x72b7c7);
-      for (const x of [-1.1, 1.1]) for (const z of [0.3, 0.7]) this.box(g, [0.35, 0.45, 0.35], [x, 0.34, z], z > 0.5 ? 0xa9bc49 : 0x7e9b3b, 0.035);
+      g.add(createContactMailbox(this));
+    } else {
+      g.add(this.routeAssets.create(this.route, this, type, variant));
     }
     return g;
   }
@@ -399,9 +411,12 @@ export class CoastalScene {
     const group = new THREE.Group(); group.userData.stop = index; group.position.set(x, 0.5, 0); this.world.add(group);
     const z = pathZ(x);
     const heading = -Math.atan(pathSlope(x));
-    const pad = this.box(group, [3.95, 0.13, 2.35], [0, 0.14, z], 0x75eddf, 0.14);
-    const parkingSurface = this.box(group, [3.65, 0.05, 2.05], [0, 0.23, z], 0xbdf4d9, 0.1);
-    pad.rotation.y = parkingSurface.rotation.y = heading;
+    const bay = new THREE.Group(); bay.name = 'Stone inset parking bay';
+    bay.position.z = z; bay.rotation.y = heading; bay.userData.stop = index; group.add(bay);
+    this.box(bay, [4.25, .12, 2.55], [0, .14, 0], 0xb8a482, .07);
+    const pad = this.box(bay, [4.02, .04, 2.32], [0, .22, 0], 0xffc15b, .05);
+    const parkingSurface = this.box(bay, [3.8, .025, 2.1], [0, .255, 0], 0x657375, .03);
+    for (const x of [-1.6, 1.6]) this.box(bay, [.08, .02, 1.7], [x, .28, 0], 0xa7b6b0);
     pad.userData.stop = parkingSurface.userData.stop = index;
     const platformZ = z - 3.6;
     this.contactShadow(group, [0, -0.02, platformZ], 5.8, 4.3, 0.36);
@@ -409,14 +424,15 @@ export class CoastalScene {
     this.box(group, [4.04, 0.17, 3.02], [0, 0.79, platformZ], 0xc6b398, 0.075);
     const light = this.glow(group, [2.45, 0.13, 0.065], [0, 0.46, platformZ + 1.47], 0xffc05c);
     light.material = this.material(C.orange, { emissive: C.orange, emissiveIntensity: 0.3 });
-    const iconRoot = new THREE.Group(); iconRoot.position.set(0, 0.88, platformZ); group.add(iconRoot);
-    this.makeIcon(item.icon || item.visual || 'building', iconRoot);
-    if (this.route !== 'career') this.text(group, `${this.route === 'hub' ? '' : `${String(index + 1).padStart(2, '0')} / `}${item.name.toUpperCase()}`, [0, 0.85, z + 2.65], this.route === 'hub' ? 3.85 : 5.2, 1.12, { fontSize: this.route === 'hub' ? 108 : 76, alwaysOnTop: true });
+    const iconRoot = new THREE.Group(); iconRoot.position.set(0, 1.33, platformZ); group.add(iconRoot);
+    iconRoot.userData.baseY = iconRoot.position.y;
+    this.makeIcon(item.icon || item.visual || 'building', iconRoot, index);
+    if (this.route !== 'career') this.stopLabel(group, item.name, index, this.route === 'hub' ? 'MAIN ISLAND' : `PROJECT / ${item.category || 'UNITY'}`, [0, 0.85, z + 2.65], this.route === 'hub' ? 3.85 : 5);
     const marker = this.mesh(new THREE.ConeGeometry(0.25, 0.42, 3), C.aqua, group, { emissive: C.aqua, emissiveIntensity: 0.6 });
     marker.rotation.z = Math.PI; marker.position.set(0, 4.65, platformZ); marker.visible = index === this.index;
     const iconHeight = new THREE.Box3().setFromObject(iconRoot).getSize(new THREE.Vector3()).y;
-    marker.userData.baseY = 0.88 + iconHeight * 1.24 + 0.7;
-    this.stations.push({ group, iconRoot, iconHeight, iconScale: 1, scaleVelocity: 0, marker, pad, parkingSurface, light, anchor: new THREE.Vector3(x, 0.5 + 0.88 + iconHeight, platformZ) });
+    marker.userData.baseY = iconRoot.position.y + iconHeight * 1.24 + 0.7;
+    this.stations.push({ group, iconRoot, iconHeight, iconScale: 1, scaleVelocity: 0, marker, pad, parkingSurface, light, anchor: new THREE.Vector3(x, 0.5 + iconRoot.position.y + iconHeight, platformZ) });
   }
   createCareerTimeline(items) {
     const start = this.positions[0] - 2.8, end = this.positions.at(-1) + 2.8, segments = 120;
@@ -431,20 +447,24 @@ export class CoastalScene {
       const line = this.mesh(new THREE.TubeGeometry(curve, segments, 0.045, 4, false), color); line.material = this.glowMaterial(color); line.castShadow = false;
       const progress = this.mesh(new THREE.TubeGeometry(curve, segments, 0.059, 4, false), 0xffc15d); progress.material = this.glowMaterial(0xffc15d); progress.castShadow = false;
       rails.push(progress);
-      const diamond = this.glow(cursor, [0.45, 0.08, 0.45], [0, 0.73, offset], 0xffca6d); diamond.rotation.y = Math.PI / 4;
     }
     items.forEach((company, i) => {
       const x = this.positions[i], z = pathZ(x), group = new THREE.Group(); group.userData.stop = i; this.world.add(group);
-      const light = this.glow(group, [0.74, 0.07, 0.74], [x, 0.76, z + 2.35], 0xe9a0ff); light.rotation.y = Math.PI / 4;
-      this.box(group, [2.7, 0.18, 0.97], [x, 0.72, z + 3.65], 0x5f6264, 0.04);
-      const dates = company.dates === 'Employment dates' ? 'DATES TO ADD' : company.dates;
-      const year = this.text(group, dates.toUpperCase(), [x, 0.83, z + 3.65], 2.55, 0.76, { background: '#43545a', color: '#fff2d7', fontSize: 55 }); year.rotation.x = -Math.PI / 2;
       this.beam(group, [x + 1.75, 0.5, z + 2.35], [x + 1.75, 1.8, z + 2.35], 0.065, 0x65565d);
-      const label = this.text(group, company.name.toUpperCase(), [x, 2.05, z + 2.35], 4, 0.72, { background: '#665064', color: '#ffe5a6', fontSize: 75, alwaysOnTop: true });
-      this.text(group, company.role.toUpperCase(), [x, 1.5, z + 2.35], 4, 0.48, { background: '#665064', color: '#ffedcc', fontSize: 48, alwaysOnTop: true });
-      milestones.push({ light, label });
+      const label = this.stopLabel(group, company.name, i, company.role, [x, 1.95, z + 2.35], 4.5);
+      milestones.push({ label });
     });
-    this.timeline = { start, end, segments, rails, milestones, cursor };
+    // A single year readout follows the car, rather than per-stop placeholder plates.
+    const yearBoard = new THREE.Group(); yearBoard.name = 'Raised 3D career year sign';
+    yearBoard.position.set(0, 1.35, 3.85); yearBoard.rotation.x = -.38; cursor.add(yearBoard);
+    const frame = this.box(yearBoard, [3.7, 1.35, .24], [0, 0, 0], 0x194b55, .075);
+    frame.material = this.material(0x194b55, { depthTest: false, depthWrite: false }); frame.renderOrder = 28;
+    for (const x of [-1.3, 1.3]) this.beam(cursor, [x, .52, 3.85], [x, 1.34, 3.85], .065, 0x65565d);
+    const yearFace = this.text(yearBoard, '', [0, 0, .15], 3.45, 1.15, { fontSize: 100, alwaysOnTop: true });
+    yearFace.rotation.x = 0;
+    const years = items.map((company, i) => Number.isFinite(company.timelineYear) ? company.timelineYear : Math.round(2017 + i * (new Date().getFullYear() - 2017) / Math.max(1, items.length - 1)));
+    this.timeline = { start, end, segments, rails, milestones, cursor, yearFace, years, lastYear: null };
+    this.updateCareerTimeline();
   }
   updateCareerTimeline() {
     if (!this.timeline) return;
@@ -452,18 +472,34 @@ export class CoastalScene {
     const fraction = clamp((this.carX - start) / (end - start), 0, 1);
     rails.forEach(rail => rail.geometry.setDrawRange(0, Math.round(fraction * segments) * 4 * 6));
     cursor.position.set(this.carX, 0, pathZ(this.carX));
+    const timeline = this.timeline;
+    const stopProgress = clamp((this.carX - this.positions[0]) / this.spacing, 0, this.positions.length - 1);
+    const from = Math.floor(stopProgress), to = Math.min(from + 1, timeline.years.length - 1);
+    const yearValue = lerp(timeline.years[from], timeline.years[to], stopProgress - from);
+    if (timeline.lastYear === null || Math.abs(yearValue - timeline.lastYear) > .002) {
+      const tex = timeline.yearFace.material.map, canvas = tex.image, ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height, integer = Math.floor(yearValue + .00001), fraction = yearValue - integer;
+      ctx.fillStyle = '#284147'; ctx.fillRect(0, 0, w, h);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffcf70';
+      ctx.font = '600 23px system-ui'; ctx.fillText('CAREER / SAMPLE YEARS', w / 2, 27);
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 53, w, h - 62); ctx.clip();
+      ctx.fillStyle = '#fff4d9'; ctx.font = '600 115px monospace';
+      const line = h - 50, center = (h + 53) / 2;
+      ctx.fillText(String(integer), w / 2, center - fraction * line);
+      if (fraction > 0) ctx.fillText(String(integer + 1), w / 2, center + (1 - fraction) * line);
+      ctx.restore(); tex.needsUpdate = true; timeline.lastYear = yearValue;
+    }
     milestones.forEach((milestone, i) => {
-      milestone.light.material = this.glowMaterial(i === this.index ? 0xffcd65 : i < this.index ? 0xa4ece1 : 0xdb9df0);
-      milestone.label.scale.setScalar(i === this.index ? 1.08 : 1);
+      milestone.label.scale.setScalar(milestone.label.userData.baseScale * (i === this.index ? 1.08 : 1));
     });
   }
   clearWorld() {
     this.world.traverse(obj => { if (obj.geometry) obj.geometry.dispose(); if (obj.material?.map && !obj.material.userData.shared) { obj.material.map.dispose(); obj.material.dispose(); } });
-    this.world.clear(); this.routeTextures = [];
+    this.world.clear(); this.routeTextures = []; this.palmLeaves = [];
   }
   setRoute(route, items, selected = 0, immediate = false) {
     if (this.route === route && this.routeItems === items && this.stations?.length) { this.go(selected, immediate); return; }
-    this.clearWorld(); this.rockFootprints = []; this.palmFootprints = []; this.route = route; this.routeItems = items; this.index = selected; this.stations = []; this.timeline = null;
+    this.exhaust?.reset(); this.clearWorld(); this.rockFootprints = []; this.palmFootprints = []; this.route = route; this.routeItems = items; this.index = selected; this.stations = []; this.timeline = null;
     this.spacing = route === 'hub' ? 8 : 9.5;
     this.positions = items.map((_, i) => (i - (items.length - 1) / 2) * this.spacing);
     const length = Math.max(45, (items.length - 1) * this.spacing + 13);
@@ -475,40 +511,73 @@ export class CoastalScene {
     if (route === 'career') this.createCareerTimeline(items);
     // Place rock clusters before foliage so trees can find a clear footprint.
     this.positions.forEach((x, i) => {
-      if (i % 3 === 0) { this.rock(x - 1.5, -6.2, 3.2 + seeded(i + 2) * 0.6, i); this.rock(x + 0.8, -5.9, 2.2, i + 37); }
+      if (i % 3 === 0) {
+        const behindHello = (route === 'hub' && i === 0) || route === 'career';
+        const rockZ = behindHello ? pathZ(x) - 7.7 : -6.2;
+        this.rock(x - (behindHello ? 2.3 : 1.5), rockZ, 3.2 + seeded(i + 2) * 0.6, i);
+        this.rock(x + 0.8, behindHello ? rockZ - 0.1 : -5.9, 2.2, i + 37);
+        // Keep the entrance's foliage buffer so a new palm does not hide the desk.
+        if (behindHello) this.rockFootprints.push({ x: x + 0.8, z: -5.9, radius: 2.2 * 0.85 });
+      }
     });
-    this.rock(-length / 2 + 4.4, -4.8, 2.6, 55);
+    this.rock(-length / 2 + (route !== 'projects' ? 2.2 : 4.4), route !== 'projects' ? -7.8 : -4.8, 2.6, 55);
     for (let i = 0; i < Math.ceil(length / 5); i++) {
       const x = -length / 2 + 2 + i * 5;
       this.fence(x, route === 'career' ? 6.1 : 4.4, 4.5);
       if (i % 3 === 0) this.lamp(x + 1.8, 4.35);
       this.grass(x + seeded(i + 100), -5.8, i + 3);
-      if (i % 3 === 1) this.palm(x, -5.9, 0.95 + seeded(i) * 0.18, i % 2 === 0);
+      if (i % 3 === 1) this.palm(x, -5.9, route === 'career' ? .65 : 0.95 + seeded(i) * 0.18, i % 2 === 0);
       if (i % 3 === 0) this.rock(x, 6.1, 0.55, i + 20);
-      this.grass(x + 1, 3.5, i + 23);
+      if (route !== 'career') this.grass(x + 1, 3.5, i + 23);
       if (i % 2 === 1) { this.rock(x + 1.7, 5.6, 0.55, i + 211); this.starFish(x - 0.8, 5.4); }
     }
-    this.palm(-length / 2 + 2, -3.5, 1.1);
-    this.createPier(length / 2 - 3);
+    this.palm(-length / 2 + 2, -3.5, route === 'career' ? .65 : 1.1);
+    // Leave room for the cabin boat beside the dock at the default island zoom.
+    this.createPier(length / 2 - 7.5);
     this.carX = this.positions[selected]; this.destinationX = this.carX; this.carSpeed = 0; this.moving = false;
     this.go(selected, true);
+    const excluded = new Set([
+      ...this.stations.map(station => station.group), ...this.palmLeaves.map(({ leaf }) => leaf),
+      ...(this.timeline ? [this.timeline.cursor, ...this.timeline.rails, ...this.timeline.milestones.map(milestone => milestone.label)] : []),
+    ]);
+    this.batching = batchStaticMeshes(this.world, { exclude: excluded });
+    for (const station of this.stations) {
+      const result = batchStaticMeshes(station.iconRoot, { cellSize: Infinity });
+      this.batching.savedDraws += result.savedDraws;
+      const base = batchStaticMeshes(station.group, { cellSize: Infinity, exclude: new Set([station.iconRoot, station.marker, station.pad, station.parkingSurface, station.light]) });
+      this.batching.savedDraws += base.savedDraws;
+    }
     this.world.updateMatrixWorld(true);
     this.overviewBounds = new THREE.Box3().setFromObject(this.world).expandByScalar(0.65);
     this.ocean.createRoute(length); this.ocean.update(this.oceanTime);
     this.resize();
     this.focusX = this.cameraFocusX();
     this.visualZoom = this.viewHalfHeight();
+    this.qualityController.reset(performance.now());
   }
   createPier(x) {
-    const g = new THREE.Group(); g.position.set(x, 0.2, 4.4); this.world.add(g);
-    for (let i = 0; i < 9; i++) this.box(g, [2.6, 0.14, 0.34], [0, 0, i * 0.38], 0xc28e4f);
-    for (const z of [0, 2.8]) for (const side of [-1, 1]) this.cylinder(g, 0.13, 0.16, 1.9, [side * 1.4, -0.1, z], 0xa4713a);
-    if (this.route !== 'hub') this.text(g, 'END OF THE ROUTE', [0, 1, 3], 2.8, 0.65, { fontSize: 36 });
+    // Find the actual front shoreline, including its irregular faceted edge.
+    const outline = this.islandShape(this.islandLength + 3, 13.8, 4).getPoints(), crossings = [];
+    for (let i = 0; i < outline.length - 1; i++) {
+      const a = outline[i], b = outline[i + 1];
+      if ((a.x <= x && b.x > x) || (b.x <= x && a.x > x)) crossings.push(-(a.y + (b.y - a.y) * (x - a.x) / (b.x - a.x)));
+    }
+    const shoreZ = Math.max(...crossings), startZ = shoreZ - 0.4;
+    const g = new THREE.Group(); g.name = 'Fishing pier over open water'; g.position.set(x, 0.48, startZ); this.world.add(g);
+    // A narrow gangway joins the beach to a wider fishing deck offshore.
+    for (let i = 0; i < 8; i++) this.box(g, [1.25, 0.14, 0.34], [0, 0, i * 0.38], 0xc28e4f);
+    for (let i = 0; i < 9; i++) this.box(g, [2.6, 0.14, 0.34], [0, 0, 3.04 + i * 0.38], i % 2 ? 0xd6a35d : 0xc28e4f);
+    for (const z of [3.04, 6.08]) for (const side of [-1, 1]) this.cylinder(g, 0.13, 0.16, 2.5, [side * 1.4, -0.32, z], 0xa4713a);
+    for (const side of [-1, 1]) this.box(g, [0.12, 0.22, 3.4], [side * 1.16, -0.15, 4.56], 0x956633);
+    this.pier = { x, shoreZ, startZ, deckZ: startZ + 4.56, endZ: startZ + 6.25, boatX: x + 3, boatZ: startZ + 4.56 };
   }
   createCar() {
     this.car = createJeep(this, 'open'); this.scene.add(this.car);
+    this.exhaust = new JeepExhaust(this.scene);
     this.car.scale.setScalar(0.92 * 0.85);
     this.wheels = this.car.userData.wheels;
+    this.carBatchSaved = batchStaticMeshes(this.car.userData.body, { cellSize: Infinity }).savedDraws;
+    for (const wheel of this.wheels) this.carBatchSaved += batchStaticMeshes(wheel, { cellSize: Infinity }).savedDraws;
     this.wheelRadius = 0.56 * 0.92 * 0.85;
     this.carShadow = this.contactShadow(this.scene, [this.carX, 0.608, pathZ(this.carX)], 4.8, 2.8, 0.3);
     this.car.position.set(this.carX, 0.63, pathZ(this.carX));
@@ -535,14 +604,17 @@ export class CoastalScene {
     this.stations?.forEach((s, i) => {
       s.marker.visible = i === index;
       s.light.material = this.glowMaterial(i === index ? 0x3dfff1 : 0xffbd51);
-      s.pad.material = this.glowMaterial(i === index ? 0x35fff1 : 0x68dcd6);
+      s.pad.material = this.material(i === index ? 0xffd77b : 0xffc15b);
     });
   }
   resize() {
     const w = window.innerWidth, h = window.innerHeight; this.mobile = w <= 700; this.aspect = w / h;
     this.renderer.setSize(w, h); this.baseHalfHeight = this.mobile ? 13.2 : clamp(24 / this.aspect, 10.5, 19);
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.mobile ? 1.5 : 1.7));
-    this.fitOverview();
+    this.renderer.setPixelRatio(cappedPixelRatio(devicePixelRatio, this.qualityLevel, this.isMobileViewport()));
+    this.qualityController.reset(performance.now());
+    this.fitOverview(true);
+    this.visualZoom = this.viewHalfHeight();
+    this.focusX = this.cameraFocusX();
     this.camera.updateProjectionMatrix();
   }
   fitOverview(reuseHomeBounds = false) {
@@ -566,6 +638,7 @@ export class CoastalScene {
         }
       });
       this.homeViewBounds = { left: left - 0.8, rightEdge: rightEdge + 0.8, bottom: bottom - 0.8, top: top + 0.8 };
+      this.homeIslandLength = this.islandLength;
     }
     // Every section uses the Home frame, keeping cars and landmarks the same size.
     const { left, rightEdge, bottom, top } = this.homeViewBounds;
@@ -576,40 +649,59 @@ export class CoastalScene {
     const safeTop = parseFloat(layout.getPropertyValue('--world-top')) || 185;
     const dockHeight = parseFloat(layout.getPropertyValue('--dock-height')) || 218;
     const dockBottom = parseFloat(layout.getPropertyValue('--dock-bottom')) || 24;
-    const safeBottom = h - dockHeight - dockBottom - 16;
-    const usableHeight = Math.max(40, safeBottom - safeTop);
-    const usableWidth = Math.max(w * 0.35, safeRight - safeLeft);
-    this.overviewHalfHeight = Math.max((rightEdge - left) * h / (2 * usableWidth), (top - bottom) * h / (2 * usableHeight));
+    const worldGap = parseFloat(layout.getPropertyValue('--world-gap')) || 16;
+    const safeBottom = h - dockHeight - dockBottom - worldGap;
+    this.overviewHalfHeight = referenceHalfHeight(this.homeViewBounds);
+    this.defaultZoom = fittedZoom(this.homeViewBounds, { width: w, height: h, top: safeTop, bottom: h - dockBottom, padding });
     const halfHeight = this.viewHalfHeight();
     const centerY = 1 - (safeTop + safeBottom) / h;
     const centerX = (safeLeft + safeRight) / w - 1;
-    this.overviewLook = up.multiplyScalar((top + bottom) / 2 - centerY * halfHeight)
+    const compactOffset = h <= 550 && w > h ? 0.6 : 0;
+    this.overviewLook = up.multiplyScalar((top + bottom) / 2 + compactOffset - centerY * halfHeight)
       .add(right.multiplyScalar((left + rightEdge) / 2 - centerX * halfHeight * this.aspect));
   }
-  viewHalfHeight() { return (this.overviewHalfHeight || this.baseHalfHeight) / ((this.zoomLevels?.[this.route] ?? 112) / 100); }
+  viewHalfHeight() {
+    return viewportHalfHeight(innerHeight, this.overviewHalfHeight || this.baseHalfHeight, this.getZoom());
+  }
+  getZoom() { return this.zoomLevels?.[this.route] ?? this.defaultZoom ?? 100; }
   setZoom(value) {
-    if (!Number.isFinite(value)) return;
-    this.zoomLevels[this.route] = clamp(Math.round(value), 50, 300);
+    if (value !== null && !Number.isFinite(value)) return;
+    this.zoomLevels[this.route] = value === null ? null : clamp(Math.round(value), 10, 600);
     this.fitOverview(true);
     this.visualZoom = this.viewHalfHeight();
   }
   cameraFocusX() {
-    if (this.routeItems.length <= 5) return 0;
-    const limit = Math.max(0, this.islandLength / 2 - this.viewHalfHeight() * this.aspect + 4);
+    if (!this.homeViewBounds) return 0;
+    // Extra records extend the island rather than shrinking its buildings. At
+    // either endpoint, keep the same projected edge padding as Home.
+    const rightX = 35 / Math.hypot(35, 4.5);
+    const homeWidth = this.homeViewBounds.rightEdge - this.homeViewBounds.left;
+    const visibleWidth = 2 * this.viewHalfHeight() * this.aspect;
+    const padding = Math.max(24, Math.min(70, innerWidth * .045));
+    const usableWidth = visibleWidth * (1 - 2 * padding / innerWidth);
+    const extraLength = ((this.islandLength || 0) - (this.homeIslandLength || 45)) / 2;
+    const limit = Math.max(0, extraLength + (homeWidth - usableWidth) / (2 * rightX));
     return clamp(this.carX, -limit, limit);
   }
   setPaused(paused) {
     if (Boolean(this.paused) === paused) return;
     if (paused) this.pauseStarted = performance.now();
     this.paused = paused;
+    this.qualityController.reset(performance.now());
   }
   getAnchor() {
     const a = this.stations?.[this.index]?.anchor; if (!a) return { x: innerWidth / 2, y: innerHeight / 2 };
     const p = a.clone().project(this.camera); return { x: (p.x + 1) * innerWidth / 2, y: (-p.y + 1) * innerHeight / 2 };
   }
+  fishSplash(x, y, z) {
+    const point = new THREE.Vector3(x, y, z).project(this.camera);
+    if (Math.abs(point.x) <= 1 && Math.abs(point.y) <= 1 && Math.abs(point.z) <= 1) this.onSplash?.({ pan: point.x * .65 });
+  }
   animate(now) {
     if (this.disposed) return;
-    const dt = Math.min((now - this.lastTime) / 1000, 0.05); this.lastTime = now; const t = now / 1000;
+    // A queued first frame can predate scene setup; never run springs backwards.
+    const frameMs = now - this.lastTime;
+    const dt = clamp(frameMs / 1000, 0, 0.05); this.lastTime = now; const t = now / 1000;
     if (this.paused) return;
     if (!this.reducedMotion) this.oceanTime += dt;
     this.ocean.update(this.oceanTime);
@@ -625,6 +717,9 @@ export class CoastalScene {
     }
     const moving = Boolean(this.drive);
     if (moving !== this.moving) { this.moving = moving; this.onMove?.(moving); }
+    if (this.carSpeed !== this.lastSoundSpeed) {
+      this.lastSoundSpeed = this.carSpeed; this.onSpeed?.(this.carSpeed / MAX_DRIVING_SPEED);
+    }
     const delta = this.carX - previousX;
     this.idleStrength = this.reducedMotion ? 0 : THREE.MathUtils.damp(this.idleStrength ?? 1, moving ? 0 : 1, 12, dt);
     const engineTime = this.oceanTime * Math.PI * 2;
@@ -637,6 +732,7 @@ export class CoastalScene {
     this.carShadow.position.set(this.carX, 0.608, pathZ(this.carX));
     this.car.rotation.y = -Math.atan(pathSlope(this.carX));
     this.carShadow.rotation.z = this.car.rotation.y;
+    this.exhaust.update(dt, this.car, moving, this.reducedMotion);
     this.wheels.forEach(w => { w.rotation.z -= delta / this.wheelRadius; });
     this.updateCareerTimeline();
     const focus = this.cameraFocusX();
@@ -650,22 +746,35 @@ export class CoastalScene {
     this.camera.position.copy(look).add(new THREE.Vector3(-18, 96, 140)); this.camera.lookAt(look);
     this.sun.position.set(this.focusX - 12, 27, 11); this.sun.target.position.set(this.focusX, 0, 0); this.sun.target.updateMatrixWorld();
     this.stations?.forEach((s, i) => {
-      if (s.marker.visible) s.marker.position.y = s.marker.userData.baseY + (this.reducedMotion ? 0 : Math.sin(t * 2.5) * 0.12);
+      const bob = this.reducedMotion ? 0 : Math.sin(this.oceanTime * 1.2 + i * .8) * .12;
+      s.iconRoot.position.y = s.iconRoot.userData.baseY + bob;
+      if (s.marker.visible) s.marker.position.y = s.marker.userData.baseY + bob + (this.reducedMotion ? 0 : Math.sin(this.oceanTime * 2.5) * 0.08);
       const targetScale = i === this.index && !moving ? 1.24 : 1;
       if (this.reducedMotion) { s.iconScale = targetScale; s.scaleVelocity = 0; }
       else { s.scaleVelocity += (targetScale - s.iconScale) * 105 * dt; s.scaleVelocity *= Math.exp(-12 * dt); s.iconScale += s.scaleVelocity * dt; }
       s.iconRoot.scale.setScalar(s.iconScale);
       s.anchor.y = 0.5 + s.iconRoot.position.y + s.iconHeight * s.iconScale;
     });
+    this.palmLeaves?.forEach(({ leaf, phase }) => {
+      leaf.rotation.z = this.reducedMotion ? 0 : Math.sin(this.oceanTime * .85 + phase) * .025;
+      leaf.rotation.x = this.reducedMotion ? 0 : Math.sin(this.oceanTime * 1.1 + phase * 1.3) * .014;
+    });
     if (!this.reducedMotion) {
       this.birds.children.forEach((b, i) => { const a = t * 0.08 + b.userData.phase; b.position.set(this.focusX + Math.sin(a) * 17, 8 + i * 0.65, -13 + Math.cos(a) * 7); b.rotation.y = -a; b.rotation.z = Math.sin(t * 1.7 + i) * 0.07; });
     }
+    const renderStarted = this.performanceProbe ? performance.now() : 0;
     this.renderer.render(this.scene, this.camera);
+    this.performanceProbe?.frame(now, performance.now() - renderStarted, { route: this.route, quality: this.qualityLevel, shadowSize: this.qualityProfile.shadowSize, waterTriangles: this.waterTriangles(), batchedDrawsSaved: (this.batching?.savedDraws || 0) + this.carBatchSaved });
+    if (!this.fixedQuality) {
+      const level = this.qualityController.sample(frameMs, now, !document.hidden);
+      if (level) this.setQuality(level);
+    }
   }
+  waterTriangles() { return this.ocean.water.geometry.index.count / 3; }
   dispose() {
     this.disposed = true; this.renderer.setAnimationLoop(null); window.removeEventListener('resize', this.resize);
     this.canvas.removeEventListener('pointerdown', this.pointerDown); this.canvas.removeEventListener('pointerup', this.pointerUp);
     this.canvas.removeEventListener('pointermove', this.pointerMove); this.canvas.removeEventListener('pointercancel', this.pointerCancel); this.canvas.removeEventListener('pointerleave', this.pointerCancel);
-    this.ocean.dispose(); this.clearWorld(); this.scene.traverse(o => { o.geometry?.dispose(); }); this.materials.forEach(m => { m.map?.dispose(); m.dispose(); }); this.renderer.dispose();
+    this.exhaust.dispose(); this.ocean.dispose(); this.clearWorld(); this.scene.traverse(o => { o.geometry?.dispose(); }); this.materials.forEach(m => { m.map?.dispose(); m.dispose(); }); this.renderer.dispose();
   }
 }

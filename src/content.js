@@ -2,7 +2,7 @@
 // Empty links are deliberately disabled in the UI, never fake destinations.
 export const profile = {
   name: 'Your name',
-  title: 'Unity developer',
+  title: 'Senior Unity Developer',
   years: 9,
   bio: 'I build interactive experiences with Unity. Take a little drive through my work, career, and the things I love making.',
   email: '',
@@ -34,6 +34,8 @@ export const companies = Array.from({ length: 4 }, (_, index) => ({
   name: `Company ${String(index + 1).padStart(2, '0')}`,
   role: 'Your role title',
   dates: 'Employment dates',
+  // Sample timeline only; replace alongside the real company records.
+  timelineYear: Math.round(2017 + index * (new Date().getFullYear() - 2017) / 3),
   description: 'Your responsibilities, team context, and key contributions go here.',
   outcome: 'Add a meaningful result from your time here.',
   projectIndices: [index % projects.length, (index + 1) % projects.length],

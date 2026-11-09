@@ -1,0 +1,83 @@
+{
+  "source": "Original procedural synthesis; selected ocean option A (gentle shoreline).",
+  "processing": "Preview fades trimmed, 1.2-second equal-power wrap crossfade, RMS normalized to 0.065.",
+  "sample_rate": 22050,
+  "duration_seconds": 9.0,
+  "peak": 0.3538,
+  "loop_boundary_delta": [
+    0.057373046875,
+    0.051025390625
+  ],
+  "mix_status": "Balanced complete mix. Ocean retained at requested 0.135. Engine reduced to 0.38 with idle at 45% of the engine loop. Fish volume retained, sound on 20% of eligible landings. UI 0.35, master 0.8, -3 dB limiter.",
+  "background_level_adjustment": "Ocean channel reduced from 0.3375 to 0.135 (40% of previous level; 60% reduction). Engine and other channels unchanged.",
+  "splash_level_adjustment": "Splash channel remains at 0.5. Sound plays once every five eligible visible fish landings (20% frequency); fish animation frequency unchanged.",
+  "selections": {
+    "ocean": "A \u2014 gentle shoreline",
+    "engine_idle": "A \u2014 Smooth purr",
+    "engine_driving": "B \u2014 Rugged growl",
+    "splash": "A \u2014 Recorded short splash",
+    "interface": "Soft tap, two-note arrival, airy island swish"
+  },
+  "engine_idle_asset": {
+    "source": "Original procedural idle audition A",
+    "sample_rate": 22050,
+    "channels": 1,
+    "seconds": 6.619954648526077,
+    "peak": 0.1131591796875,
+    "rms": 0.06,
+    "processing": "Phase-aligned 0.45-second wrap crossfade, normalized RMS.",
+    "overlap_correlation": 0.961734047120648
+  },
+  "engine_driving_asset": {
+    "source": "Original driving audition B, synthesized at steady neutral throttle",
+    "sample_rate": 22050,
+    "channels": 1,
+    "seconds": 4.705215419501134,
+    "peak": 0.151123046875,
+    "rms": 0.065,
+    "processing": "Phase-aligned 0.35-second wrap crossfade. Playback pitch and gain follow actual car speed; short start/stop fades, not a fixed rev sequence.",
+    "overlap_correlation": 0.9746945286360452
+  },
+  "fish_splash_asset": {
+    "author": "wormer2",
+    "source": "https://freesound.org/people/wormer2/sounds/415670/",
+    "license": "CC0 1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "processing": "Approved A audition extracted as a single splash; cropped original at 0.23\u20131.4 seconds, high-pass filtered, edge fades, RMS normalized to 0.05.",
+    "sample_rate": 22050,
+    "seconds": 1.1699773242630385,
+    "peak": 0.460662841796875
+  },
+  "interface_assets": {
+    "click": {
+      "source": "Original procedural synthesis, no third-party samples",
+      "seconds": 0.07,
+      "rms": 0.025,
+      "peak": 0.15875,
+      "clipped_samples": 0
+    },
+    "arrival": {
+      "source": "Original procedural synthesis, no third-party samples",
+      "seconds": 0.42,
+      "rms": 0.04,
+      "peak": 0.16379,
+      "clipped_samples": 0
+    },
+    "transition": {
+      "source": "Original procedural synthesis, no third-party samples",
+      "seconds": 0.46,
+      "rms": 0.03,
+      "peak": 0.12631,
+      "clipped_samples": 0
+    }
+  },
+  "final_channel_levels": {
+    "master": 0.8,
+    "ocean": 0.135,
+    "engine": 0.38,
+    "idle_loop": 0.45,
+    "splash": 0.5,
+    "splash_voice": 0.65,
+    "ui": 0.35
+  }
+}

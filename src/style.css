@@ -50,6 +50,10 @@ body[data-route=projects] .route-heading p,body[data-route=career] .route-headin
 
 /* Readable controls and cards across the compact coastal experience. */
 .unity-logo{display:block;width:48px;height:48px;object-fit:contain;padding:7px;background:#fff;border-radius:12px;flex-shrink:0}
+.brand .unity-logo{padding:0;background:transparent;border-radius:0;filter:invert(98%) sepia(12%) saturate(414%) hue-rotate(332deg) brightness(106%)}
+.brand>span{position:relative}
+.brand .route-breadcrumb{position:absolute;top:calc(100% + 12px);left:0;margin:0;font-size:10px;letter-spacing:1.6px;font-weight:700;white-space:nowrap;color:#fff9e9}
+@media(max-height:550px) and (orientation:landscape){.brand .route-breadcrumb{top:calc(100% + 9px);font-size:8px;letter-spacing:1px}}
 .brand{font-size:19px;letter-spacing:.6px;gap:14px}
 .brand small{display:block;opacity:1;font-size:11px;letter-spacing:1.3px;font-weight:600;margin-top:9px;color:#fff1cb}
 .brand small strong{background:#ffc55d;color:#173e49;padding:3px 6px;border-radius:4px;font-weight:800;margin-right:3px}
@@ -192,12 +196,12 @@ body[data-route=projects] .route-heading p,body[data-route=career] .route-headin
 }
 
 /* Approved layout A: controls above the scene, image-rich details below it. */
-:root{--dock-height:218px;--dock-bottom:24px;--world-top:185px;--tools-top:111px}
-#card-tether,.enter-prompt{display:none!important}
-#info-card.info-card{position:fixed;inset:auto 28px var(--dock-bottom);width:auto;max-width:none;margin:0;height:var(--dock-height);max-height:none;overflow:visible;padding:21px 25px;border-radius:17px;opacity:1;transform:none;transition:none}
-#info-card #card-content{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;height:100%;align-items:center}
-#info-card #card-content>.dock-copy{grid-column:1;grid-row:1;min-width:0}
-#info-card #card-content>.dock-media{grid-column:2;grid-row:1;min-width:0}
+:root{--dock-height:202px;--dock-bottom:24px;--world-top:185px;--tools-top:111px}
+#card-tether{display:none!important}
+#info-card.info-card{position:fixed;inset:auto 28px var(--dock-bottom);width:auto;max-width:none;margin:0;height:var(--dock-height);max-height:none;overflow:visible;padding:13px 25px;border-radius:17px;opacity:1;transform:none;transition:none}
+#info-card #card-content{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;height:100%;align-items:center}
+#info-card #card-content>.dock-copy{grid-column:2;grid-row:1;min-width:0}
+#info-card #card-content>.dock-media{grid-column:1;grid-row:1;min-width:0}
 #info-card .card-close{top:5px;right:7px;width:26px;height:26px}
 #info-card .eyebrow{font-size:9px;margin-bottom:5px;letter-spacing:1.6px}
 #info-card h2,#info-card .card-person h2{font-size:26px;line-height:1.2}
@@ -235,17 +239,17 @@ body[data-route=hub] .stop{flex-direction:column;gap:4px}body[data-route=hub] .s
 .utility-controls{gap:7px}.utility-controls>button{font-size:11px;padding:3px}.utility-controls .icon{width:23px;height:23px}.utility-controls .help-button{width:28px;height:28px;font-size:13px}.utility-controls>span{display:none}
 .show-card{inset:auto 28px 24px auto;width:auto;min-height:42px;font-size:13px}.toast{top:185px}
 @media(min-width:1100px){
- #info-card.info-card{left:7%;right:7%;padding:22px 30px}#info-card #card-content{grid-template-columns:minmax(0,1fr) 380px;gap:40px}#info-card .thumbnail{height:101px}
+ #info-card.info-card{left:7%;right:7%;padding:14px 30px}#info-card #card-content{grid-template-columns:380px minmax(0,1fr);gap:40px}#info-card .thumbnail{height:101px}
  .journey-bar{left:230px;right:280px}.stops{gap:27px}.stop-name,.stop.active .stop-name{font-size:12px}body[data-route=hub] .stop{flex-direction:row;gap:7px}body[data-route=hub] .stop-name{font-size:11px}
 }
 @media(max-height:550px) and (orientation:landscape){
- :root{--dock-height:154px;--dock-bottom:12px;--world-top:112px;--tools-top:65px}
+ :root{--dock-height:146px;--dock-bottom:12px;--world-top:112px;--tools-top:65px}
  .site-header{height:59px;padding:8px 22px}.brand{font-size:13px;gap:9px}.unity-logo{width:34px;height:34px;padding:6px}.brand small{font-size:7px;margin-top:5px}.header-nav{gap:13px;margin:0;font-size:12px}.header-nav>button{font-size:12px;min-height:32px}.header-nav>.contact-link{position:static;font-size:12px;min-height:31px;padding:7px 10px}
  .route-heading{left:22px;top:76px;display:block}.route-heading .back-link{font-size:10px}.route-heading>.eyebrow{left:22px;top:102px;font-size:7px}
  .journey-bar{left:148px;right:220px;min-height:34px;height:34px;gap:7px}.stops{gap:10px}.stop{min-height:29px;min-width:0;gap:4px}.stop-name,.stop.active .stop-name{font-size:10px}body[data-route=hub] .stop-name{font-size:8px}.stop-dot{height:10px;width:10px}.drive-controls{gap:3px}.drive-button,.drive-button:last-child{min-width:25px;height:28px;min-height:28px;padding:0 3px}
  .bottom-notes{right:22px;height:34px}.utility-controls{gap:4px}.utility-controls>button{font-size:10px}.utility-controls .icon{width:20px;height:20px}.utility-controls .help-button{width:25px;height:25px}.control-hint{display:none}
- #info-card.info-card{left:22px;right:22px;height:var(--dock-height);top:auto;bottom:var(--dock-bottom);width:auto;padding:10px 16px;border-radius:12px}
- #info-card #card-content{grid-template-columns:minmax(0,1fr) 235px;gap:22px;align-content:center}
+ #info-card.info-card{left:22px;right:22px;height:var(--dock-height);top:auto;bottom:var(--dock-bottom);width:auto;padding:6px 16px;border-radius:12px}
+ #info-card #card-content{grid-template-columns:235px minmax(0,1fr);gap:22px;align-content:center}
  #info-card h2,#info-card .card-person h2{font-size:20px}#info-card .eyebrow{font-size:7px;margin-bottom:3px}#info-card .card-subtitle{font-size:10px;margin-top:3px}#info-card .card-description{font-size:11px;line-height:1.35;margin:4px 0}
  #info-card .thumbnail{height:65px;aspect-ratio:auto}#info-card .thumbnail-strip{grid-template-columns:1fr 1fr;gap:6px}#info-card .card-actions{margin-top:7px;gap:5px}#info-card .primary,#info-card .secondary,#info-card .project-links .primary,#info-card .project-links .secondary{font-size:10px;min-height:31px;padding:6px 7px}#info-card .dock-media>button.primary{font-size:11px;margin-top:7px;min-height:31px}
  #info-card .card-tabs{gap:18px;margin:3px 0}#info-card .card-tabs button{font-size:10px;min-height:24px;padding:3px 0 5px}#info-card .company-heading p{font-size:10px;margin-top:3px}#info-card .company-logo{width:30px;height:30px;font-size:14px}#info-card .company-heading{gap:7px}
@@ -253,17 +257,36 @@ body[data-route=hub] .stop{flex-direction:column;gap:4px}body[data-route=hub] .s
  #info-card .contact-banner{height:65px}#info-card .contact-minor{gap:15px;margin-top:3px;padding-top:2px}#info-card .contact-minor button{font-size:10px;min-height:21px}#info-card .availability{font-size:10px;margin:3px 0}#info-card .gateway-preview>span{font-size:25px}#info-card .gateway-preview>div{font-size:11px}#info-card .gateway-preview small{font-size:8px}#info-card h3{font-size:12px;margin:3px 0}
  .show-card{inset:auto 22px 12px auto;font-size:11px;min-height:35px}.toast{top:110px;font-size:11px}
 }
-@media(max-width:730px) and (orientation:landscape){.journey-bar{left:138px;right:210px}.stops{gap:6px}.utility-controls>button[data-action=simple]{font-size:9px;padding:0}.utility-controls{gap:2px}#info-card #card-content{grid-template-columns:minmax(0,1fr) 210px;gap:17px}.brand{font-size:12px}.header-nav{gap:10px}}
+@media(max-width:730px) and (orientation:landscape){.journey-bar{left:138px;right:210px}.stops{gap:6px}.utility-controls>button[data-action=simple]{font-size:9px;padding:0}.utility-controls{gap:2px}#info-card #card-content{grid-template-columns:210px minmax(0,1fr);gap:17px}.brand{font-size:12px}.header-nav{gap:10px}}
 
 .zoom-control{position:fixed;z-index:11;top:158px;left:50%;transform:translateX(-50%);width:310px;height:34px;display:grid;grid-template-columns:80px minmax(0,1fr) 43px 24px;align-items:center;gap:7px;padding:3px 8px;color:#fff8e9;background:#086d7c38;border:1px solid #ffffff26;border-radius:20px;backdrop-filter:blur(8px)}
 .zoom-control label{font-size:9px;letter-spacing:.7px;font-weight:700;white-space:nowrap}.zoom-control output{font-size:13px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}.zoom-control button{width:24px;height:25px;border-radius:50%;font-size:19px;line-height:1;padding:0}.zoom-control button:hover{background:#ffffff20}.zoom-control input{width:100%;min-width:0;margin:0;accent-color:#ffc15b;cursor:ew-resize;height:22px}.zoom-control input:focus-visible{outline:2px solid #fff7dc;outline-offset:2px;border-radius:7px}
 .no-webgl .zoom-control{display:none}
+.route-heading .back-link{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:6px 10px;font-size:15px;font-weight:600;border-radius:9px;background:#086d7c38;border:1px solid #ffffff38}
+.route-heading .back-link .icon{width:21px;height:21px}
+.route-heading .back-link:hover{background:#ffffff24}
+.route-heading>.eyebrow{top:176px}
+@media(max-height:550px) and (orientation:landscape){.route-heading{top:65px}.route-heading>.eyebrow{top:105px}.route-heading .back-link{font-size:12px;min-height:36px;gap:6px;padding:4px 6px}.route-heading .back-link .icon{width:18px;height:18px}.journey-bar{left:184px}}
+@media(min-width:701px) and (min-height:551px){
+ .zoom-control{left:auto;right:28px;transform:none}
+ .control-hint{right:360px}
+ .journey-bar{left:230px;top:78px}
+}
+@media(min-width:1200px) and (min-height:551px){
+ .site-header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:22px}
+ .site-header .journey-bar{position:static;inset:auto;width:auto;min-width:0;height:44px;min-height:44px;gap:10px}
+ .site-header .stops{gap:10px;min-width:0}
+ .site-header .header-nav{gap:16px}
+ body[data-route=hub] .site-header .stop{flex-direction:row;gap:6px}
+}
+@media(min-width:1400px) and (min-height:551px){.site-header .header-nav{gap:28px}.site-header .stops{gap:16px}}
+@media(min-width:701px) and (max-width:1099px) and (min-height:551px){.stops{gap:8px}.stop{gap:4px}.stop-dot{width:10px;height:10px}.stop-name,.stop.active .stop-name{font-size:10px}}
 @media(max-height:550px) and (orientation:landscape){.zoom-control{top:98px;height:25px;width:270px;padding:1px 7px;grid-template-columns:74px minmax(0,1fr) 37px 20px;gap:5px}.zoom-control label{font-size:8px}.zoom-control output{font-size:11px}.zoom-control button{width:20px;height:21px;font-size:17px}.zoom-control input{height:20px}}
 
 /* Touch driving stays beside the dock, independently of its visibility. */
 @media (max-height:550px) and (orientation:landscape), (pointer:coarse) and (orientation:landscape) {
  #info-card.info-card{left:calc(max(12px,env(safe-area-inset-left)) + 62px);right:calc(max(12px,env(safe-area-inset-right)) + 62px);padding-left:14px;padding-right:14px}
- #info-card #card-content{grid-template-columns:minmax(0,1fr) clamp(155px,26vw,220px);gap:16px}
+ #info-card #card-content{grid-template-columns:clamp(155px,26vw,220px) minmax(0,1fr);gap:16px}
  #info-card .dock-media:has(.project-links) .thumbnail{height:55px}
  #info-card .project-links{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
  #info-card .project-links>:last-child{grid-column:1/-1}
@@ -276,3 +299,242 @@ body[data-route=hub] .stop{flex-direction:column;gap:4px}body[data-route=hub] .s
  .drive-controls .drive-button:active:not(:disabled){transform:scale(.94)}
  .show-card{right:calc(max(12px,env(safe-area-inset-right)) + 62px)}
 }
+
+/* Keep route tools below the destination bullets, and utilities below Say hello. */
+.site-header .journey-bar{overflow:visible}
+.route-tools{position:absolute;top:100%;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:5px;width:310px}
+.route-tools .control-hint{position:static;inset:auto;display:flex;justify-content:center;white-space:nowrap;opacity:.85}
+.route-tools .zoom-control{position:static;inset:auto;transform:none;width:100%;height:32px;grid-template-columns:48px minmax(0,1fr) 43px 24px}
+.bottom-notes{top:78px;right:28px;left:auto;bottom:auto;height:36px}
+.utility-controls .help-button{width:32px;height:32px;min-width:32px;min-height:32px;aspect-ratio:1;flex:0 0 32px;border-radius:50%;padding:0;line-height:1}
+@media(min-width:1200px) and (min-height:551px){.site-header .journey-bar{position:relative;inset:auto}}
+@media(max-height:550px) and (orientation:landscape){
+ .route-tools{width:250px;gap:0;padding-top:1px}
+ .route-tools .control-hint{display:none}
+ .route-tools .zoom-control{height:25px;grid-template-columns:40px minmax(0,1fr) 37px 20px}
+ .bottom-notes{top:65px;right:22px;height:30px}
+ .utility-controls .help-button{width:28px;height:28px;min-width:28px;min-height:28px;flex-basis:28px}
+}
+
+/* Selected warm sand dock (1B), with matching earthy accents. */
+#info-card.info-card{
+ --ink:#4d3b2c;--muted:#6a5542;--cream:#ead3ab;--amber:#9a6237;--line:#4d3b2c40;
+ background:var(--cream);color:var(--ink);border:1px solid var(--line);border-top:4px solid #bb8550;border-radius:9px;
+}
+#info-card :is(.card-description,.card-subtitle,.company-heading p,.detail-block,.detail-block strong,.contact-minor,.availability,.sample-label,.media-label){color:var(--muted)}
+#info-card :is(h2,h3,.card-person h2,.company-heading h2){color:var(--ink)}
+#info-card h2 span{color:var(--amber)}
+#info-card .eyebrow{color:var(--muted)}
+#info-card .card-tabs button{color:var(--muted)}
+#info-card .card-tabs button[aria-selected=true]{color:var(--ink)}
+#info-card .card-tabs button[aria-selected=true]:after{background:var(--amber)}
+#info-card .tags span{color:var(--ink);border-color:var(--line);background:#fffbed18}
+#info-card :is(.primary,.dock-media>button.primary){background:var(--amber);color:#fffbed;border-color:var(--amber);border-radius:7px}
+#info-card :is(.primary,.dock-media>button.primary):hover{background:#83512d;border-color:#83512d}
+#info-card .secondary{background:transparent;color:var(--ink);border-color:var(--line);border-radius:7px}
+#info-card .secondary:hover{background:#fffbed40}
+#info-card .card-close{color:var(--ink)}
+#info-card .gateway-preview{border-color:var(--line)}
+#info-card .contact-minor{border-color:var(--line)}
+@media(max-height:550px) and (orientation:landscape){#info-card.info-card{border-radius:8px}}
+
+/* Current section is distinct from hover and from the external Resume action. */
+.header-nav>button[aria-current=page]{color:#ffc65a}
+.header-nav>button[aria-current=page]:hover{color:#ffda8c}
+
+/* Larger details typography: content 1.2×, text buttons 1.25×. */
+#info-card h2,#info-card .card-person h2{font-size:31.2px}
+#info-card h3{font-size:18px}
+#info-card .eyebrow{font-size:10.8px}
+#info-card .card-subtitle,#info-card .company-heading p{font-size:14.4px}
+#info-card .card-description{font-size:15.6px}
+#info-card .detail-block,#info-card .detail-block strong{font-size:14.4px}
+#info-card .tags span{font-size:12px}
+#info-card .sample-label{font-size:9.6px}
+#info-card .availability{font-size:13.2px}
+#info-card .gateway-preview>span{font-size:40.8px}
+#info-card .gateway-preview>div{font-size:16.8px}
+#info-card .gateway-preview small{font-size:12px}
+#info-card .company-logo{font-size:21.6px}
+#info-card .primary,#info-card .secondary,#info-card .project-links .primary,#info-card .project-links .secondary{font-size:15px}
+#info-card .dock-media>button.primary{font-size:16.25px}
+#info-card .card-tabs button{font-size:15px}
+#info-card .contact-minor button{font-size:13.75px}
+#info-card .related-return{font-size:13.75px}
+@media(max-height:550px) and (orientation:landscape){
+ #info-card h2,#info-card .card-person h2{font-size:24px}
+ #info-card h3{font-size:14.4px}
+ #info-card .eyebrow{font-size:8.4px}
+ #info-card .card-subtitle,#info-card .company-heading p{font-size:12px}
+ #info-card .card-description{font-size:13.2px}
+ #info-card .detail-block,#info-card .detail-block strong{font-size:12px}
+ #info-card .tags span{font-size:9.6px}
+ #info-card .sample-label{font-size:8.4px}
+ #info-card .availability{font-size:12px}
+ #info-card .gateway-preview>span{font-size:30px}
+ #info-card .gateway-preview>div{font-size:13.2px}
+ #info-card .gateway-preview small{font-size:9.6px}
+ #info-card .company-logo{font-size:16.8px}
+ #info-card .primary,#info-card .secondary,#info-card .project-links .primary,#info-card .project-links .secondary{font-size:12.5px}
+ #info-card .dock-media>button.primary{font-size:13.75px}
+ #info-card .card-tabs button,#info-card .contact-minor button{font-size:12.5px}
+ #info-card .related-return{font-size:11.25px}
+}
+
+.brand small strong{font-size:1.2em}
+#info-card .resume-button,#info-card .contact-minor button[data-action=resume]{background:#f5e9d3;color:#4d3b2c;border:1px solid #9a7955;border-radius:7px;opacity:1}
+#info-card .contact-minor button[data-action=resume]{padding:5px 12px}
+#info-card .resume-button:hover,#info-card .contact-minor button[data-action=resume]:hover{background:#fff3df}
+
+/* Keep image controls legible over bright artwork and white gallery backgrounds. */
+#info-card .thumbnail>span{width:25px;height:25px;background:#fffbed;color:#24465e;border:1px solid #24465e55;opacity:1;box-shadow:0 1px 5px #183d4930}
+#info-card .thumbnail>span .icon{width:16px;height:16px;stroke-width:2}
+.gallery-close,.gallery-arrow{color:#24465e;border:1px solid #24465e45}
+.gallery-close{background:#fffbed}
+
+/* Responsive chrome: preserve the 3D pixel scale and give the UI its own rows. */
+@media(min-width:1200px) and (max-width:1599px) and (min-height:551px){
+ .site-header{padding-left:28px;padding-right:28px;gap:18px}
+ .site-header .brand{font-size:17px;gap:10px;letter-spacing:.2px;white-space:nowrap}
+ .site-header .header-nav{gap:13px;font-size:14px;white-space:nowrap}
+ .site-header .header-nav .contact-link{padding:10px 15px;gap:8px}
+ .site-header .stops{gap:9px}
+ .site-header .stop-name,.site-header .stop.active .stop-name,body[data-route=hub] .site-header .stop-name{font-size:10px;letter-spacing:0}
+}
+@media(min-width:701px) and (max-width:1199px) and (min-height:551px){
+ .site-header{display:flex;height:88px;padding:20px 24px;gap:18px}
+ .site-header .brand{font-size:16px;gap:10px;letter-spacing:0;white-space:nowrap}
+ .site-header .brand small{font-size:9px}
+ .site-header .header-nav{font-size:13px;gap:14px;margin:0;white-space:nowrap}
+ .site-header .header-nav .contact-link{padding:10px 13px;gap:8px}
+ .site-header .journey-bar{position:fixed;left:50%;right:auto;top:91px;transform:translateX(-50%);width:min(500px,calc(100vw - 48px));height:32px;min-height:32px}
+ .site-header .stops{gap:14px}
+ .route-tools{width:280px;gap:3px;padding-top:2px}
+ .bottom-notes{top:77px;right:24px}
+ .utility-controls{gap:3px}
+ .utility-controls>button{font-size:10px}
+ #info-card.info-card{left:24px;right:24px;padding-left:22px;padding-right:22px}
+ #info-card #card-content{grid-template-columns:285px minmax(0,1fr);gap:26px}
+}
+@media(max-height:550px) and (orientation:landscape){
+ :root{--world-top:108px}
+ .site-header{display:flex;padding:8px 16px;height:53px;gap:12px}
+ .site-header .brand{font-size:11px;gap:8px;letter-spacing:0;white-space:nowrap}
+ .site-header .unity-logo{width:30px;height:30px}
+ .site-header .brand small{font-size:6.5px;letter-spacing:.7px;margin-top:5px}
+ .brand .route-breadcrumb{font-size:7px;top:calc(100% + 6px)}
+ .site-header .header-nav{font-size:11px;gap:13px;margin:0;white-space:nowrap}
+ .site-header .header-nav>button{font-size:11px;min-height:30px;padding:4px 0}
+ .site-header .header-nav .contact-link{font-size:11px;min-height:30px;padding:6px 9px;gap:5px}
+ .site-header .journey-bar{position:fixed;left:50%;right:auto;top:55px;transform:translateX(-50%);width:350px;height:26px;min-height:26px}
+ .site-header .stops{gap:14px;justify-content:center}
+ body[data-route=hub] .site-header .stop{flex-direction:row;gap:4px}
+ .site-header .stop-name,.site-header .stop.active .stop-name,body[data-route=hub] .site-header .stop-name{font-size:9px;letter-spacing:0}
+ .route-tools{width:250px;padding-top:0}
+ .route-tools .control-hint{display:none}
+ .bottom-notes{top:52px;right:16px;height:30px}
+ .utility-controls>button[data-action=simple]{font-size:9px}
+ .utility-controls{gap:2px}
+ .route-heading{left:16px;top:69px}
+ .route-heading .back-link{min-height:30px;font-size:10px;padding:3px 5px;gap:4px}
+ .route-heading .back-link .icon{width:15px;height:15px}
+ #info-card .card-person{gap:8px}
+ #info-card .card-person .avatar{width:30px;height:30px}
+ #info-card .card-person h2{font-size:23px}
+}
+@media(max-width:740px) and (orientation:landscape){
+ .site-header .header-nav{gap:9px}
+ .site-header .header-nav>button{font-size:10px}
+ .site-header .header-nav .contact-link{font-size:10px;padding:5px 7px}
+ .site-header .brand{font-size:10px}
+ .site-header .journey-bar{width:300px}
+ .site-header .stops{gap:9px}
+ .utility-controls>button[data-action=simple]{display:none}
+}
+@media(min-width:701px) and (max-width:1199px) and (min-height:551px){
+ .site-header .journey-bar{left:calc(50% - 250px);transform:none}
+}
+@media(max-height:550px) and (orientation:landscape){
+ :root{--world-top:83px;--world-gap:8px;--dock-height:132px}
+ .site-header .journey-bar{left:calc(50% - 175px);transform:none}
+ .route-tools{position:fixed;top:13px;left:calc(50% - 45px);width:180px;padding-top:0}
+ .route-tools .zoom-control{height:25px;grid-template-columns:30px minmax(0,1fr) 34px 18px;gap:4px;padding:1px 6px}
+ .route-tools .zoom-control label{font-size:7px}
+ .route-tools .zoom-control output{font-size:10px}
+ .route-tools .zoom-control button{width:18px;font-size:15px}
+ .route-tools .zoom-control input{height:20px}
+ #info-card .eyebrow,#info-card .sample-label{display:none}
+ #info-card .thumbnail{height:57px}
+ #info-card .dock-media:has(.project-links) .thumbnail{height:45px}
+ #info-card .card-person h2{font-size:23px}
+ #info-card .card-description{margin:4px 0}
+ /* Let the ocean continue behind the chrome instead of exposing solid page bars. */
+ #world{clip-path:none}
+}
+@media(max-width:740px) and (orientation:landscape){
+ .site-header .journey-bar{left:calc(50% - 150px)}
+ .route-tools{left:calc(50% - 12px);width:140px}
+ .route-tools .zoom-control{grid-template-columns:0 minmax(0,1fr) 32px 16px;gap:3px}
+ .route-tools .zoom-control label{overflow:hidden;visibility:hidden}
+}
+@media(max-width:740px) and (orientation:landscape){
+ .brand .route-breadcrumb{display:none}
+ .route-tools{left:16px;top:55px;transform:none;width:140px}
+ .route-heading{left:210px;top:11px}
+ .route-heading .back-link{font-size:9px;min-height:27px}
+}
+@media(max-height:550px) and (orientation:landscape){
+ #info-card .dock-media .card-actions>*{min-width:0;white-space:normal;line-height:1.15}
+}
+
+/* Gateway message sits directly above the details dock, never over its content. */
+#enter-prompt{position:fixed;inset:auto auto calc(var(--dock-bottom) + var(--dock-height) + 10px) 50%;transform:translateX(-50%);z-index:6;max-width:calc(100vw - 32px);white-space:nowrap}
+#enter-prompt button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 13px;font-size:13px;line-height:1.2;background:#fff5e3f5;color:#4d3b2c;border:1px solid #bb8550;border-radius:8px;box-shadow:0 4px 16px #174b522b}
+#enter-prompt button:hover{background:#fff9ee}
+#enter-prompt .explore-desktop{display:inline-flex;align-items:center;gap:6px}
+#enter-prompt .explore-touch{display:none}
+#enter-prompt kbd{display:inline-grid;place-items:center;font:700 11px DM Sans,sans-serif;min-width:40px;height:23px;padding:2px 6px;background:#ead3ab;color:#4d3b2c;border:1px solid #9a795580;border-bottom-width:2px;border-radius:4px}
+#enter-prompt strong{font-weight:700}
+#enter-prompt .icon{width:15px;height:15px}
+.start-sound{position:fixed;z-index:30;top:120px;right:28px;display:flex;align-items:center;gap:7px;min-height:36px;padding:7px 12px;border:1px solid #fff3d18c;border-radius:8px;background:#004b55ed;color:#fff3d1;font-size:12px;font-weight:600;box-shadow:0 3px 12px #00363c20;cursor:pointer}
+.start-sound[hidden]{display:none}.start-sound:hover{background:#00616c}.start-sound:focus-visible{outline:2px solid #ffbd43;outline-offset:3px}.start-sound .icon{width:18px;height:18px}
+@media(min-width:701px) and (max-width:1199px) and (min-height:551px){.start-sound{top:119px;right:24px}}
+@media(max-height:550px) and (orientation:landscape){.start-sound{top:88px;right:16px;min-height:30px;padding:4px 9px;font-size:10px}.start-sound .icon{width:16px;height:16px}}
+.utility-controls>button[data-action=simple]{font-size:14.85px}
+@media(min-width:701px) and (max-width:1199px) and (min-height:551px){.utility-controls>button[data-action=simple]{font-size:13.5px}}
+@media(max-height:550px) and (orientation:landscape), (pointer:coarse){
+ #enter-prompt .explore-desktop{display:none}
+ #enter-prompt .explore-touch{display:inline}
+}
+@media(max-height:550px) and (orientation:landscape){
+ #enter-prompt{bottom:calc(var(--dock-bottom) + var(--dock-height) + 7px)}
+ #enter-prompt button{font-size:11px;min-height:29px;padding:5px 10px;gap:5px}
+ #enter-prompt .icon{width:13px;height:13px}
+ .utility-controls>button[data-action=simple]{font-size:12.15px}
+}
+
+/* Loading copy: 1.25x, with room for the larger headline. */
+.loading-card{width:min(525px,94vw);padding:clamp(16px,3vw,30px)}
+.loading-card .eyebrow{font-size:10px}
+.loading-card h1{font-size:33.75px}
+.loading-card p{font-size:13.75px}
+.loading-card small{font-size:10px}
+@media(max-width:700px){.loading-card h1{font-size:30px}}
+
+/* First opening: focus the real controls without blocking the first gesture. */
+#controls-intro{position:fixed;inset:0;z-index:8;pointer-events:none;background:#003a4859}
+.controls-intro-copy{position:absolute;left:50%;top:calc(50% + 28px);transform:translateX(-50%);width:min(510px,calc(100vw - 40px));text-align:center;color:#fff8e9;text-shadow:0 2px 15px #00383d80}
+.controls-intro-copy h2{font-size:clamp(22px,2.5vw,30px);line-height:1.25;font-weight:800;letter-spacing:-.7px}
+.controls-intro-copy p{margin-top:11px;font-size:14px;line-height:1.6;color:#fff3d1}
+.control-hint.controls-intro-focus{position:relative;z-index:50;opacity:1;background:#fff8e9;color:#173e49;outline:10px solid #fff8e9;border-radius:5px;box-shadow:0 8px 35px #002c3e55;transform-origin:center}
+.control-hint.controls-intro-focus kbd{background:#ffbf52;color:#173e49;border-color:#e7a236}
+.drive-controls .drive-button.controls-intro-focus{background:#ffcb6a;border-color:#fff2c6;box-shadow:0 0 0 5px #ffbd4350,0 4px 24px #ffbd4370}
+#controls-intro[data-mode=mobile] .controls-intro-copy{top:30%;width:min(400px,calc(100vw - 100px))}
+#controls-intro[data-mode=mobile] h2{font-size:clamp(20px,3vw,27px)}
+#controls-intro[data-mode=mobile] p{font-size:12px;margin-top:7px}
+
+
+/* Section return shortcut, directly below the back button. */
+.route-heading .back-hint{display:block;margin-top:7px;padding-left:3px;color:#fff8e9d9;font-size:11px;font-weight:500;line-height:1.5;white-space:nowrap}
+.back-hint kbd{display:inline-block;margin:0 2px;padding:0 5px;border:1px solid #fff8e955;border-radius:4px;background:#00515d42;color:#fff8e9;font:600 10px/1.6 'DM Sans',sans-serif}
+@media(max-height:550px) and (orientation:landscape){.route-heading .back-hint{margin-top:3px;font-size:9px}.back-hint kbd{font-size:8px;padding:0 3px}}
