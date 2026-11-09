@@ -30,7 +30,7 @@ Build output is `dist/`; deploy that output, not `src/` or `node_modules/`. The 
 | [AGENTS.md](AGENTS.md) | Instructions for agents taking over |
 | [Handoff](docs/HANDOFF.md) | Architecture, accepted behavior/design, performance and open work |
 | [Content editing](docs/CONTENT.md) | Update text, projects, career, media, résumé and links |
-| [Deployment](docs/DEPLOYMENT.md) | Static hosting and remaining GitHub Pages work |
+| [Deployment](docs/DEPLOYMENT.md) | Verified release, GitHub Pages workflow and smoke checks |
 | [Deferred admin](docs/ADMIN_FUTURE.md) | Confirmed requirements for a later admin panel |
 | [Team log](TEAM_LOG.md) | Dated implementation history and validation |
 
@@ -57,8 +57,13 @@ Approved profile, company, project and contact data are in this release. No unco
 
 Asset provenance is in `public/media/`, `public/audio/` and `public/fonts/`. The sibling `../design-review/` holds historical auditions/renders and preparation scripts; it is not the production app.
 
-The site needs no backend to publish statically. The Pages workflow builds and publishes `dist/` on pushes to `main`, using the actual Pages base path. Runtime assets use `src/asset-url.js`. Follow the deployment guide to enable Pages and publish. After deployment, confirm each real section/project/company with the user before replacing the sample data from Google Drive.
+The site needs no backend to publish statically. The Pages workflow builds and publishes `dist/` on pushes to `main`, using the actual Pages base path. Runtime assets use `src/asset-url.js`. Follow the deployment guide for subsequent releases. Ask insertion position and company association before adding future projects; verify facts/copy with the user. Current approved records are already published.
 
-The supplied résumé is hosted unchanged at `public/files/Hafeez-Akram-Developer.pdf`, opening directly from résumé controls via the Pages base path. It still contains its original 8+ years wording and Arkadium end date; the website uses the subsequently approved 9 years and Apr 2024–Present freelance contract wording. Other career records will be added only after individual approval.
+The supplied résumé is hosted unchanged at `public/files/Hafeez-Akram-Developer.pdf`, opening directly from résumé controls via the Pages base path. It still contains its original 8+ years wording and Arkadium end date; the website uses the subsequently approved 9 years and Apr 2024–Present freelance contract wording. All seven current career records are approved and published.
 
 User authorized this combined release on 2026-11-09. Future edits should remain local until the user requests another deployment; do not publish every change.
+
+
+Current app release: **5cc0406**, [deployed successfully in 35 s](https://github.com/breaker-of-code/Portfolio/actions/runs/42676913997). All 330 hosted files checked: 320 nonvideo hash matches and 10 video content-length matches. Physical Galaxy A54 retest remains outstanding.
+
+For storage, retain this project’s source, public assets and .git. Original Downloads media can be removed once backed up on Drive; node_modules and dist can be regenerated. See the content/deployment guides.

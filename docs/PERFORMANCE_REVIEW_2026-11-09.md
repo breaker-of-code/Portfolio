@@ -62,3 +62,8 @@ These are roughly45–52% fewer submissions per rendered frame, before accountin
 Browser checks: Simple view and Help set the canvas to paused; performance reporting stopped throughout Help and resumed after closing it. A long Jeep trip paused under Help and continued after closing. Routes remain visible with shadows/palms preserved.
 
 Final validation:74 tests pass, including scheduler/pause/instancing/offscreen fish coverage; exact `/Portfolio/` production build and whitespace checks pass. Browser confirmed gallery image navigation works while WebGL remains paused, closing resumes rendering, and no errors were reported. Long Career trip reached Infinity Up after Help pause/resume. Production raw optimized logs are in private `content-review/performance-optimized.json`; they include earlier reload/build sessions, so compare the final scene-B78mXD5p samples rather than treating all reports as one uninterrupted run.
+
+
+## Published corrections after these measurements
+
+Application release 5cc0406 is live. The tables above describe the measured optimization build before two later changes: mobile DPR caps were raised to 1.5 medium/high and 1.25 low, and active shadows now refresh every rendered travelling/settling frame plus arrival to remove Jeep-shadow jitter. Settled shadows retain 2 Hz caching; active 30/idle 20 frame budgets and dialog/hidden loop pauses remain. Do not present old active-shadow/mobile measurements as benchmarks of these later settings. No new physical A54/GPU/process-memory benchmark was performed. Read HANDOFF/TEAM_LOG for current release/checks.

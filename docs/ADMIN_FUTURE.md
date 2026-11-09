@@ -37,3 +37,6 @@ Use a lightweight 2D dashboard: ocean/deep teal shell, warm sand `#ead3ab`, crea
 Suggested areas: Overview, Profile, Career, Projects, Skills, Contact, Files, Backup/Restore, Settings.
 
 Validate authentication/unauthorized access, private draft isolation, CRUD/order/relationships, safe uploads, portable JSON round trips/recovery, explicit publication, responsive admin layouts and public-site regressions.
+
+
+Status reaffirmed 2026-11-09: the combined static content release is live (5cc0406); no admin/backend work was resumed. User approval is required to resume this separate task.

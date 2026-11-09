@@ -590,3 +590,14 @@ Agent: your-identity
 - User explicitly requested deployment of the new version, lifting the local-only hold for this release. Includes approved profile, seven employers/logos, eleven projects/media, skills/contact/resume and all recent navigation/layout/mobile/performance/shadow fixes. Admin remains deferred; future edits stay local until a new deployment request.
 - Pre-release checks: all77 tests, exact /Portfolio/ production build and whitespace checks pass. origin/main equals local HEAD before release; gh authentication/destination verified. Public media totals~104MiB; largest video31.43MiB, loaded only on demand. No matches for common secret markers or local absolute paths in public text metadata. Private review/design folders remain outside app repository.
 - Preparing one combined application commit; deployment verification pending below.
+
+## 2026-11-09 — Verified publication and documentation consolidation
+
+**Agent: codex-bankd-macbook**
+
+- Application commit5cc0406419a609ff2ec68ff76286ea83eae216ab pushed to main. GitHub Pages run42676913997 succeeded in35seconds, including77 CI tests/build. Live URL: https://breaker-of-code.github.io/Portfolio/; run: https://github.com/breaker-of-code/Portfolio/actions/runs/42676913997.
+- Verified330 hosted files against exact local production output:320 nonvideo bodies matched SHA-256;10 video HEAD responses matched expected content lengths. Full video bodies were not re-downloaded. Private manifest/check evidence remains in sibling content-review/release-5cc0406-*.json, outside repository.
+- Live browser confirmed updated title, Projects route rendered-ready marker, all11 project stops, Arthur mixed gallery17photos+3videos with decoded full image, and Career with7 companies/two mapped Game Changer screenshots. No observed console errors. Galaxy A54 physical retest and device-specific graphics recovery still need user confirmation; no blanket low-end performance claim.
+- Consolidated AGENTS, HANDOFF, CONTENT and DEPLOYMENT into current snapshots, removing contradictory historical sample counts, old project indices, superseded skin/loading/shadow rules and stale publication holds. Updated README, deferred-admin status and performance-report caveats. Earlier TEAM_LOG entries remain unchanged history.
+- Recorded storage guidance after user confirmed Drive backup: original Downloads photos/videos/PDFs can be removed by user once backups are verified; retain application public assets/source/.git. node_modules/dist are regenerable. No user files deleted.
+- Documentation-only follow-up uses [skip ci], preserving the deployed application release. Future code/content work remains local until another explicit deployment request. Whitespace/link-path/content-count checks pass; no application source changed in this documentation pass.
