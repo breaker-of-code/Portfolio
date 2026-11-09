@@ -2,7 +2,7 @@
 
 A coastal portfolio for a Senior Unity Developer, built with vanilla JavaScript, CSS and Three.js. It runs as a static website; there is no Unity runtime, React app, database or admin backend.
 
-**Status, 2026-11-08:** the static build works, the interactive experience/audio mix are implemented, and content is still illustrative. Admin is deferred. GitHub Pages workflow and repository-subpath assets are ready; repository setup and first publication are pending.
+**Status, 2026-11-09:** [Live portfolio](https://breaker-of-code.github.io/Portfolio/) · [GitHub repository](https://github.com/breaker-of-code/Portfolio). The interactive experience/audio mix are implemented; content remains illustrative and admin is deferred. Pushes to `main` deploy automatically.
 
 ## Run locally
 

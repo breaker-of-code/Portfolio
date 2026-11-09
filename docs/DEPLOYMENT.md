@@ -1,6 +1,6 @@
 # Static deployment and GitHub Pages readiness
 
-Recorded **2026-11-08**: the static build succeeds. The user wants GitHub Pages and has postponed admin. GitHub publication is **not complete**.
+Recorded **2026-11-08**: the static build succeeds. The user wants GitHub Pages and has postponed admin. GitHub publication completed **2026-11-09**. Live URL: [Portfolio](https://breaker-of-code.github.io/Portfolio/). Repository: [breaker-of-code/Portfolio](https://github.com/breaker-of-code/Portfolio).
 
 ## Prepared configuration
 
@@ -10,9 +10,9 @@ Recorded **2026-11-08**: the static build succeeds. The user wants GitHub Pages 
 - `src/asset-url.js` handles runtime images, galleries, local résumé/portrait links and all loop/one-shot audio through their shared decoder. External/mailto/data/blob URLs stay unchanged; already prefixed paths are not duplicated. CSS fonts and lazy chunks are processed by Vite.
 - Normal local build/development uses `/`. For a project-subpath check, run `PAGES_BASE_PATH=/portfolio/ npm run build` and `PAGES_BASE_PATH=/portfolio/ npm run preview`.
 - `.openai/hosting.json` retains the older Sites identity; it is not Pages configuration.
-- GitHub CLI is installed but was not authenticated at inspection. No remote, commit or push was added by this preparation task.
+- GitHub CLI is authenticated as `breaker-of-code`; `origin` points to `https://github.com/breaker-of-code/Portfolio.git`. `main` tracks `origin/main`. Never store authentication credentials in source.
 
-## First publication
+## First publication (completed; retained for reference)
 
 1. Create an **empty public repository** on GitHub (for free Pages), e.g. `portfolio`. Do not initialize it with a README, license or `.gitignore`; these files already exist locally.
 2. In that repository, open **Settings → Pages → Build and deployment → Source → GitHub Actions**. This must be enabled before the workflow's `configure-pages` step runs.
@@ -37,7 +37,7 @@ The checkout already uses `main`. Review the files before committing: include al
 
 - **46 tests passed**, including new root/subpath/external asset URL cases; production build passed with the workflow's `PAGES_BASE_PATH=/portfolio/` setting.
 - Local HTTP check returned exact expected bytes for all **32** deployed files under `/portfolio/`, including JS chunks, fonts, images and M4A/WAV audio. Built HTML/CSS/runtime helper contain the correct base.
-- This validates build/path handling, not a live GitHub deployment or a new physical-device/browser session. Remote repository setup, login and actual publication are still pending.
+- This validates build/path handling, not a live GitHub deployment or a new physical-device/browser session. First publication subsequently succeeded: [deployment run](https://github.com/breaker-of-code/Portfolio/actions/runs/42607740759). All 47 tests passed in CI and all 32 live deployment files match the local production build.
 
 ## Data after deployment
 

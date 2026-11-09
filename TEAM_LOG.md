@@ -152,3 +152,5 @@ Agent: your-identity
 - Publishing all production source, modules, docs, media/fonts/audio and workflow to `main`; retaining old Site metadata and existing history. No admin or real-data edits. Design auditions and parent-workspace files stay outside the app repository.
 - Preflight: all 47 tests passed; build with exact case-sensitive `PAGES_BASE_PATH=/Portfolio/` passed. Verified pinned Actions commits exist. Checked publishable files for common credential/private-key patterns; none found. Build output/node_modules stay ignored.
 - Expected public URL: `https://breaker-of-code.github.io/Portfolio/`. Actual workflow/deployment verification follows the push; do not treat this entry alone as proof it is live.
+
+- Publication verified: Actions run `42607740759` succeeded for application commit `e9f17ca`; live URL `https://breaker-of-code.github.io/Portfolio/`. All 47 tests passed in GitHub CI. All 32 live deployment files match the local production build byte-for-byte, including fonts, images, audio and lazy JS chunks. Updated current-state docs to record the destination and deployment. Historical pending entries above describe earlier states.

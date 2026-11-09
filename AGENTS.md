@@ -12,7 +12,7 @@
 - Preserve existing modifications and untracked modules/assets. Do not reset or delete them for a clean checkout.
 - Coordinate concurrent edits to `src/main.js`, `src/style.css`, `src/content.js`, package files and deployment configuration.
 - Admin/backend is **deferred**. Current scope is a static portfolio. No login, database, upload API or JSON admin UI exists.
-- GitHub Pages workflow and repository-subpath assets are configured. Repository destination, GitHub login and first publication remain outstanding; do not claim deployment is complete without verifying it.
+- GitHub Pages is deployed at `https://breaker-of-code.github.io/Portfolio/` from `breaker-of-code/Portfolio`, branch `main`. Pushes rebuild and deploy. Verify each deployment rather than assuming a push succeeded.
 - After deployment, the user will connect Google Drive for real data. Confirm EACH section, project and company with the user before applying its data.
 - Preserve the existing `.openai/hosting.json` Site identity and audience when working with the old Sites integration. It is not GitHub Pages configuration.
 

@@ -4,9 +4,9 @@ Updated **2026-11-09** by **codex-bankd-macbook**. This is a maintained snapshot
 
 ## Current decision and next priorities
 
-The user chose **static hosting first; admin later**. Content edits currently require source changes and redeployment. The static build and 46 tests pass. Pages workflow and repository-base asset handling are configured; GitHub login, destination repository and first publication remain pending.
+The user chose **static hosting first; admin later**. Content edits currently require source changes and redeployment. The static build and 47 tests pass. GitHub Pages is live at `https://breaker-of-code.github.io/Portfolio/`, from `breaker-of-code/Portfolio` on `main`. First deployment succeeded on 2026-11-09.
 
-1. Confirm the actual repository, enable Pages with GitHub Actions and push the source.
+1. Preserve the live Pages workflow; future pushes to `main` automatically deploy.
 2. After deployment, use the user's connected Google Drive for real content. Confirm EACH section, company and project with the user before applying it; retain illustrative data until then.
 3. Verify the actual hosted URL, including lazy sections, fonts and audio.
 4. Test physical phones, native orientation/fullscreen behavior and lower-end hardware. Browser viewport checks are not physical-device validation.
