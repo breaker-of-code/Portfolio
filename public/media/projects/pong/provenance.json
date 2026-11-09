@@ -1,0 +1,71 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "gameplay (1).png",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 1297523,
+      "webBytes": 20764,
+      "thumbBytes": 4316,
+      "sha256": "94c6bb41b3ab6327542052d2e94a3040778e3dabf3f33b3665acced5b792583b"
+    },
+    {
+      "original": "gameplay (2).png",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 1354885,
+      "webBytes": 15398,
+      "thumbBytes": 3112,
+      "sha256": "c97338e568d876bbef07f4235ba6ef188113e5f397794e235dff3de320040847"
+    },
+    {
+      "original": "gameplay (3).png",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 1348334,
+      "webBytes": 15686,
+      "thumbBytes": 3176,
+      "sha256": "1b5ca92374ceb9f8eceb253f75949d641372abbc9854158fd15088a644f12866"
+    },
+    {
+      "original": "gameplay (4).png",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 1562817,
+      "webBytes": 17522,
+      "thumbBytes": 3554,
+      "sha256": "2a1ecaa1a660beb172b8e6931d9f6895b42699aa41361423fbcb621a1b225257"
+    },
+    {
+      "original": "level complete.png",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 647666,
+      "webBytes": 19536,
+      "thumbBytes": 4524,
+      "sha256": "c8c61c2f7b26aa24e965771eff67e77f8f437502695cd95a643f165a7fec07bd"
+    },
+    {
+      "original": "tutorial.png",
+      "image": "image-06.webp",
+      "thumbnail": "thumb-06.webp",
+      "sourceBytes": 1439920,
+      "webBytes": 28282,
+      "thumbBytes": 5412,
+      "sha256": "e82e3573d92d6c09e016ceb4ee4cee9b1be4e78fa5b2504f217bab9070d54973"
+    }
+  ],
+  "videos": [
+    {
+      "original": "3D Shape Auto Pong.mp4",
+      "file": "pong-demo.mp4",
+      "poster": "pong-demo-poster.webp",
+      "sourceBytes": 7936186,
+      "webBytes": 478359,
+      "sha256": "d245a5ea98c408890f9a111499f60926da07f126083fafbba6d04b4cbe6fc56d"
+    }
+  ],
+  "videoProcessing": "Full-duration 720p H.264 CRF27 maxrate1500k AAC64k faststart; original unchanged."
+}

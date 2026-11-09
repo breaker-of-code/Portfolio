@@ -97,7 +97,7 @@ test('leaving the page while decoding cannot start or retain an orphaned audio l
 test('mix channels stay independent, master mute stays silent during level changes and values are clamped', () => {
   const ctx = context(), mixer = createSoundMixer(ctx);
   assert.notEqual(mixer.channels.ocean, mixer.channels.engine);
-  assert.equal(mixer.channels.ocean.gain.value, .3375 * .4, 'background is reduced by 60% of its previous level');
+  assert.equal(mixer.channels.ocean.gain.value, .135 * .6, 'ocean is 60% of its previously approved level');
   mixer.setLevel('ocean', .3); assert.equal(mixer.channels.ocean.gain.value, .3);
   assert.equal(mixer.channels.engine.gain.value, .38);
   mixer.setMuted(true); mixer.setLevel('master', .9); assert.equal(ctx.gains[0].gain.value, 0);

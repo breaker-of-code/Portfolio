@@ -1,5 +1,5 @@
 // Balanced mix: quiet coast, restrained idle, clear driving and brief interface cues.
-export const INITIAL_SOUND_LEVELS = { master: .8, ocean: .135, engine: .38, splash: .5, ui: .35 };
+export const INITIAL_SOUND_LEVELS = { master: .8, ocean: .081, engine: .38, splash: .5, ui: .35 };
 
 export function createSoundMixer(context, initial = INITIAL_SOUND_LEVELS) {
   const levels = { ...INITIAL_SOUND_LEVELS, ...initial }, channels = {};

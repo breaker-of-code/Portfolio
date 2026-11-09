@@ -1,7 +1,8 @@
 import * as THREE from 'three';
+import { createRooftopSign } from './rooftop-sign.js';
 
 // Selected set B: modern offices, one silhouette per career stop.
-export function createCareerBuilding(b, variant = 0) {
+export function createCareerBuilding(b, variant = 0, company = null) {
  const i=((variant % 5)+5)%5;
  const cream=0xfff3d5,teal=0x43aeb8,glass=0x69b9c9,dark=0x284b54,gold=0xffbc45;
  const g=new THREE.Group();g.name=['Glass-front HQ','Twin volumes','Stepped campus','Bridge office','Glass tower'][i];
@@ -16,5 +17,6 @@ export function createCareerBuilding(b, variant = 0) {
   if(i===4){box([2.4,h,1.5],[0,h/2+.16,0],glass);for(const x of [-1.2,0,1.2])box([.13,h+.16,1.65],[x,h/2+.16,0]);for(let y=.9;y<h;y+=.7)box([2.6,.12,1.65],[0,y,0]);box([2.7,.2,1.8],[0,h+.25,0],dark);}
  box([.5,.76,.06],[0,.54,1.065],dark);box([.09,.09,.08],[.15,.55,1.11],gold,.01);
  for(const x of [-1.35,1.35])box([.32,.32,.4],[x,.32,1],0x91af35);
+ if(company) createRooftopSign(b,g,company);
  return g;
 }

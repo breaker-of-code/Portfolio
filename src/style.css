@@ -538,3 +538,203 @@ body[data-route=hub] .stop{flex-direction:column;gap:4px}body[data-route=hub] .s
 .route-heading .back-hint{display:block;margin-top:7px;padding-left:3px;color:#fff8e9d9;font-size:11px;font-weight:500;line-height:1.5;white-space:nowrap}
 .back-hint kbd{display:inline-block;margin:0 2px;padding:0 5px;border:1px solid #fff8e955;border-radius:4px;background:#00515d42;color:#fff8e9;font:600 10px/1.6 'DM Sans',sans-serif}
 @media(max-height:550px) and (orientation:landscape){.route-heading .back-hint{margin-top:3px;font-size:9px}.back-hint kbd{font-size:8px;padding:0 3px}}
+
+/* Real biographies can exceed the compact dock, especially on phones. */
+#info-card #card-content>.dock-copy{min-height:0;max-height:100%;overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-width:thin}
+
+/* Resume utility on Home only; Career splits media / overview evenly. */
+#info-card .dock-tools{position:absolute;right:16px;bottom:15px;display:flex;align-items:center;justify-content:center}
+#info-card .resume-icon{display:grid;place-items:center;width:38px;height:38px;min-width:0;padding:0;border:1px solid #9a7955;border-radius:7px;background:#f5e9d3;color:#4d3b2c;flex:none}
+#info-card .resume-icon:hover{background:#fff3df}
+#info-card .resume-icon .icon{width:20px;height:20px}
+#info-card.has-resume #card-content>.dock-copy{padding-right:48px}
+#info-card.is-company #card-content{grid-template-columns:50% 50%;column-gap:0;align-items:stretch}
+#info-card.is-company #card-content>.dock-media{height:100%;padding-right:20px;display:flex;align-items:center;overflow:hidden}
+#info-card.is-company #card-content>.dock-copy{align-self:center;padding-right:10px}
+#info-card .company-gallery{width:100%;height:100%;margin:0;display:block}
+.company-media-empty{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;border:1px dashed #9a795566;border-radius:7px;color:#856e55;font-size:12px}
+.company-media-empty .icon{width:34px;height:34px;opacity:.6}
+.company-project-strip{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 10px)/2);gap:10px;width:100%;height:100%;overflow-x:auto;scrollbar-width:thin}
+.company-project-strip[data-count="1"]{grid-auto-columns:100%}
+.company-project-photo{position:relative;min-width:0;padding:0;overflow:hidden;border-radius:7px;background:#e0c8a2}
+.company-project-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.company-project-photo>span{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:#183e48e8;color:#fff4d9;font-size:12px;text-align:left}
+.company-project-photo .icon{width:17px;height:17px;flex-shrink:0}
+@media(max-height:550px) and (orientation:landscape){
+ #info-card.is-company #card-content>.dock-media{padding-right:12px}
+ #info-card .resume-icon{width:32px;height:32px}
+ #info-card .dock-tools{right:12px;bottom:10px}
+ #info-card.has-resume #card-content>.dock-copy{padding-right:38px}
+ .company-media-empty{font-size:10px;gap:5px}
+ .company-media-empty .icon{width:25px;height:25px}
+ .company-project-photo>span{font-size:10px;padding:5px}
+}
+
+/* Real project media: two light previews, full gallery and opt-in playback. */
+#info-card .project-gallery-open{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;padding:7px;background:#f4e5cd;color:#59442f;border:1px solid #9a795566;border-radius:6px;font-size:12px}
+.gallery-image-wrap>video{width:calc(100% - 96px);max-height:62dvh;object-fit:contain;background:#142f36;border-radius:8px}
+.gallery-image-wrap>[hidden]{display:none!important}
+.gallery-thumbs button{position:relative;flex-shrink:0}
+.gallery-thumbs button>.icon{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;padding:4px;border-radius:50%;background:#183e48e8;color:#fff4d9}
+@media(max-width:700px){.gallery-image-wrap>video{width:100%;max-height:55dvh}}
+#info-card .dock-media:has(.project-gallery-open){height:100%;min-height:0;display:flex;flex-direction:column;gap:6px}
+#info-card .dock-media:has(.project-gallery-open) .thumbnail-strip{flex:1;min-height:0}
+#info-card .dock-media:has(.project-gallery-open) .thumbnail{height:100%;min-height:0}
+#info-card .dock-media .project-gallery-open{margin:0;min-height:26px;flex-shrink:0;padding:4px 6px}
+#info-card .dock-media:has(.project-gallery-open) .card-actions{margin:0;flex-shrink:0}
+#info-card .dock-media:has(.project-gallery-open) .project-links>:last-child{grid-column:auto}
+@media(max-height:550px) and (orientation:landscape){
+ #info-card .dock-media .project-gallery-open{font-size:10px;min-height:23px}
+ #info-card .dock-media:has(.project-gallery-open){gap:4px}
+ #info-card .dock-media:has(.project-gallery-open) .project-links>*{font-size:10px;min-height:28px;padding:4px}
+}
+
+/* One cream tutorial panel contains the keys, heading and supporting copy. */
+.controls-intro-copy{top:50%;transform:translate(-50%,-50%);width:min(620px,calc(100vw - 40px));padding:128px 28px 25px;background:#fff8e9;color:#173e49;border-radius:18px;text-shadow:none;box-shadow:0 12px 50px #00383d44}
+.controls-intro-copy p{color:#365861}
+.control-hint.controls-intro-focus{outline:0;box-shadow:none;background:transparent}
+#controls-intro[data-mode=mobile] .controls-intro-copy{padding:20px;top:32%;transform:translate(-50%,-50%)}
+
+/* The thumbnail strip scrolls within the modal rather than growing past it. */
+#gallery{box-sizing:border-box;width:min(1000px,calc(100vw - 32px));height:min(760px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);overflow:hidden}
+#gallery[open]{display:flex;flex-direction:column}
+#gallery .gallery-top{flex-shrink:0}
+#gallery .gallery-image-wrap{position:relative;flex:1;min-height:0;max-width:100%;overflow:hidden}
+#gallery .gallery-image-wrap>img,#gallery .gallery-image-wrap>video{height:100%;max-height:100%;min-height:0;object-fit:contain}
+#gallery .gallery-thumbs{flex:0 0 auto;justify-content:flex-start;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:5px;scrollbar-width:thin}
+#gallery .gallery-thumbs>button{flex:0 0 auto}
+#gallery-count{flex-shrink:0}
+#info-card .dock-media:has(.project-gallery-open) .thumbnail-strip{max-height:none}
+@media(max-height:550px) and (orientation:landscape){
+ #gallery{padding:14px}
+ #gallery .gallery-top{padding-bottom:8px}
+ #gallery .gallery-thumbs{margin-top:8px;margin-bottom:3px}
+ #gallery .gallery-thumbs img{width:64px;height:38px}
+}
+
+/* Career shows two linked-project covers at a time; extra covers rotate. */
+#info-card .company-project-strip{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:auto;overflow:hidden}
+#info-card .company-project-strip[data-count="1"]{grid-template-columns:minmax(0,1fr)}
+/* Approved portrait and confirmed, filterable skill collection. */
+#info-card.is-intro #card-content{grid-template-columns:min(25%,calc(var(--dock-height) - 30px)) minmax(0,1fr);gap:24px}
+#info-card.is-intro .dock-media{display:flex;align-items:center;gap:12px;height:100%;min-height:0}
+#info-card .intro-portrait{height:100%;min-height:0;flex:1;overflow:hidden;border-radius:9px;background:#c4b18f}
+#info-card .intro-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:62% 35%}
+#info-card.is-intro .dock-media .card-actions{display:none}
+#info-card.is-intro .dock-copy .card-person{margin-bottom:6px}
+#info-card .resume-icon{width:70px;height:70px;gap:4px;align-content:center;font-size:12px;font-weight:700}
+#info-card.has-resume #card-content>.dock-copy{padding-right:82px}
+#info-card.is-skills #card-content{grid-template-columns:minmax(180px,28%) minmax(0,1fr);gap:24px}
+#info-card.is-skills .dock-media{min-height:0;overflow-y:auto}
+#info-card .skills-spotlight{padding:10px 14px;background:#164d4e;color:#fff4de;border-radius:8px}
+#info-card .skills-spotlight h2{color:#fff4de;font-size:23px}
+#info-card .skills-spotlight .eyebrow{color:#d6e3c9}
+#info-card .skills-spotlight p{font-size:12px;line-height:1.5;margin:7px 0}
+#info-card .skill-summary{display:flex;gap:10px;align-items:center;margin:8px 0}
+#info-card .skill-summary strong{font-size:30px;color:#ffcb6a}
+#info-card .skill-summary span{font-size:12px;max-width:150px}
+#info-card .skills-spotlight .primary{font-size:12px;min-height:32px;padding:7px 10px}
+#info-card .skill-categories,#info-card .skill-filters{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+#info-card .skill-categories button{padding:6px 10px;border:1px solid #a88a66;border-radius:6px;color:#59442f;font-size:12px}
+#info-card .skill-categories button[aria-selected=true]{background:#164d4e;color:#fff4de;border-color:#164d4e}
+#info-card .skill-filters button{padding:4px 8px;color:#66543e;border-radius:5px;font-size:11px}
+#info-card .skill-filters button[aria-pressed=true]{background:#e4c48e;color:#3f382a}
+#info-card .skill-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#info-card .skill-item{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:8px 10px;background:#f3e4c9;border-radius:6px;font-size:12px}
+#info-card .skill-level{font-size:10px;white-space:nowrap;color:#226558}
+#info-card .skill-level[data-level="Working knowledge"]{color:#695024}
+#info-card .skill-level[data-level=Learning]{color:#75506f}
+#info-card .skill-empty{font-size:12px;grid-column:1/-1}
+@media(max-width:900px){#info-card .skill-list{grid-template-columns:1fr}#info-card.is-skills #card-content{grid-template-columns:30% minmax(0,1fr);gap:12px}}
+@media(max-height:550px) and (orientation:landscape){
+ #info-card.is-intro #card-content{grid-template-columns:25% minmax(0,1fr);gap:12px}
+ #info-card .resume-icon{width:54px;height:54px;font-size:10px}
+ #info-card.has-resume #card-content>.dock-copy{padding-right:62px}
+ #info-card .skills-spotlight{padding:7px 9px}
+ #info-card .skills-spotlight h2{font-size:18px}
+ #info-card .skills-spotlight p,#info-card .skill-summary{display:none}
+ #info-card .skill-categories button{font-size:10px;padding:5px 7px}
+ #info-card .skill-filters button{font-size:10px;padding:3px 5px}
+ #info-card .skill-item{font-size:11px;padding:6px 8px}
+}
+/* Keep the Skills spotlight inside the compact dock at narrow widths. */
+#info-card.is-skills #card-content>.dock-media{height:100%;min-height:0;align-self:stretch;overflow:hidden}
+#info-card .skills-spotlight{height:100%;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+/* Compact, animated Skills tiles; no nested scrolling. */
+#info-card .dock-tools{top:50%;bottom:auto;transform:translateY(-50%)}
+body:has(#info-card.is-skills){--dock-height:260px}
+#info-card.is-skills #card-content{grid-template-columns:minmax(150px,22%) minmax(0,1fr);gap:20px}
+#info-card.is-skills #card-content>.dock-copy{padding-right:82px;overflow:visible}
+#info-card.is-skills .skills-browser{display:flex;flex-direction:column;height:100%;min-height:0}
+#info-card .skills-spotlight{padding:10px 12px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+#info-card .skills-spotlight h2{font-size:18px;line-height:1.2;margin:0}
+#info-card .skills-spotlight .eyebrow{font-size:9px;margin:0}
+#info-card .skill-work-link{display:flex;align-items:center;gap:6px;color:#ffda91;font-size:11px;padding:4px 0;align-self:start}
+#info-card .skill-work-link .icon{width:15px;height:15px}
+#info-card .tech-float{position:relative;flex:1;min-height:65px;max-height:145px}
+#info-card .tech-badge{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:42px;height:42px;padding:5px;border-radius:10px;background:#2c6260;color:#fff4de;font-size:18px;font-weight:700;animation:tech-drift 4s ease-in-out infinite alternate}
+#info-card .tech-badge small{font-size:8px;font-weight:500}
+#info-card .tech-badge .icon{width:20px;height:20px}
+#info-card .tech-unity{left:37%;top:28%;width:52px;height:52px;background:#3d7970}
+#info-card .tech-unity img{width:35px;height:35px;object-fit:contain}
+#info-card .tech-csharp{left:6%;top:3%;animation-delay:-1s;color:#c8f2d7}
+#info-card .tech-firebase{right:3%;top:1%;animation-delay:-2s;color:#ffda91}
+#info-card .tech-web{left:0;bottom:1%;animation-delay:-3s;color:#bce8f5}
+#info-card .tech-cloud{right:1%;bottom:0;animation-delay:-.5s;color:#dcd1f1}
+#info-card .skill-categories{gap:4px;margin-bottom:7px;flex-shrink:0}
+#info-card .skill-categories button{font-size:11px;padding:5px 8px}
+#info-card .skill-filters{gap:4px;margin-bottom:7px;flex-shrink:0}
+#info-card .skill-filters button{font-size:10px;padding:4px 7px}
+#info-card .skill-filters button[data-level=Strong]{color:#205e40}
+#info-card .skill-filters button[data-level="Working knowledge"]{color:#235d83}
+#info-card .skill-filters button[data-level=Learning]{color:#775d13}
+#info-card .skill-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;min-height:0}
+#info-card .skill-item{--skill-color:#35835b;--skill-width:100%;background:#d4e6cd;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:6px;font-size:12px;line-height:1.25;padding:9px 10px;min-width:0;color:#244a35}
+#info-card .skill-item[data-level="Working knowledge"]{--skill-color:#448cbb;--skill-width:66.666%;background:#d2e5ef;color:#234d6b}
+#info-card .skill-item[data-level=Learning]{--skill-color:#c49d2c;--skill-width:33.333%;background:#f3e5aa;color:#68521e}
+#info-card .skill-fill{display:block;height:4px;background:#ffffff70;border-radius:3px;overflow:hidden}
+#info-card .skill-fill i{display:block;height:100%;width:var(--skill-width);background:var(--skill-color);transform-origin:left;animation:skill-grow .7s ease-out both}
+#info-card .skill-pages{display:flex;justify-content:flex-end;align-items:center;gap:8px;font-size:10px;margin-top:5px}
+#info-card .skill-pages button{padding:3px;color:#265e59}
+#info-card .skill-pages .icon{width:16px;height:16px}
+@keyframes tech-drift{from{transform:translateY(-3px) rotate(-4deg)}to{transform:translateY(4px) rotate(4deg)}}
+@keyframes skill-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:900px){body:has(#info-card.is-skills){--dock-height:285px}#info-card.is-skills #card-content{grid-template-columns:140px minmax(0,1fr);gap:12px}#info-card .skill-item{font-size:11px;padding:7px 8px}#info-card .tech-unity{left:30%}#info-card .skills-spotlight h2{font-size:16px}}
+@media(max-height:550px) and (orientation:landscape){body:has(#info-card.is-skills){--dock-height:164px}#info-card.is-skills #card-content{grid-template-columns:120px minmax(0,1fr);gap:10px}#info-card .skill-item{font-size:10px;padding:6px 8px}#info-card .skill-categories button{font-size:9px;padding:3px 5px}#info-card .skill-categories,#info-card .skill-filters{margin-bottom:4px}#info-card .tech-float{min-height:50px}#info-card .tech-badge{min-width:28px;height:28px;font-size:12px;padding:3px}#info-card .tech-unity img{width:23px;height:23px}#info-card .tech-badge small{font-size:7px}#info-card .skills-spotlight h2{font-size:13px}#info-card .skill-work-link{font-size:9px}#info-card .skills-spotlight{padding:7px 8px}}
+@media(prefers-reduced-motion:reduce){#info-card .tech-badge,#info-card .skill-fill i{animation:none}}
+/* Persistent two-dimensional bouncing badges; JS owns position and velocity. */
+#info-card .tech-float .tech-badge{left:0;top:0;right:auto;bottom:auto;min-width:0;padding:3px;border-radius:50%;animation:none;will-change:transform}
+#info-card .tech-float .tech-unity img{width:75%;height:75%}
+#info-card .tech-float .tech-badge small{font-size:7px}
+#info-card .contact-banner img{object-position:62% 35%}
+#info-card.is-contact .dock-media{display:flex;flex-direction:column;min-height:0;height:100%;gap:8px}
+#info-card.is-contact .contact-banner{flex:1;min-height:35px;height:auto;margin:0;border-radius:8px;overflow:hidden}
+#info-card.is-contact .card-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0;flex-shrink:0}
+#info-card.is-contact .card-actions>*{font-size:12px;min-height:33px;padding:6px 8px}
+#info-card .contact-minor{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+#info-card .contact-email{font-size:12px;overflow-wrap:anywhere}
+#info-card .contact-minor button{display:flex;gap:5px;align-items:center}
+@media(max-height:550px) and (orientation:landscape){#info-card.is-contact .card-actions>*{font-size:10px;min-height:26px;padding:4px 6px}#info-card .contact-email{font-size:10px}#info-card.is-contact .dock-media{gap:5px}}
+#info-card .tech-aws{color:#ffcc80;background:#314d5c}
+#info-card .tech-vr{color:#c5dcff;background:#3a586d}
+/* Square portrait, anchored right so the crop removes the empty left side. */
+#info-card.is-intro .intro-portrait{flex:none;height:100%;width:auto;max-width:100%;aspect-ratio:1;align-self:center}
+#info-card .intro-portrait img{object-position:right center}
+#info-card.is-contact .contact-banner{flex:1;height:auto;width:100%;max-width:none;aspect-ratio:auto;align-self:stretch}
+#info-card.is-contact .contact-banner img{object-position:right 20%}
+#previous,#next{touch-action:none}
+#info-card.is-intro .dock-media{container-type:size}
+#info-card.is-intro .intro-portrait{width:min(100cqw,100cqh);height:min(100cqw,100cqh);max-width:none}
+/* Intro grows to its content; the Explore action never lives in a scroll area. */
+#info-card.is-intro{height:auto;min-height:var(--dock-height)}
+#info-card.is-intro #card-content{height:auto;min-height:calc(var(--dock-height) - 30px);grid-template-columns:clamp(90px,20vw,172px) minmax(0,1fr);align-items:start}
+#info-card.is-intro #card-content>.dock-copy{overflow:visible;max-height:none;min-height:0;align-self:start}
+#info-card.is-intro #card-content>.dock-media{container-type:normal;height:auto;align-self:start}
+#info-card.is-intro .intro-portrait{width:100%;height:auto;aspect-ratio:1}
+#info-card.is-intro .dock-copy .card-actions{display:flex;justify-content:flex-start;margin-top:10px}
+#info-card.is-intro .dock-copy .card-actions>*{flex:none;width:auto;min-height:34px;padding:8px 14px}
+#info-card.is-intro .card-description{margin:8px 0;line-height:1.5}
+.loading-actions{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}
+.loading-actions button{font-size:13px;min-height:40px}
+#section-transition{display:grid;place-items:center;color:#fff4dc;font-size:15px}
+@media(max-height:550px) and (orientation:landscape){#info-card.is-intro .card-description{font-size:11px;line-height:1.35;margin:5px 0}#info-card.is-intro .dock-copy .card-actions{margin-top:5px}#info-card.is-intro .dock-copy .card-actions>*{font-size:11px;min-height:28px;padding:5px 10px}}

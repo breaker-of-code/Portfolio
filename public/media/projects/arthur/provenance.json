@@ -1,0 +1,188 @@
+{
+  "source": "User-supplied Arthur project folder; approved for local portfolio entry 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. Images EXIF-transposed, resized without upscaling to max 1600x1000, WebP quality84; thumbnails max480x300 quality78. Videos 720p H.264 CRF27 maxrate1500k, AAC64k, faststart; full durations retained.",
+  "images": [
+    {
+      "original": "ar-1.jpg",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 135415,
+      "webBytes": 93482,
+      "thumbBytes": 12522,
+      "sha256": "565fa2da778a9dc44329f3a6209834ec19dfdbfc7034c4cc56c5b12501ad8776"
+    },
+    {
+      "original": "9.PNG",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 1640408,
+      "webBytes": 38008,
+      "thumbBytes": 9250,
+      "sha256": "bfd77007091581b70b1631f12f5d68d44e53f0982c12a284db6c8f1a13c5182b"
+    },
+    {
+      "original": "1.png",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 301334,
+      "webBytes": 57602,
+      "thumbBytes": 8928,
+      "sha256": "2c188f66a71313e916d852edf4df45cb0074a93e3f9365dc7eaa4708afc7b4ca"
+    },
+    {
+      "original": "11.PNG",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 226380,
+      "webBytes": 18976,
+      "thumbBytes": 10440,
+      "sha256": "2de2dea5f70c685a00f6c0531c4d9369c0769fa74ebade02e9e65ce12aad31dc"
+    },
+    {
+      "original": "2.png",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 154201,
+      "webBytes": 29458,
+      "thumbBytes": 8002,
+      "sha256": "34a622ba8fb19c2f56a4e5ca2da2aa922883851e4e2f248c8b8f83281ab07cad"
+    },
+    {
+      "original": "3.jpg",
+      "image": "image-06.webp",
+      "thumbnail": "thumb-06.webp",
+      "sourceBytes": 240356,
+      "webBytes": 80420,
+      "thumbBytes": 14012,
+      "sha256": "81f6312505eb7c5777b278d7947da877481ea867d3555076f979947fa9149dea"
+    },
+    {
+      "original": "4.jpg",
+      "image": "image-07.webp",
+      "thumbnail": "thumb-07.webp",
+      "sourceBytes": 69749,
+      "webBytes": 54410,
+      "thumbBytes": 11802,
+      "sha256": "e767383613033b54ba21bf8180040a62de1d1dd54b252b584a30cb118e3bb855"
+    },
+    {
+      "original": "5.PNG",
+      "image": "image-08.webp",
+      "thumbnail": "thumb-08.webp",
+      "sourceBytes": 1468557,
+      "webBytes": 44286,
+      "thumbBytes": 9052,
+      "sha256": "8ef7781b11b0a622db2f2b9d63db00c195123470ab261097f2de46656db31503"
+    },
+    {
+      "original": "6.jpg",
+      "image": "image-09.webp",
+      "thumbnail": "thumb-09.webp",
+      "sourceBytes": 192055,
+      "webBytes": 79356,
+      "thumbBytes": 12200,
+      "sha256": "6d676917c3ce5c23ca5b376ff82912b302907810d636f3099077f43bcc54a48b"
+    },
+    {
+      "original": "7.jpg",
+      "image": "image-10.webp",
+      "thumbnail": "thumb-10.webp",
+      "sourceBytes": 63946,
+      "webBytes": 28942,
+      "thumbBytes": 9770,
+      "sha256": "76bcc5ab226058c84a72b9a66dfb36a056a77f496a37f9c9b9f0d7af39337ae6"
+    },
+    {
+      "original": "8.jpg",
+      "image": "image-11.webp",
+      "thumbnail": "thumb-11.webp",
+      "sourceBytes": 47391,
+      "webBytes": 36046,
+      "thumbBytes": 13700,
+      "sha256": "a4206db8c32d3082933d97aedc3922b79918fd03a97ec2e0e2fcd40551097253"
+    },
+    {
+      "original": "ar-2.jpg",
+      "image": "image-12.webp",
+      "thumbnail": "thumb-12.webp",
+      "sourceBytes": 45507,
+      "webBytes": 31264,
+      "thumbBytes": 11290,
+      "sha256": "b08943ba15ab03988282837338b1d458263634a6c89a84a0343ab6e5fd0da1a4"
+    },
+    {
+      "original": "ar-3.png",
+      "image": "image-13.webp",
+      "thumbnail": "thumb-13.webp",
+      "sourceBytes": 128757,
+      "webBytes": 30608,
+      "thumbBytes": 11050,
+      "sha256": "da7212b62e3937ee830bbdad1e91ef442be2ba620dda75a4309129b24d959cd5"
+    },
+    {
+      "original": "ar-4.jpg",
+      "image": "image-14.webp",
+      "thumbnail": "thumb-14.webp",
+      "sourceBytes": 38706,
+      "webBytes": 27206,
+      "thumbBytes": 9876,
+      "sha256": "3a546555d5cbed53cedf31f70a34424c9c6e48c31c51a70e4922e7cbbfc9d6de"
+    },
+    {
+      "original": "ar-5.png",
+      "image": "image-15.webp",
+      "thumbnail": "thumb-15.webp",
+      "sourceBytes": 109902,
+      "webBytes": 47678,
+      "thumbBytes": 17868,
+      "sha256": "304f528697698a97ee3065160cb25881ebc56bfbe3efee3bb3d9f265af2c82b6"
+    },
+    {
+      "original": "ar-6.png",
+      "image": "image-16.webp",
+      "thumbnail": "thumb-16.webp",
+      "sourceBytes": 211960,
+      "webBytes": 53106,
+      "thumbBytes": 16278,
+      "sha256": "6b949b26ed09d70fb48892331c3d4af5f33ddf8c3c120cc2accf21d340672aaa"
+    },
+    {
+      "original": "ar-7.png",
+      "image": "image-17.webp",
+      "thumbnail": "thumb-17.webp",
+      "sourceBytes": 119454,
+      "webBytes": 34320,
+      "thumbBytes": 12436,
+      "sha256": "6e2f481a768da248fb8e9069bdca33f2288847818cc8e069de6ab4a40193752f"
+    }
+  ],
+  "videos": [
+    {
+      "original": "pinboard.mp4",
+      "file": "pinboard.mp4",
+      "poster": "pinboard-poster.webp",
+      "title": "Pinboard",
+      "sourceBytes": 86871218,
+      "webBytes": 12247629,
+      "sha256": "9709c6eb37c66d5f667cf430bf0835f7e3de5672a206178992121d2e358f476c"
+    },
+    {
+      "original": "whiteboard.mp4",
+      "file": "whiteboard.mp4",
+      "poster": "whiteboard-poster.webp",
+      "title": "Whiteboard",
+      "sourceBytes": 161277781,
+      "webBytes": 13539504,
+      "sha256": "2b81b9bc092068b92a935fe941b7435ab07f36a3356fe9535755b3d75c9ca91f"
+    },
+    {
+      "original": "Browser-Broadcast.mp4",
+      "file": "browser-broadcast.mp4",
+      "poster": "browser-broadcast-poster.webp",
+      "title": "Browser and video broadcasting",
+      "sourceBytes": 353424820,
+      "webBytes": 32957479,
+      "sha256": "aa79716756c44d4c1bcf81289240e8e34834101a546f8ad5dfe3612233e364f0"
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "Capture27.jpg",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 1904580,
+      "webBytes": 145788,
+      "thumbBytes": 22178,
+      "sha256": "42a43afb99fe2a264a0680a318698f778795cdf449b47476645b048dccf60b75"
+    },
+    {
+      "original": "Capture19.jpg",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 2837239,
+      "webBytes": 271922,
+      "thumbBytes": 35904,
+      "sha256": "bd204cd46afcd6f2e0c53139def237dd53a70166e2b3ba9b312703f5e03fe5ee"
+    },
+    {
+      "original": "goc.jpg",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 301301,
+      "webBytes": 51002,
+      "thumbBytes": 12652,
+      "sha256": "70eba819c59eb22376f141144056d2c25307ab5a8679771a7b1b3d2e4204111a"
+    },
+    {
+      "original": "Boards/Egypt.jpg",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 9873033,
+      "webBytes": 273042,
+      "thumbBytes": 27426,
+      "sha256": "36bafedc4466628ca7c309ae4aaaffe9b0739e28993c32e00d013b153bcc1dbb"
+    },
+    {
+      "original": "Boards/Greek.jpg",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 7390656,
+      "webBytes": 100170,
+      "thumbBytes": 16118,
+      "sha256": "e90799956d52cf619feb751a57ee513ce4fd679f1db52ed1c3590dc4f290191d"
+    },
+    {
+      "original": "Boards/Shinto.jpg",
+      "image": "image-06.webp",
+      "thumbnail": "thumb-06.webp",
+      "sourceBytes": 9733620,
+      "webBytes": 281352,
+      "thumbBytes": 33928,
+      "sha256": "481f1ad1a683e469c13a656126673eb6afed2b2ccbcc9833ade8522b35d75a12"
+    },
+    {
+      "original": "Boards/Tartarus.jpg",
+      "image": "image-07.webp",
+      "thumbnail": "thumb-07.webp",
+      "sourceBytes": 7902557,
+      "webBytes": 83486,
+      "thumbBytes": 12774,
+      "sha256": "c98a16a1ece3a682089ab9f510d3e26a028f58ad1e46d74eb1c5107a33654c3e"
+    },
+    {
+      "original": "Capture0.jpg",
+      "image": "image-08.webp",
+      "thumbnail": "thumb-08.webp",
+      "sourceBytes": 309812,
+      "webBytes": 30738,
+      "thumbBytes": 5406,
+      "sha256": "2ffbe87dd3f752bd6b1d98b5bb89eddb80410f9cc3cdbf82d970e385c1271765"
+    },
+    {
+      "original": "Capture1.jpg",
+      "image": "image-09.webp",
+      "thumbnail": "thumb-09.webp",
+      "sourceBytes": 67270,
+      "webBytes": 14516,
+      "thumbBytes": 2698,
+      "sha256": "1bbd8e4baf04d78499ae00d806b7d61d313f453207ffedf6ec036162088efee3"
+    },
+    {
+      "original": "Capture10.jpg",
+      "image": "image-10.webp",
+      "thumbnail": "thumb-10.webp",
+      "sourceBytes": 2798529,
+      "webBytes": 269420,
+      "thumbBytes": 35432,
+      "sha256": "5addda29ef4583b95a6ed9ced5eb9d62dfe8d7734e941c59fd1d46449c6d115d"
+    },
+    {
+      "original": "Capture13.jpg",
+      "image": "image-11.webp",
+      "thumbnail": "thumb-11.webp",
+      "sourceBytes": 3368847,
+      "webBytes": 240242,
+      "thumbBytes": 29864,
+      "sha256": "a269e5cd3448414a5adb46ff5122109a0f1140b9c2f88ea03483d916d15b82b3"
+    },
+    {
+      "original": "Capture14.jpg",
+      "image": "image-12.webp",
+      "thumbnail": "thumb-12.webp",
+      "sourceBytes": 2800853,
+      "webBytes": 268152,
+      "thumbBytes": 35658,
+      "sha256": "8d499b00eff78e95f143eda810101864465711d8e97a7caef111f9daa195cbb9"
+    },
+    {
+      "original": "Capture2.jpg",
+      "image": "image-13.webp",
+      "thumbnail": "thumb-13.webp",
+      "sourceBytes": 1007688,
+      "webBytes": 75060,
+      "thumbBytes": 12570,
+      "sha256": "69c86edcce75220db51b86e31aaa15a91e09bac32adf7c2feadb7b434dae5422"
+    },
+    {
+      "original": "Capture23.jpg",
+      "image": "image-14.webp",
+      "thumbnail": "thumb-14.webp",
+      "sourceBytes": 3396597,
+      "webBytes": 236674,
+      "thumbBytes": 28682,
+      "sha256": "3898619ab6a9e781219505767709388cf883e5bca0cf3f7704ae99bbfaa81b10"
+    },
+    {
+      "original": "Capture24.jpg",
+      "image": "image-15.webp",
+      "thumbnail": "thumb-15.webp",
+      "sourceBytes": 1258432,
+      "webBytes": 70512,
+      "thumbBytes": 11638,
+      "sha256": "5393bd37c905e665ac67aa3b7ee89574db3d2ca3314e8b41e38f25e3b71a3fa6"
+    },
+    {
+      "original": "Capture25.jpg",
+      "image": "image-16.webp",
+      "thumbnail": "thumb-16.webp",
+      "sourceBytes": 1621567,
+      "webBytes": 122618,
+      "thumbBytes": 19744,
+      "sha256": "fa827f1faf3fe35841059944e289abcf7f51b67ab870d6a8cdb5efb066d19977"
+    },
+    {
+      "original": "Capture29.jpg",
+      "image": "image-17.webp",
+      "thumbnail": "thumb-17.webp",
+      "sourceBytes": 1680498,
+      "webBytes": 122424,
+      "thumbBytes": 19720,
+      "sha256": "70a3481c1dbfaef1e550dd7ae323192bc125f39a76c898cf09da07f520018d0c"
+    },
+    {
+      "original": "Capture30.jpg",
+      "image": "image-18.webp",
+      "thumbnail": "thumb-18.webp",
+      "sourceBytes": 1649001,
+      "webBytes": 120480,
+      "thumbBytes": 19174,
+      "sha256": "dc5364abc434f78374ad3f16733bcc9159ed3e149b7cbef7bda8d53474cd11cd"
+    },
+    {
+      "original": "Capture6.jpg",
+      "image": "image-19.webp",
+      "thumbnail": "thumb-19.webp",
+      "sourceBytes": 1536436,
+      "webBytes": 110712,
+      "thumbBytes": 18252,
+      "sha256": "4e4de3ee2f0b2f42638afcc2cb243e4490c535e1777164951a1002078f6f51fa"
+    }
+  ]
+}

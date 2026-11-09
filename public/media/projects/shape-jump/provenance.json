@@ -1,0 +1,159 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "capture0.jpg",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 459782,
+      "webBytes": 27476,
+      "thumbBytes": 5534,
+      "sha256": "3a2ef311dc7300f07ba7eaebc9822e6e5e58addc07477fa00a0cbe8c08d88494"
+    },
+    {
+      "original": "capture1.jpg",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 764072,
+      "webBytes": 23568,
+      "thumbBytes": 4512,
+      "sha256": "aeebdbd0f813292ca421402f92db7670b35269e0f89b033abf4bdd6b969e4c21"
+    },
+    {
+      "original": "capture2.jpg",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 796564,
+      "webBytes": 28864,
+      "thumbBytes": 5344,
+      "sha256": "e750cc472bb6c4a7befcf3403d93126bd19e2c4a11453ab7576b98f8993efefb"
+    },
+    {
+      "original": "capture10.jpg",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 398714,
+      "webBytes": 24328,
+      "thumbBytes": 3770,
+      "sha256": "1402991f66618ef4862d6c237aaa91ef48ea5cec3a5fb8c015f4ded3ad260ce9"
+    },
+    {
+      "original": "capture12.jpg",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 393934,
+      "webBytes": 20200,
+      "thumbBytes": 3630,
+      "sha256": "b900642503f35eb7e4f2c88958645be28004aab58603a8068e0516c1d93aa2d8"
+    },
+    {
+      "original": "capture13.jpg",
+      "image": "image-06.webp",
+      "thumbnail": "thumb-06.webp",
+      "sourceBytes": 435398,
+      "webBytes": 21616,
+      "thumbBytes": 3954,
+      "sha256": "6a7495dbc1e1408818ef5163d8fefb63c140ec849a30207c6c7f12570a6b838c"
+    },
+    {
+      "original": "capture14.jpg",
+      "image": "image-07.webp",
+      "thumbnail": "thumb-07.webp",
+      "sourceBytes": 456851,
+      "webBytes": 21514,
+      "thumbBytes": 3872,
+      "sha256": "ebece35b2fb5784f80960c314ca1d37ddc8180dcbc936e92568cf55beaae4f77"
+    },
+    {
+      "original": "capture16.jpg",
+      "image": "image-08.webp",
+      "thumbnail": "thumb-08.webp",
+      "sourceBytes": 637804,
+      "webBytes": 23808,
+      "thumbBytes": 4446,
+      "sha256": "e0e70e507a5d628734c569e76746e458be123b612d7b2615bbac5b88f964ec19"
+    },
+    {
+      "original": "capture18.jpg",
+      "image": "image-09.webp",
+      "thumbnail": "thumb-09.webp",
+      "sourceBytes": 612527,
+      "webBytes": 23440,
+      "thumbBytes": 4142,
+      "sha256": "1f4daa28792aa6be0e87a1eae2c7ee8f7d381bbd023ccbc717663ff25c5caa27"
+    },
+    {
+      "original": "capture20.jpg",
+      "image": "image-10.webp",
+      "thumbnail": "thumb-10.webp",
+      "sourceBytes": 561030,
+      "webBytes": 30098,
+      "thumbBytes": 5636,
+      "sha256": "809c319d2f14c9422945e998e6b06e725ada9a0a9396a777b819b06029b7a109"
+    },
+    {
+      "original": "capture21.jpg",
+      "image": "image-11.webp",
+      "thumbnail": "thumb-11.webp",
+      "sourceBytes": 522237,
+      "webBytes": 24158,
+      "thumbBytes": 4566,
+      "sha256": "0ae2709bcce4f60db1f3411d4edcc9b4820ba648021f0cf4092ed02e56cd5f2c"
+    },
+    {
+      "original": "capture3.jpg",
+      "image": "image-12.webp",
+      "thumbnail": "thumb-12.webp",
+      "sourceBytes": 781231,
+      "webBytes": 30656,
+      "thumbBytes": 5822,
+      "sha256": "9cd2b42d976c5f3a28ab41aaa16bc3c492fc8fea1a692f9f640ffa3d52b45e11"
+    },
+    {
+      "original": "capture4.jpg",
+      "image": "image-13.webp",
+      "thumbnail": "thumb-13.webp",
+      "sourceBytes": 736263,
+      "webBytes": 29548,
+      "thumbBytes": 5540,
+      "sha256": "a908ef38f4f94e863dad9426d9d30c823624e6ad554ac83e510c2fe1ef2b365c"
+    },
+    {
+      "original": "capture6.jpg",
+      "image": "image-14.webp",
+      "thumbnail": "thumb-14.webp",
+      "sourceBytes": 657408,
+      "webBytes": 29580,
+      "thumbBytes": 5588,
+      "sha256": "9165610b97fc97c4c36238890d9adad628821b8a5d977f7674a523d02a8f3d71"
+    },
+    {
+      "original": "capture7.jpg",
+      "image": "image-15.webp",
+      "thumbnail": "thumb-15.webp",
+      "sourceBytes": 577725,
+      "webBytes": 28668,
+      "thumbBytes": 5290,
+      "sha256": "9d24bab5c2a3fd4ef3515f71bf9af9dc7e08178db93c0e62dfa67d7fee319c9a"
+    },
+    {
+      "original": "capture8.jpg",
+      "image": "image-16.webp",
+      "thumbnail": "thumb-16.webp",
+      "sourceBytes": 397866,
+      "webBytes": 25454,
+      "thumbBytes": 4194,
+      "sha256": "25aa0864438b3a9437d7c3e237cc71f37b73f9078ffa33311cc63197b05fc16d"
+    },
+    {
+      "original": "capture9.jpg",
+      "image": "image-17.webp",
+      "thumbnail": "thumb-17.webp",
+      "sourceBytes": 398494,
+      "webBytes": 24436,
+      "thumbBytes": 3892,
+      "sha256": "ea36e877797ac363b50f2f894c25d90d171cae01c0774ed089a121c22b8427a2"
+    }
+  ]
+}

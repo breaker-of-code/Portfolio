@@ -1,5 +1,8 @@
 // A fixed design frame defines world-to-CSS-pixel scale. Resizing changes the
 // visible area at manual zoom; automatic zoom fits Home to the current viewport.
+// User-calibrated framing: the previous automatic 190% view becomes 200%.
+export const DEFAULT_FRAME_FILL = 200 / 190;
+
 export const DESIGN_FRAME = { width: 1280, height: 720, top: 185, bottom: 242, padding: 58 };
 
 export function referenceHalfHeight({ left, rightEdge, bottom, top }) {

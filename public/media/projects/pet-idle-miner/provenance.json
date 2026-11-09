@@ -1,0 +1,139 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "Screenshots/1.png",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 891278,
+      "webBytes": 175062,
+      "thumbBytes": 32532,
+      "sha256": "6d853b4b4594392bb72055f1eca59ccf8f0714f657de69a4106d5caeab103c45"
+    },
+    {
+      "original": "Screenshots/2.png",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 1063257,
+      "webBytes": 171922,
+      "thumbBytes": 31304,
+      "sha256": "19ff0a9dc0f830ed4f30e7b16232d70d68b484b51021c8e97a681b01c6fd5e45"
+    },
+    {
+      "original": "Screenshots/3.png",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 1375039,
+      "webBytes": 208550,
+      "thumbBytes": 35510,
+      "sha256": "212c0ef290484acf8603ced77ce18fcb6cbe8151e875e2f2fe3cd51102a013c2"
+    },
+    {
+      "original": "Screenshots/4.png",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 1011981,
+      "webBytes": 171162,
+      "thumbBytes": 29928,
+      "sha256": "05510d7050315ab7e950bbcd3369042ecf53246885970db56596d1a12c5e37f6"
+    },
+    {
+      "original": "Screenshots/5.png",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 827563,
+      "webBytes": 138926,
+      "thumbBytes": 25668,
+      "sha256": "86689f730b1ad57486014307ccdcffac7f630453272933adb946b9040a5458ed"
+    },
+    {
+      "original": "Screenshots/6.png",
+      "image": "image-06.webp",
+      "thumbnail": "thumb-06.webp",
+      "sourceBytes": 1421978,
+      "webBytes": 201010,
+      "thumbBytes": 34586,
+      "sha256": "3f5dfbc5adcc14e8ab62be6ab96bfbdf9c194ef1832f72ce4b1650127df42c1c"
+    },
+    {
+      "original": "Statics/LOGO.png",
+      "image": "image-07.webp",
+      "thumbnail": "thumb-07.webp",
+      "sourceBytes": 149735,
+      "webBytes": 36588,
+      "thumbBytes": 12578,
+      "sha256": "1fb8df22e2fa8748aeae947d29e2d14b92c4836084e802a389d09057959e362b"
+    },
+    {
+      "original": "Statics/Splash-1.png",
+      "image": "image-08.webp",
+      "thumbnail": "thumb-08.webp",
+      "sourceBytes": 1049523,
+      "webBytes": 58376,
+      "thumbBytes": 10338,
+      "sha256": "cc7578f9cfe0a918de67f9b76261da26ab9f8066f36119a0f86c953256772f8d"
+    },
+    {
+      "original": "Statics/Splash-2.png",
+      "image": "image-09.webp",
+      "thumbnail": "thumb-09.webp",
+      "sourceBytes": 1123796,
+      "webBytes": 43800,
+      "thumbBytes": 8022,
+      "sha256": "0158feca6a0c7bab076a70849d8934ab89b07c5218576a0193f87a560961fd4b"
+    },
+    {
+      "original": "Statics/Splash-3.png",
+      "image": "image-10.webp",
+      "thumbnail": "thumb-10.webp",
+      "sourceBytes": 1269342,
+      "webBytes": 48572,
+      "thumbBytes": 8918,
+      "sha256": "10ec4a611c09b390baa9123059614e68645b7564bcbf200039b4bb147a14369f"
+    }
+  ],
+  "videos": [
+    {
+      "original": "Videos/Video0.mp4",
+      "file": "gameplay-01.mp4",
+      "poster": "gameplay-01-poster.webp",
+      "sourceBytes": 36931397,
+      "webBytes": 5174661,
+      "sha256": "db2d7b59230838fd0fd81dc976a5767d7894877567eb7ee58b44d181678b1765"
+    },
+    {
+      "original": "Videos/Video1.mp4",
+      "file": "gameplay-02.mp4",
+      "poster": "gameplay-02-poster.webp",
+      "sourceBytes": 18043667,
+      "webBytes": 2353555,
+      "sha256": "a4123f8acc4e994af158dcecb1348e8966c4db2857e9b51276a78060d0a697ac"
+    },
+    {
+      "original": "Videos/Video2.mp4",
+      "file": "gameplay-03.mp4",
+      "poster": "gameplay-03-poster.webp",
+      "sourceBytes": 21456200,
+      "webBytes": 3105177,
+      "sha256": "c7a15efe4f3bd4ffe3f7d71906843b60dd04350d89d8fc80dcfb571675f4ff5d"
+    },
+    {
+      "original": "Videos/Video3.mp4",
+      "file": "gameplay-04.mp4",
+      "poster": "gameplay-04-poster.webp",
+      "sourceBytes": 18559347,
+      "webBytes": 3542500,
+      "sha256": "6cb5da603d58a1d41d7f056d037c005dd080b008134ddd5c03c1f2cceb4e77e8"
+    },
+    {
+      "original": "Videos/Video4.mp4",
+      "file": "gameplay-05.mp4",
+      "poster": "gameplay-05-poster.webp",
+      "sourceBytes": 11234890,
+      "webBytes": 2600756,
+      "sha256": "f62cb43dda89fc5bcff5aa1dfb4c0982a43f7135111ff3b9d55148b2dfb1d8c4"
+    }
+  ],
+  "videoProcessing": "Full-duration H.264 CRF27 maxrate1500k AAC64k faststart, max width1280 without upscaling; originals unchanged."
+}

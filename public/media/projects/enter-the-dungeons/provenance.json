@@ -1,0 +1,51 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "ETD 1.png",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 375741,
+      "webBytes": 44536,
+      "thumbBytes": 7866,
+      "sha256": "ca7ee016de7a2f1c8accaf549464bca17292e39fc24cd9ac8454ee125400ae44"
+    },
+    {
+      "original": "ETD 2.png",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 373355,
+      "webBytes": 40220,
+      "thumbBytes": 6856,
+      "sha256": "35c9c77d174a3e0915af91a456d737f3de038dc1d2889eedfe6894bdef201ad5"
+    },
+    {
+      "original": "ETD 3.png",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 448092,
+      "webBytes": 46022,
+      "thumbBytes": 8082,
+      "sha256": "d67398493b501c3625e90c7467ec54980268c17226a5a91cfe7292eb810d49af"
+    },
+    {
+      "original": "ETD 4.jpg",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 90554,
+      "webBytes": 56576,
+      "thumbBytes": 10526,
+      "sha256": "ec3c0f989516a17424598d67b161df4e5e784b42f891471ce37c93f0bed4f5f8"
+    },
+    {
+      "original": "ETD 5.jpg",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 350275,
+      "webBytes": 63148,
+      "thumbBytes": 7722,
+      "sha256": "f2afc4f5d76618b1f189b46ad444c7339774bbcc63cd5a2374f08a5c846a8ca0"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "vlcsnap-2024-07-23-15h49m02s095.png",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 915782,
+      "webBytes": 79324,
+      "thumbBytes": 18404,
+      "sha256": "73d9b8afe53cea7e804f386608f7262a062219b64f40f05fe114b85b5d72e25d"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h50m29s402.png",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 989981,
+      "webBytes": 72312,
+      "thumbBytes": 13574,
+      "sha256": "6985b4e0335af59e96b8b986c04cc6cdf71556f78fddb7ac03b01743ee2f19d3"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h48m48s286.png",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 318652,
+      "webBytes": 21956,
+      "thumbBytes": 4952,
+      "sha256": "d15a4494219b7ccdd86fd901e9f6c6abe09a61a819cb160d2064d7955aaec143"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h48m52s162.png",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 642893,
+      "webBytes": 56528,
+      "thumbBytes": 12850,
+      "sha256": "b6bbe7f0579c8720a62aa8087cc89b871600e89ea398cf34b7f3f7a879d72700"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h48m56s457.png",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 763893,
+      "webBytes": 68034,
+      "thumbBytes": 15184,
+      "sha256": "c8e3498844dd2a567dcb000dd2e9e8a5ee47a9b73942d4994abd9b1571c78764"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h49m06s822.png",
+      "image": "image-06.webp",
+      "thumbnail": "thumb-06.webp",
+      "sourceBytes": 747068,
+      "webBytes": 66020,
+      "thumbBytes": 14574,
+      "sha256": "6beb58cdb9c790420ba73d1bd291dd256bc95f45289f0f6fca96ad01d93f5ac8"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h49m10s946.png",
+      "image": "image-07.webp",
+      "thumbnail": "thumb-07.webp",
+      "sourceBytes": 659807,
+      "webBytes": 49428,
+      "thumbBytes": 11456,
+      "sha256": "208a2fc750e515ae075d10c4044ee5faebf4c85ab365d0e2273b6c369496a8b0"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h49m21s644.png",
+      "image": "image-08.webp",
+      "thumbnail": "thumb-08.webp",
+      "sourceBytes": 821240,
+      "webBytes": 78396,
+      "thumbBytes": 18812,
+      "sha256": "85f20eafd3200c11e49808838fef3c976d66b886a2862338ed613c2452bc38d5"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h49m37s564.png",
+      "image": "image-09.webp",
+      "thumbnail": "thumb-09.webp",
+      "sourceBytes": 379082,
+      "webBytes": 27428,
+      "thumbBytes": 5044,
+      "sha256": "3f752e20c054c5606277c405c9c614f9d39f19a1a36d3dbd8ccb61f8060f20c3"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h50m41s545.png",
+      "image": "image-10.webp",
+      "thumbnail": "thumb-10.webp",
+      "sourceBytes": 500423,
+      "webBytes": 32412,
+      "thumbBytes": 7242,
+      "sha256": "655ee29ce07e6163699a2cef783c8fe0b050046bb6e8b2af4277924a835b1559"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h50m55s460.png",
+      "image": "image-11.webp",
+      "thumbnail": "thumb-11.webp",
+      "sourceBytes": 580563,
+      "webBytes": 44492,
+      "thumbBytes": 11268,
+      "sha256": "9ecf1298437215f053f3aabbadf277732a37a02b25d07944021a5810d21043fd"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h51m00s666.png",
+      "image": "image-12.webp",
+      "thumbnail": "thumb-12.webp",
+      "sourceBytes": 570572,
+      "webBytes": 40306,
+      "thumbBytes": 9500,
+      "sha256": "c6b150d64004b376c95dcd8fb35e516b1d4b8c416de35380df7b3d806bdb3ecc"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h51m05s796.png",
+      "image": "image-13.webp",
+      "thumbnail": "thumb-13.webp",
+      "sourceBytes": 361344,
+      "webBytes": 21474,
+      "thumbBytes": 4908,
+      "sha256": "6d36940fce8f2c61bceccf5c51c1bb55e63b06e4052a9f2872efb0d9a8fd58db"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h51m31s308.png",
+      "image": "image-14.webp",
+      "thumbnail": "thumb-14.webp",
+      "sourceBytes": 820812,
+      "webBytes": 92698,
+      "thumbBytes": 16168,
+      "sha256": "34303f6966dd0096a887984c45018611502fab6a91ac434df1f5b2751d6d2e49"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h51m36s822.png",
+      "image": "image-15.webp",
+      "thumbnail": "thumb-15.webp",
+      "sourceBytes": 662989,
+      "webBytes": 71688,
+      "thumbBytes": 12880,
+      "sha256": "c50169eda839f2ad86861687b70cc61d2155c4ec538b951c949fa59c3e875d14"
+    },
+    {
+      "original": "vlcsnap-2024-07-23-15h51m43s338.png",
+      "image": "image-16.webp",
+      "thumbnail": "thumb-16.webp",
+      "sourceBytes": 1103350,
+      "webBytes": 95948,
+      "thumbBytes": 15820,
+      "sha256": "b67783f53b74947e4a02937ee0504c3e86c43e6cd27fac001231a7098c86203d"
+    }
+  ],
+  "videos": [
+    {
+      "original": "\u2705XANA - World_s First Virtual Esports Arena.mp4",
+      "file": "xana-demo.mp4",
+      "poster": "xana-demo-poster.webp",
+      "sourceBytes": 23065086,
+      "webBytes": 15828048,
+      "sha256": "03b5f2d41ec3a5f56427455f15a9757c1ad923b2c78fd6f14f59c1c53ec3a0fa"
+    }
+  ],
+  "videoProcessing": "Full-duration 720p H.264 CRF27 maxrate1500k AAC64k faststart; original unchanged."
+}

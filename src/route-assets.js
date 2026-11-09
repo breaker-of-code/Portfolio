@@ -1,5 +1,5 @@
 const defaultLoaders = {
-  career: () => import('./career-building.js').then(module => (builder, type, variant) => module.createCareerBuilding(builder, variant)),
+  career: () => import('./career-building.js').then(module => (builder, type, variant, company) => module.createCareerBuilding(builder, variant, company)),
   projects: () => import('./project-icons.js').then(module => module.createProjectIcon),
 };
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { referenceHalfHeight, viewportHalfHeight, routeCameraFocus, fittedZoom } from './camera-layout.js';
+import { referenceHalfHeight, viewportHalfHeight, routeCameraFocus, fittedZoom, DEFAULT_FRAME_FILL } from './camera-layout.js';
 
 test('resizing preserves model size in CSS pixels, including mobile landscape', () => {
   const reference = referenceHalfHeight({ left: -26, rightEdge: 26, bottom: -8, top: 9 });
@@ -27,5 +27,15 @@ test('automatic zoom fits Home within safe horizontal and vertical space at diff
     assert.ok((bounds.rightEdge - bounds.left) * scale <= width - 2 * padding + 1e-8);
     assert.ok((bounds.top - bounds.bottom) * scale <= height - dock - top + 1e-8);
     assert.ok(Math.abs((bounds.rightEdge - bounds.left) * scale - (width - 2 * padding)) < 1e-8 || Math.abs((bounds.top - bounds.bottom) * scale - (height - dock - top)) < 1e-8);
+  }
+});
+
+
+test('closer default framing maps 190% to 200% without changing manual pixel scale', () => {
+  assert.equal(190 * DEFAULT_FRAME_FILL, 200);
+  for (const zoom of [88, 134, 190, 204]) {
+    const original = viewportHalfHeight(720, 20, zoom);
+    const closer = viewportHalfHeight(720, 20, zoom * DEFAULT_FRAME_FILL);
+    assert.ok(Math.abs(original / closer - 200 / 190) < 1e-9);
   }
 });

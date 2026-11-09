@@ -1,9 +1,13 @@
+import { createProjectLandmark, projectLandmarkType } from './project-landmarks.js';
 import * as THREE from 'three';
 
 const C = { orange: 0xf77b08 };
 
 // Loaded only when the Projects island is opened.
-export function createProjectIcon(builder, type) {
+export function createProjectIcon(builder, type, variant = 0, project = null) {
+  type = projectLandmarkType(type, project);
+  const custom = createProjectLandmark(builder, type);
+  if (custom) return custom;
   const g = new THREE.Group();
   if (type === 'puzzle') {
       for (const [x, y, col] of [[-0.5, 0.45, 0x44bcd4], [0.5, 0.45, 0xec91aa], [0, 1.4, 0xffcf45]]) { builder.box(g, [0.92, 0.92, 0.92], [x, y, 0], col, 0.05); builder.box(g, [0.4, 0.4, 0.035], [x, y, 0.48], col === 0xffcf45 ? 0xefb631 : col === 0x44bcd4 ? 0x35a9c2 : 0xd97f9a); }

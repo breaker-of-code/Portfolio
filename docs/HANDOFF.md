@@ -4,10 +4,10 @@ Updated **2026-11-09** by **codex-bankd-macbook**. This is a maintained snapshot
 
 ## Current decision and next priorities
 
-The user chose **static hosting first; admin later**. Content edits currently require source changes and redeployment. The static build and 47 tests pass. GitHub Pages is live at `https://breaker-of-code.github.io/Portfolio/`, from `breaker-of-code/Portfolio` on `main`. First deployment succeeded on 2026-11-09.
+The user chose **static hosting first; admin later**. Content edits currently require source changes and redeployment. The static build and 77 tests pass. GitHub Pages is live at `https://breaker-of-code.github.io/Portfolio/`, from `breaker-of-code/Portfolio` on `main`. First deployment succeeded on 2026-11-09.
 
-1. Preserve the live Pages workflow; future pushes to `main` automatically deploy.
-2. After deployment, use the user's connected Google Drive for real content. Confirm EACH section, company and project with the user before applying it; retain illustrative data until then.
+1. Keep ongoing data changes local. Do not push: `main` auto-deploys. User wants one final publication after the complete data update is reviewed and approved.
+2. Use the locally reviewed portfolio PDF and current resume; all seven company entries are approved, with editorial improvements authorized; confirm other sections and projects before local implementation. Preserve the ongoing Arkadium contract correction over the older resume end date.
 3. Verify the actual hosted URL, including lazy sections, fonts and audio.
 4. Test physical phones, native orientation/fullscreen behavior and lower-end hardware. Browser viewport checks are not physical-device validation.
 5. A future admin must publish public data/media independently of live backend availability, so inactivity of the editor cannot take the portfolio offline.
@@ -38,7 +38,7 @@ Workspace: `/Users/arkadium/Documents/Portfolio`. Main app: `coastal-portfolio/`
 ## Accepted art and layout
 
 - Low-poly coastal islands, orange open-top Jeep, sand, faceted rocks/tunnels and stylized palms. Water was refined to look smoother than the land geometry.
-- Header: **Senior Unity Developer**, official Unity mark and enlarged **9 YEARS** badge with OF EXPERIENCE kept separate. Some strings remain hardcoded in `main.js`.
+- Header: **Lead Unity Developer**, official Unity mark and enlarged **9 YEARS** badge with OF EXPERIENCE kept separate. Some strings remain hardcoded in `main.js`.
 - Header navigation: Home, Projects, Career, Resume, Say hello, with active-section coloring. Utilities sit below the right-side navigation; help has a circular outline.
 - Hub choices: Intro **1/avatar**, Career **B/dev desk** with shorter legs, Projects **C/arcade**, Skills **B/gears**, Contact **1/mailbox**. Gentle icon bobbing and palm-leaf sway.
 - Physical labels: selected **B**, deep teal/cream, amber number tile, **1.25x** size, no tiny subtitle above the label.
@@ -77,7 +77,7 @@ Workspace: `/Users/arkadium/Documents/Portfolio`. Main app: `coastal-portfolio/`
 | Channel/control | Value |
 | --- | --- |
 | Master | 0.8 |
-| Ocean | 0.135 |
+| Ocean | 0.081 |
 | Engine | 0.38 |
 | Idle loop | 0.45 stopped, fading to 0 while moving |
 | Driving loop | 0.6–1.0 with speed, fading to 0 on stopping |
@@ -98,8 +98,8 @@ Workspace: `/Users/arkadium/Documents/Portfolio`. Main app: `coastal-portfolio/`
 
 ## Optimization and evidence
 
-- Adaptive high/medium/low quality controls DPR, shadows, ocean detail, scenery update rate and smoke emission. Hardware hints and timed frame windows use warmup/cooldowns.
-- High DPR caps desktop/mobile: 1.5/1.25; medium: 1.25/1.15; low: 1/1. Shadow maps: 2048/1024/512.
+- Adaptive high/medium/low quality controls shadows, ocean detail, scenery update rate and smoke emission. Canvas resolution stays at the startup hardware tier so signs do not alternate between sharp and blurry; resize still applies the mobile/desktop DPR cap. Hardware hints and timed frame windows use warmup/cooldowns.
+- DPR caps desktop/mobile: high 1.5/1.5; medium 1.25/1.5; low 1/1.25. Mobile resolution was raised on 2026-11-09 for label clarity; it remains capped below full retina DPR. Shadow maps: 2048/1024/512.
 - Static batching uses material/spatial groups while keeping animated landmark roots, Jeep suspension/wheels and picking behavior independent.
 - Water is finer near the island/coarser offshore. CPU boat/fish height sampling matches the displaced rendered surface; do not replace it with a flat approximation.
 - Career/Projects models load lazily; pending requests are shared and failures can retry, with a route-load error fallback.
@@ -126,3 +126,119 @@ Earlier viewport checks covered portrait/landscape phones, tablet, desktop and w
 - Scripts include ocean/idle/driving option generators, `build_idle_loop.py`, `build_driving_loop.py`, `prepare_recorded_splash_options.py`, `build_interface_sounds.py`, `render_final_audio_mix.py`.
 - `../design-review/public/audio/final-coastal-mix.wav` and `final-mix-report.json` are a review mix and measurements, not production dependencies.
 - Historical screenshots are iteration evidence, not instructions to restore rejected designs.
+
+
+## Approved data, 2026-11-09
+
+- Intro: Hafeez Akram, Lead Unity Developer, 9 years; exact approved bio lives in `src/content.js`.
+- Resume: `/files/Hafeez-Akram-Developer.pdf` is the user's original PDF, publicly attached with approval, not a rewritten resume. Buttons/links work through the common base-path helper. The original PDF has older 8+ years / Arkadium end-date wording; website uses the user's subsequent corrections.
+- Career: Arkadium only so far, Freelance Senior Unity Developer — Contract, Apr 2024–Present; work arrives as needed, no fixed-hours claim. Do not include unapproved project associations. UI handles an empty related-project list and a one-stop career route.
+- Other companies/projects, contact fields and screenshots still need individual approval. Full private review inventory stays outside the repository at `../content-review/portfolio-inventory.json`.
+- Details copy scrolls within the existing compact dock when long; no clipped text on mobile.
+
+- Framing calibration: `DEFAULT_FRAME_FILL = 200 / 190` in `camera-layout.js` tightens automatic fit by 5.263% on every screen; scrolling-route endpoint padding uses the same calibration. Manual zoom stays untouched.
+
+- Infinity-Up approved locally: Lead Unity Developer, Nov 2024–Present, 10 developers across 3 client and 3 in-house projects. Work list includes Galactic Peggle, Boat Magnet, Crossy Bridge, Clucky Chick and other games; shared architecture/standards and internal tools. Retention 27%/10%/8% at D1/D3/D7 is approved. Exclude Mushroom Spring and publisher-contract claims from the portfolio entry. Work/Impact text is available independently of approved related-project images. No deployment.
+
+- Arthur Technologies approved locally: Senior VR Unity Developer, Mar 2021–Apr 2024. Refined overview, Work and Impact cover Unity/C#/Photon/AWS, multiplayer, VR-to-WebGL custom wrappers, EC2/S3 integration, memory/performance and real-time HD video. Budget/bandwidth metrics omitted; related-project links remain empty until project approval.
+
+- No Borders Innovations approved locally: Senior Game Developer, Nov 2020–Mar 2021. Four-person team, Xana/Xana Live, Agora, AWS GameLift, QA/documentation improvements and on-time delivery. User authorized editorial review across descriptions; Intro and approved companies now use concise wording with consistent tense and less repetition. Unapproved projects/employers still require review.
+
+- Experience approval is complete for all seven employers. Added Zepro Digital (2016–2017), Nutty Apps (2017–2018) and Five Rivers Technologies (Apr 2018–Oct 2020) from the reconciled sources. Descriptions are concise and factual; earliest roles have no invented metrics or results. Work/Impact tabs appear only when real content exists. Do not ask the user to re-approve experience records; clarify only material gaps/conflicts. Projects remain subject to review.
+
+- Stop labels now use `label-layout.js` for fixed glyph size/tracking and measured minimum/growing plaque widths across Hub/Projects/Career. Career names retain title case, including Infinity Up. Rooftop options A/B/C are in `../design-review/rooftop-options.html`; user supplies logos, selection pending, no production rooftop design applied.
+
+- Rooftop option C is selected and applied locally to all Career buildings. `rooftop-sign.js` adds a round cream/deep-teal badge and auto-width company nameplate, placed above each model's actual roof height before batching. Initials are explicitly placeholders until user logo files arrive; no fabricated official logos or network downloads. Career-only lazy loading is retained.
+
+- Rooftop refinement: removed rooftop names (bottom route boards already name companies), enlarged option C to 1.25× and mapped all seven supplied logo files through `company.logo` under `/media/company-logos/`. Originals are copied unchanged; canvas rendering contains each logo on a white circular face without stretching. Loading callbacks are detached on texture disposal to avoid late route redraws. Provenance is beside the files. No external logo fetches or publication.
+
+- Rooftop logo fit now fills the whole inner disk with a 3px safety margin on a 512px texture. `logo-layout.js` trims transparent/uniform source margins for display and fits the furthest visible artwork point to the circle, preserving proportions and preventing cropped mark edges. Original files remain unchanged.
+
+- Latest company-dialog layout: no tabs, overview description only; left-to-right 50% project images / 50% overview text, without a resume control. A neutral image placeholder reserves the media area until assignments are provided. Broad resume buttons were removed from interactive details (header/Simple view unchanged).
+- `company-gallery.js` resolves only explicit `projectIndices`, omits invalid/empty/duplicate associations and preserves full project image arrays. Company cover clicks open the existing gallery popup without navigating away from Career; real projects use a neutral gallery caption. Project assignments remain empty pending user mapping after project entry.
+
+- Year board now shows only the centered rolling year; no yellow caption. Career and Projects dialogs have no resume control or reserved utility space; header Resume remains available. Board and rooftop textures use the GPU-supported anisotropy limit with mipmaps retained. Small supplied logos still have source-resolution limits. Stable startup DPR trades some adaptive fill-rate savings for consistent readability; physical low-end-device performance remains unverified.
+
+- Arthur VR is approved and replaces the first sample project, index 0. Remaining seven sample stops await review; company assignments remain empty pending user mapping. Seventeen WebP screenshots and three full-duration H.264/AAC feature videos use separate small thumbnails/posters. `project-media.js` normalizes mixed galleries and bounds next-image preloading; `main.js` only assigns a video source on selection (`preload=none`, no autoplay), releasing it on change/close. Thumbnail strip is lazy; only two previews appear in details. Real projects no longer show illustrative labels/alt text or empty outcomes.
+
+## Latest local interaction and media refinements
+
+- Per-tab sessionStorage key `coastal-portfolio:location:v1` remembers route/index. `createNavigation(lengths, saved)` validates/clamps restored state and infers the correct Home gateway; denied/corrupt storage starts at Home. Restore occurs under the loading veil; dialogs, playback and in-flight motion are not resumed.
+- Tutorial keys/title/help copy sit inside one cream panel. Existing input dismissal, controls return animation and mobile side-arrow pulse remain. Ocean mix is now 60% of previous level: .135 → .081. Other channels unchanged.
+- Project dock has two thumbnails and one View all X photos (or photos & videos) control; removed Watch videos and link controls. The photo count excludes videos; gallery total still includes all items. Thumbnails are horizontally scrollable within a viewport-bounded flex modal, with image/video area shrinking on small screens.
+- Project rocks reserve actual enlarged icon X/Z bounds plus margin. Big rocks shift back until clear; shadows/foliage footprints follow actual rock positions. Regression checks a wide puzzle arch at 1.24×.
+- `project-landmarks.js` supplies project-specific procedural geometry; Arthur headset is applied. Mappings/models are ready for Gods of Chess, Tap Challenge, XANA, E.V.A.L. red round character, Game Changer gloves/ring, Shape Jump, Enter the Dungeons, Hexagrids X, Pong 3D and Wonderland Runner (existing race icon retained). Unapproved project text/media are not added by this mapping. Local preview: ../design-review/project-icons.html.
+- Arthur media preparation completed: 17 images, three full-duration 720p H.264/AAC videos, all faststart. Approx. 578.66 MiB sources → 57.0 MiB optimized media; first two previews 21,772 bytes, full gallery images 785,168 bytes, gallery thumbnails 198,476 bytes. No originals changed. No publication.
+
+- Refresh framing detail: when resuming Career/Projects, the scene first constructs Home under the loading veil to establish Home reference bounds, then lazily prepares/restores the saved route. This avoids accidentally fitting an entire long island or changing the default model scale on refresh.
+
+- Detail-preview rotation: `preview-rotation.js` drives two slots at four-second intervals for >2 project screenshots or >2 linked company project covers. Both slots fade out/in over 220ms each; reduced motion swaps without fading. Odd counts wrap (e.g. five: 0/1 → 2/3 → 4/0), and current image/project IDs, labels and captions change atomically with the image. Only two next thumbnails are predecoded. Hidden tabs/docks, travel, section transitions and open dialogs pause the rotation. Disposed/re-rendered cards abort pending fades and clear their timer. Company mappings remain empty; actual company cover rotation becomes visible when the user assigns projects.
+
+- Latest content workflow: ask the employer/company for every project as it is reviewed and apply confirmed mappings immediately. Arthur VR → Arthur Technologies is confirmed (project index 0). Gods of Chess text/technologies are approved; its company question is pending. This supersedes earlier instructions to wait until all projects are entered before mapping.
+
+- Gods of Chess is now local project index 1 with approved overview/contribution/Unity-C#-Photon tags, chess icon and 19 optimized screenshots (about 3.14 MiB versus 58.59 MiB originals). Arthur remains index 0; six remaining sample stops keep sequential indices. Gods of Chess company association is still awaiting the user response.
+
+- Confirmed association: Gods of Chess → Five Rivers Technologies (project index 1). Arthur VR → Arthur Technologies remains index 0. Both mappings are local; keep asking the company during each subsequent project review.
+
+- Tap Challenge is approved locally: project index 2, 12 optimized screenshots, Unity/C#/Firebase tags and tap-button landmark. Explicit employer: Five Rivers Technologies; company.projectIndices is [1, 2] for Gods of Chess and Tap Challenge. Arthur index 0/mapping is unchanged. Five sample stops remain.
+
+- Latest approved local projects: Arthur VR [0] → Arthur Technologies; Gods of Chess [1], Tap Challenge [2] and E.V.A.L. [4] → Five Rivers Technologies; XANA [3] → No Borders Innovations. E.V.A.L. is a Unity platformer with Hafeez as main developer, using 12 optimized photos; XANA uses 16 photos and one full-duration on-demand video. Five Rivers now has three covers for automatic pair rotation. Five real records and three sample stops remain; no publication.
+
+- Game Changer is approved locally at index 5: 3D boxing game, associate developer, Zepro Digital [5], 12 optimized photos and boxing landmark. Six real project records and two sample stops remain.
+
+- Shape Jump is approved locally at index 6: endless jumping survival with drawing controls, main developer, Five Rivers Technologies [1, 2, 4, 6], 17 optimized photos and jump landmark. Seven real projects and one sample stop remain; further supplied projects still need review.
+
+- Enter the Dungeons is approved locally at index 7: multiplayer 2D strategy, main developer, Five Rivers Technologies [1, 2, 4, 6, 7], five optimized photos and dungeon landmark. All eight current project stops are real; Hexagrids X, Pong and Wonderland Runner are additional supplied projects still awaiting review, not yet entered.
+
+- User skipped Hexagrids X (2026-11-09); do not add its project or media. Next review: Pong, then Wonderland Runner.
+
+- Pong 3D is approved locally at index 8: 3D table tennis, main developer, Five Rivers Technologies [1, 2, 4, 6, 7, 8], six photos and one on-demand gameplay video. Nine real project stops; Wonderland Runner is next. Hexagrids X remains excluded.
+
+- Wonderland Runner is approved locally at index 9: 3D endless runner, main developer, Nutty Apps [9], three optimized photos and existing race landmark. All ten included projects from supplied project folders are entered; Hexagrids X is explicitly skipped. Additional resume/PDF-only projects, contact and skills review remain separate.
+
+- Pet Idle Miner is approved locally at index 10: personal idle pet/business management project, main developer alongside a fellow developer. This supersedes the original CV solo-project wording; do not rewrite the attached CV. Lion Studios approached about publishing, no deal claimed. Ten images/five on-demand videos, pet/coins landmark; no employer association. Eleven real projects total.
+
+- Latest project order supersedes historical indices: Arthur VR, Gods of Chess, Pet Idle Miner, E.V.A.L., XANA, Tap Challenge, Game Changer, Enter the Dungeons, Shape Jump, Pong 3D, Wonderland Runner. Explicit numbered list places Pet third. Wonderland retained after listed ten. Company associations remapped by identity. ASK the desired position BEFORE adding any future project. Pet landmark now has two animals, coins and cash.
+
+- Intro now uses user-approved young.jpg (copied unchanged to /media/profile/hafeez-akram.jpg) as a large photo replacing both sample previews; no avatar/sample artwork. Hub resume utility is a labeled square. Skills uses only 25 confirmed core/services items and self-assessed levels, six category tabs and experience filters; tools round unanswered/deferred, Steam excluded. No skill percentages or sample pictures. All local only.
+
+- Skills refinement: compact floating-tech panel; green Strong, blue Working knowledge, yellow Learning tiles with categorical fill animation (not numerical ratings). Only levels present in selected category appear; unavailable filter resets to All. 6 tiles/page desktop, 4 narrow, 2 short screens; paging replaces internal scrolling. Resume utility vertically centered. Honor reduced motion.
+
+- Contact now uses the approved portrait instead of unrelated sample project artwork; email/LinkedIn/GitHub/availability questions are pending. Skills badges use persistent 2D collision motion (wall/pair bounces, faster motion), preserve the same spotlight DOM/controller across tab/filter/page changes, and pause on hidden card/tab or reduced motion. Dispose when leaving Skills/page.
+
+- Contact approved 2026-11-09: hafeez.akram21@gmail.com; LinkedIn https://www.linkedin.com/in/hafeez-akr/; GitHub https://github.com/breaker-of-code; WhatsApp https://wa.me/923088127585. Both full-time and freelance/contract availability. Contact and Simple view show all four methods. Mailto uses default mail handler (no blank tab); HTTP links open new tabs with noopener/noreferrer. WhatsApp only opens a chat, never sends automatically. All local only.
+
+- Skills badge set includes AWS and VR (seven total), preserving continuous collision trajectories. Held keyboard arrows/mobile arrow buttons continue one stop per arrival until release; blur/hidden/route change clears hold. Existing single-input reversal/approach rules retained. Intro/Contact portrait square crops anchored right, removing left-side background.
+
+- Portrait refinement: square applies only to Intro, whose media column now hugs the photo with a 24px gap to text. Contact restores the full-width rectangular portrait banner above its links.
+
+- Intro card now grows to content rather than scrolling the biography/action column. Compact Explore button has intrinsic width below text; square photo remains top-aligned, Contact unchanged.
+
+- Career media always uses two photo slots when approved project media exists. Single-project companies show two screenshots from that project and cycle remaining screenshots every four seconds; both open the same full project gallery. Multi-project companies retain project-cover rotation. Companies with no supplied/mapped projects retain placeholder until data arrives.
+
+- 2026-11-09 profiling (no optimization yet): see docs/PERFORMANCE_REVIEW_2026-11-09.md and private raw logs. Production desktop baseline ~608–703 draw calls/frame, ~33 FPS in automated browser, low effects retain startup DPR1.5; gallery still renders scene and measured ~25–26 FPS. Home heap/resource counts returned near baseline after routes. Browser title is Hafeez Akram - Lead Unity Developer across routes.
+
+- Approved optimization pass (2026-11-09): render-budget.js caps driving/camera settling at30FPS and settled scenery at20FPS; deliberate caps are normalized out of adaptive quality timing. Scene setPaused composes named overlay/transition reasons and stops setAnimationLoop entirely for hidden documents and open dialogs; resume resets timing. Shadow maps cache between10Hz moving/2Hz idle updates with immediate invalidation for route/zoom/resize/quality. Station/offscreen palm/boat/fish work is culled with margins; repeated palm leaves are spatial InstancedMesh batches; larger24-unit static batches reduce submission overhead. Engine cues fade while paused, ambience preferences unchanged. DPR and user zoom unchanged.
+
+
+## Mobile startup audit and recovery, 2026-11-09
+
+The user's first-published version failed on Samsung Galaxy A54 / Chrome (island missing, Intro dock visible, limited navigation). Recent local optimizations/anisotropy/stable DPR improved load and clarity, but did not fix the old timer-based readiness. Exact physical-device cause is not established.
+
+- Startup no longer uses two RAF callbacks plus an 850ms delay as proof of readiness. Scene starts paused; main awaits requested route code, rooftop-logo completion, current preview decoding, shader compilation and an explicit rendered frame before removing the loader. Full gallery images/videos remain on demand.
+- Section transitions likewise await the actual frame/preview completion; removed the arbitrary 10-second route timeout so a slow successful download opens its requested section automatically. Actual failures retain the retry message.
+- Failed startup offers visible Retry 3D / Simple view, rather than silently opening a 2D-only experience. After 15 seconds, a slow pending startup offers optional Simple view while continuing loading; reconnect retries a failed startup. Simple-view galleries remain usable if 3D cannot start.
+- WebGL context loss pauses the scene and shows recovery; restored context recompiles/renders the current route before revealing/resuming. Unsupported shader errors cannot mark a blank frame ready. Browser back/forward cache suspends rather than disposes the retained scene, then resumes on pageshow.
+- Startup mobile DPR caps are now 1.5 for medium/high, 1.25 low; adaptive effects still do not vary canvas resolution. This adds pixel cost relative to the former 1–1.25 mobile caps; recent draw-call/frame/shadow budgets remain in force. Physical A54 smoothness/crispness requires user retest after final publication.
+- Regression tests cover delayed textures/shaders, interrupted/stale readiness and shader failure. No deployment: user's local-only instruction remains active.
+
+## Travelling shadow correction, 2026-11-09
+
+Shadow maps now refresh every rendered frame during Jeep travel/camera settling and once on arrival, replacing the earlier10Hz active shadow cap that caused stepped car shadows. Settled shadows still cache at2Hz. Render30FPS active/20FPS idle and dialog/hidden pauses remain unchanged. Active shadow-pass cost increases relative to the initial optimization; historical idle profile measurements are unchanged.
+
+- Contact portrait framing refinement: wide banner keeps object-fit:cover with object-position:right20%, shifting the photo down to reveal the upper face. Intro square crop is unchanged.
+
+
+## Combined publication requested, 2026-11-09
+
+The user explicitly requested deployment after the Contact crop change, superseding the local-only hold for this combined release. Includes all approved content/media and recent mobile, performance, shadow and portrait fixes. All77 tests and exact /Portfolio/ build passed immediately before release. Future edits remain local until the next deployment request. See the latest TEAM_LOG entry for deployment outcome.

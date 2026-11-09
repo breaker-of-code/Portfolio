@@ -8,8 +8,9 @@ test('limited hardware starts conservatively and high-DPI screens respect device
   assert.equal(initialQuality({ cores: 8, memory: 4 }), 'low');
   assert.equal(initialQuality(), 'high');
   assert.equal(cappedPixelRatio(3, 'high', false), 1.5);
-  assert.equal(cappedPixelRatio(3, 'high', true), 1.25);
-  assert.equal(cappedPixelRatio(2, 'low', true), 1);
+  assert.equal(cappedPixelRatio(3, 'high', true), 1.5);
+  assert.equal(cappedPixelRatio(3, 'medium', true), 1.5);
+  assert.equal(cappedPixelRatio(2, 'low', true), 1.25);
   assert.equal(cappedPixelRatio(1, 'high', false), 1);
 });
 
@@ -40,4 +41,23 @@ test('quality recovers gradually after a long stable period without oscillating'
   assert.deepEqual(changes.map(([, level]) => level), ['medium', 'high']);
   assert.ok(changes[0][0] >= 30000);
   assert.ok(changes[1][0] - changes[0][0] >= 30000);
+});
+
+test('adaptive effects preserve canvas resolution and the startup hardware cap', async () => {
+  const { CoastalScene } = await import('./scene.js');
+  const scene = Object.create(CoastalScene.prototype);
+  let pixelRatioChanges = 0, disposed = 0;
+  scene.qualityLevel = 'high'; scene.resolutionQuality = 'high';
+  scene.canvas = { dataset: {} };
+  scene.renderer = { setPixelRatio() { pixelRatioChanges++; } };
+  scene.sun = { shadow: { map: { dispose() { disposed++; } }, mapSize: { set() {} } } };
+  scene.ocean = { setQuality() {} }; scene.exhaust = {};
+  scene.shadowBudget = scene.renderBudget = { invalidate() {} };
+  scene.setQuality('medium'); scene.setQuality('low');
+  assert.equal(pixelRatioChanges, 0);
+  assert.equal(scene.resolutionQuality, 'high');
+  assert.equal(scene.qualityLevel, 'low');
+  assert.equal(scene.canvas.dataset.quality, 'low');
+  assert.equal(disposed, 1);
+  assert.equal(scene.exhaust.movingInterval, .25);
 });

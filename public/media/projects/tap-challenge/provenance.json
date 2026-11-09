@@ -1,0 +1,114 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "Feature.png",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 178057,
+      "webBytes": 21638,
+      "thumbBytes": 6606,
+      "sha256": "faafc2e528ecbdcb16429350b25ffc5fab6a91c08e2382f90e5d45a4c0aca472"
+    },
+    {
+      "original": "55.png",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 602632,
+      "webBytes": 15674,
+      "thumbBytes": 2956,
+      "sha256": "d8303ebebfdd2584972931ba175d7c04dd4e66e4c5067862c0ba7324fa3e21ae"
+    },
+    {
+      "original": "5-2.png",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 660874,
+      "webBytes": 29494,
+      "thumbBytes": 5270,
+      "sha256": "51b6e060b233acf4c8e3a8803ed4f60f668c4b7b5122235a41ef43648aa1ee58"
+    },
+    {
+      "original": "11.png",
+      "image": "image-04.webp",
+      "thumbnail": "thumb-04.webp",
+      "sourceBytes": 684085,
+      "webBytes": 32482,
+      "thumbBytes": 5902,
+      "sha256": "5a8f198f5a9e0f68b5aa03df92ddd53db940a1a8599dda4c3c358ef26d5ceb2a"
+    },
+    {
+      "original": "2.png",
+      "image": "image-05.webp",
+      "thumbnail": "thumb-05.webp",
+      "sourceBytes": 506622,
+      "webBytes": 25876,
+      "thumbBytes": 4658,
+      "sha256": "c9a813d1a4f6bfb6ce0236713d36e4e5022be357840a61c456a596268dc2d2fd"
+    },
+    {
+      "original": "3.png",
+      "image": "image-06.webp",
+      "thumbnail": "thumb-06.webp",
+      "sourceBytes": 625386,
+      "webBytes": 21970,
+      "thumbBytes": 4168,
+      "sha256": "69b9f7ae758672645963296da141f15904dabf41bbe918b1cf17555610235e7a"
+    },
+    {
+      "original": "4.png",
+      "image": "image-07.webp",
+      "thumbnail": "thumb-07.webp",
+      "sourceBytes": 500442,
+      "webBytes": 24474,
+      "thumbBytes": 4284,
+      "sha256": "84895eb2f722a853b5694b0d2e1b67003047398307e4f909f4882329f10101da"
+    },
+    {
+      "original": "6.png",
+      "image": "image-08.webp",
+      "thumbnail": "thumb-08.webp",
+      "sourceBytes": 618493,
+      "webBytes": 23584,
+      "thumbBytes": 4282,
+      "sha256": "e324013c6d96f29156758b523898af2b406421960a25f0e4ade537a903b58ba7"
+    },
+    {
+      "original": "66.png",
+      "image": "image-09.webp",
+      "thumbnail": "thumb-09.webp",
+      "sourceBytes": 618491,
+      "webBytes": 23614,
+      "thumbBytes": 4274,
+      "sha256": "63d02414ee4c9d43b08592ecf0cda016585184a6b99567f04d16972639ab9653"
+    },
+    {
+      "original": "7.png",
+      "image": "image-10.webp",
+      "thumbnail": "thumb-10.webp",
+      "sourceBytes": 456173,
+      "webBytes": 27470,
+      "thumbBytes": 5374,
+      "sha256": "ce7cf57905d760d0925f01a694a2db9dc91a5c88b3a0c6badd13bef657831be0"
+    },
+    {
+      "original": "8.png",
+      "image": "image-11.webp",
+      "thumbnail": "thumb-11.webp",
+      "sourceBytes": 427885,
+      "webBytes": 26430,
+      "thumbBytes": 4780,
+      "sha256": "a2420c76c9ba68e736be24001878d610a374d7788c9f5bf8e66aa0600abd02af"
+    },
+    {
+      "original": "Home 2 v4.png",
+      "image": "image-12.webp",
+      "thumbnail": "thumb-12.webp",
+      "sourceBytes": 228310,
+      "webBytes": 28122,
+      "thumbBytes": 5070,
+      "sha256": "90818f288141b7d305aa25e3076173e7e5b8e96e4d176e81eab069bbfa0751fa"
+    }
+  ]
+}

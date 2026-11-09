@@ -1,0 +1,33 @@
+{
+  "source": "User-supplied project media; project approved 2026-11-09. No third-party license asserted.",
+  "processing": "Originals unchanged. EXIF transpose, proportional resize without upscaling to max1600x1000 WebP quality84. Separate max480x300 WebP thumbnails quality78.",
+  "images": [
+    {
+      "original": "runner 1.png",
+      "image": "image-01.webp",
+      "thumbnail": "thumb-01.webp",
+      "sourceBytes": 954730,
+      "webBytes": 110322,
+      "thumbBytes": 14902,
+      "sha256": "ed9980b2c984f756cb4700757a48c2e2d031eb495186ab26cafedcd380e8ec37"
+    },
+    {
+      "original": "runner 2.png",
+      "image": "image-02.webp",
+      "thumbnail": "thumb-02.webp",
+      "sourceBytes": 864097,
+      "webBytes": 89770,
+      "thumbBytes": 13446,
+      "sha256": "add8b8be02b1560cf145bc252454f67037b91cba86da81423c3121eee40bffe2"
+    },
+    {
+      "original": "runner 3.png",
+      "image": "image-03.webp",
+      "thumbnail": "thumb-03.webp",
+      "sourceBytes": 789000,
+      "webBytes": 73650,
+      "thumbBytes": 11106,
+      "sha256": "276536d334dc91d0ebb8932e8e2d0e0fe5b5cdb728b20ccec67a109f7e731344"
+    }
+  ]
+}

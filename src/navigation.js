@@ -1,7 +1,11 @@
 export const HUB_STOPS = ['intro', 'career', 'projects', 'skills', 'contact'];
 
-export function createNavigation(lengths = { hub: 5, projects: 8, career: 4 }) {
+export function createNavigation(lengths = { hub: 5, projects: 8, career: 4 }, saved = null) {
   let state = { route: 'hub', index: 0, hubIndex: 0 };
+  if (saved && typeof saved.route === 'string' && Object.hasOwn(lengths, saved.route) && Number.isInteger(saved.index)) {
+    const index = Math.max(0, Math.min(lengths[saved.route] - 1, saved.index));
+    state = { route: saved.route, index, hubIndex: saved.route === 'hub' ? index : HUB_STOPS.indexOf(saved.route) };
+  }
   const listeners = new Set();
   const notify = () => { for (const fn of listeners) fn({ ...state }); return { ...state }; };
   return {

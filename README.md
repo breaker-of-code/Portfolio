@@ -1,8 +1,8 @@
 # The Scenic Route
 
-A coastal portfolio for a Senior Unity Developer, built with vanilla JavaScript, CSS and Three.js. It runs as a static website; there is no Unity runtime, React app, database or admin backend.
+A coastal portfolio for Hafeez Akram, Lead Unity Developer, built with vanilla JavaScript, CSS and Three.js. It runs as a static website; there is no Unity runtime, React app, database or admin backend.
 
-**Status, 2026-11-09:** [Live portfolio](https://breaker-of-code.github.io/Portfolio/) · [GitHub repository](https://github.com/breaker-of-code/Portfolio). The interactive experience/audio mix are implemented; content remains illustrative and admin is deferred. Pushes to `main` deploy automatically.
+**Status, 2026-11-09:** [Live portfolio](https://breaker-of-code.github.io/Portfolio/) · [GitHub repository](https://github.com/breaker-of-code/Portfolio). This release includes the approved profile, seven employers, eleven projects, skills, contact links and original résumé, plus mobile loading/recovery, performance and shadow fixes. Additional Arkadium/Infinity Up projects can be supplied later. Admin remains deferred. Pushes to `main` deploy automatically.
 
 ## Run locally
 
@@ -21,7 +21,7 @@ npm run build
 npm run preview
 ```
 
-Build output is `dist/`; deploy that output, not `src/` or `node_modules/`. The latest run passed **47 tests** and the production build passed. See the team log for verification scope.
+Build output is `dist/`; deploy that output, not `src/` or `node_modules/`. The latest run passed **77 tests** and the production build passed. See the team log for verification scope.
 
 ## Documentation
 
@@ -44,17 +44,21 @@ Build output is `dist/`; deploy that output, not `src/` or `node_modules/`. The 
 - Details hide during travel while controls remain. Gateway stops show an Enter/tap-to-explore prompt above the dock.
 - Default zoom automatically fits the screen, with a **10–600%** slider and saved per-route/device manual values. Reset returns to automatic fitting.
 - Automatic zoom refits on resize; manual zoom preserves model scale and crops/follows the car. Long islands keep Home scale, start with left padding and extend off-screen. Mobile uses landscape with a portrait rotation prompt.
-- Smooth displaced ocean swells, boats, moored motorboat, jumping fish/ripples, bobbing landmarks, swaying palms, idle Jeep vibration and light exhaust.
+- Budgeted 30 FPS driving/camera motion and 20 FPS idle scenery; the 3D loop stops behind dialogs or hidden tabs. Smooth displaced ocean swells, boats, moored motorboat, jumping fish/ripples, bobbing landmarks, swaying palms, idle Jeep vibration and light exhaust.
 - Sound includes ocean, idle/driving loops, sparse recorded splashes, button taps, arrival notes and transition swishes. Fish sound plays on **20% of eligible visible landings**.
 - Sound defaults on for new visitors but browsers may need a gesture; Start sound is offered. Mute persists, hidden tabs suspend, and closing/muting releases audio.
-- Simple view, WebGL fallback and reduced-motion support remain available.
+- First opening stays covered until the requested island, shaders and first rendered frame are ready. Graphics interruptions recover in the current section; load failures offer Retry and Simple view. Simple view and reduced-motion support remain available.
 
 ## Editing and release status
 
 Most content is in `src/content.js`. Shipped media belongs in `public/media/`. Some header/experience text is hardcoded in `src/main.js`; follow the content guide.
 
-Sample names, descriptions and artwork are illustrative. Empty external links are intentionally unavailable. Real profile/company/project data, résumé and URLs are needed for a personalized release.
+Approved profile, company, project and contact data are in this release. No unconfirmed employer/project association is inferred; employers without supplied project media keep an empty media state.
 
 Asset provenance is in `public/media/`, `public/audio/` and `public/fonts/`. The sibling `../design-review/` holds historical auditions/renders and preparation scripts; it is not the production app.
 
 The site needs no backend to publish statically. The Pages workflow builds and publishes `dist/` on pushes to `main`, using the actual Pages base path. Runtime assets use `src/asset-url.js`. Follow the deployment guide to enable Pages and publish. After deployment, confirm each real section/project/company with the user before replacing the sample data from Google Drive.
+
+The supplied résumé is hosted unchanged at `public/files/Hafeez-Akram-Developer.pdf`, opening directly from résumé controls via the Pages base path. It still contains its original 8+ years wording and Arkadium end date; the website uses the subsequently approved 9 years and Apr 2024–Present freelance contract wording. Other career records will be added only after individual approval.
+
+User authorized this combined release on 2026-11-09. Future edits should remain local until the user requests another deployment; do not publish every change.

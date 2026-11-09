@@ -1,0 +1,58 @@
+[
+  {
+    "company": "Zepro Digital",
+    "file": "zepro.jpg",
+    "source": "User-provided logo file",
+    "originalFilename": "zepro.jpg",
+    "sha256": "cd434080484e4112883c149d05838668daf47cfbee67960619c20421efe22d25",
+    "processing": "Original bytes preserved; aspect-ratio fitting happens in the 3D canvas."
+  },
+  {
+    "company": "Nutty Apps",
+    "file": "nutty-apps.jpeg",
+    "source": "User-provided logo file",
+    "originalFilename": "nutty apps.jpeg",
+    "sha256": "0510d84c8da5607f28ef27d7477ea6130d0ce7b02289b2da2bc669db80cf0dd9",
+    "processing": "Original bytes preserved; aspect-ratio fitting happens in the 3D canvas."
+  },
+  {
+    "company": "Five Rivers Technologies",
+    "file": "five-rivers-technologies.jpg",
+    "source": "User-provided logo file",
+    "originalFilename": "five rivers technologies.jpg",
+    "sha256": "287c82aef5f50ca9467ccc9a89992fb9bf742a92606eb22804ff654f679f72ea",
+    "processing": "Original bytes preserved; aspect-ratio fitting happens in the 3D canvas."
+  },
+  {
+    "company": "No Borders Innovations",
+    "file": "no-borders-innovations.jpeg",
+    "source": "User-provided logo file",
+    "originalFilename": "no borderz innovations.jpeg",
+    "sha256": "6f6ac22545484a4aef747d55d60ca7e58016dd0d8911cfdbbd2c500703d33539",
+    "processing": "Original bytes preserved; aspect-ratio fitting happens in the 3D canvas."
+  },
+  {
+    "company": "Arthur Technologies",
+    "file": "arthur.png",
+    "source": "User-provided logo file",
+    "originalFilename": "arthur.png",
+    "sha256": "2fc42d53b65639d18748519aa5535c0b26d6968c467c9a95658774f60cede6fa",
+    "processing": "Original bytes preserved; aspect-ratio fitting happens in the 3D canvas."
+  },
+  {
+    "company": "Arkadium",
+    "file": "arkadium.png",
+    "source": "User-provided logo file",
+    "originalFilename": "arkadium.png",
+    "sha256": "e2a9a0e8f10149e83afbe6737cdbdb7cad3906b3658899548b9e0035ee5eede9",
+    "processing": "Original bytes preserved; aspect-ratio fitting happens in the 3D canvas."
+  },
+  {
+    "company": "Infinity Up",
+    "file": "infinity-up.png",
+    "source": "User-provided logo file",
+    "originalFilename": "infinity-up.png",
+    "sha256": "30b24feabd3eee1bb5c25e0a706948b215e9586a23d71a7a806df9e2ef64ddd9",
+    "processing": "Original bytes preserved; aspect-ratio fitting happens in the 3D canvas."
+  }
+]

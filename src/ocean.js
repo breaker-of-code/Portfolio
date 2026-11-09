@@ -152,6 +152,8 @@ export class CoastalOcean {
     this.boats?.forEach(boat => {
       const a = t * 0.13 + boat.phase;
       const x = boat.x + (boat.moored ? 0 : Math.sin(a) * 2.6), z = boat.z + (boat.moored ? 0 : Math.sin(a * 2) * 0.8);
+      boat.root.visible = this.builder.sceneryVisible(x, 1, z, 6);
+      if (!boat.root.visible) return;
       const surface = this.surfaceAt(x, z, t);
       const heading = boat.moored ? (boat.heading ?? -0.25) : -Math.atan2(Math.cos(a * 2) * 1.6, Math.cos(a) * 2.6);
       boat.root.position.set(x, -0.69 + surface.height, z);
@@ -163,6 +165,10 @@ export class CoastalOcean {
     this.jumpers?.forEach(fish => {
       const cycle = (t + fish.phase) % fish.period, flight = 1.25, progress = Math.min(1, cycle / flight), direction = fish.z < 0 ? -1 : 1;
       const landingX = fish.x + 1.25 * direction;
+      if (!this.builder.sceneryVisible(fish.x, 0, fish.z, 5)) {
+        fish.airborne = cycle < flight; fish.root.visible = fish.ring.visible = fish.droplets.visible = false;
+        return;
+      }
       const wasAirborne = fish.airborne;
       fish.airborne = fish.root.visible = cycle < flight;
       if (wasAirborne === true && !fish.airborne) this.builder.fishSplash?.(landingX, -0.99 + this.surfaceAt(landingX, fish.z, t).height, fish.z);

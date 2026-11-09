@@ -1,8 +1,8 @@
 export const QUALITY_LEVELS = ['low', 'medium', 'high'];
 export const QUALITY_PROFILES = {
-  low: { desktopDpr: 1, mobileDpr: 1, shadowSize: 512, nearStep: 2.5, farStep: 10, sceneryHz: 20, exhaustInterval: .25 },
-  medium: { desktopDpr: 1.25, mobileDpr: 1.15, shadowSize: 1024, nearStep: 2, farStep: 8, sceneryHz: 30, exhaustInterval: .18 },
-  high: { desktopDpr: 1.5, mobileDpr: 1.25, shadowSize: 2048, nearStep: 1.5, farStep: 6, sceneryHz: 60, exhaustInterval: .14 },
+  low: { desktopDpr: 1, mobileDpr: 1.25, shadowSize: 512, nearStep: 2.5, farStep: 10, sceneryHz: 20, exhaustInterval: .25 },
+  medium: { desktopDpr: 1.25, mobileDpr: 1.5, shadowSize: 1024, nearStep: 2, farStep: 8, sceneryHz: 30, exhaustInterval: .18 },
+  high: { desktopDpr: 1.5, mobileDpr: 1.5, shadowSize: 2048, nearStep: 1.5, farStep: 6, sceneryHz: 60, exhaustInterval: .14 },
 };
 
 export function initialQuality({ mobile = false, memory, cores } = {}) {

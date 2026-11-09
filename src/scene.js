@@ -1,7 +1,9 @@
+import { RenderBudget, ShadowBudget } from './render-budget.js';
+import { LABEL_TYPE, trackedWidth, plaqueLayout, drawTrackedText } from './label-layout.js';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { advanceDriving, MAX_DRIVING_SPEED } from './motion.js';
-import { referenceHalfHeight, viewportHalfHeight, fittedZoom } from './camera-layout.js';
+import { referenceHalfHeight, viewportHalfHeight, fittedZoom, DEFAULT_FRAME_FILL } from './camera-layout.js';
 import { CoastalOcean } from './ocean.js';
 import { createJeep } from './jeep.js';
 import { JeepExhaust } from './exhaust.js';
@@ -23,7 +25,7 @@ const pathZ = x => Math.sin(x * 0.19) * 1.5;
 const pathSlope = x => Math.cos(x * 0.19) * 1.5 * 0.19;
 
 export class CoastalScene {
-  constructor(canvas, { onStop, onCar, onMove, onSpeed, onSplash, onApproach, onWaypoint, onReady, onError, reducedMotion = false, zoomLevels = {} } = {}) {
+  constructor(canvas, { onStop, onCar, onMove, onSpeed, onSplash, onApproach, onWaypoint, onContextChange, reducedMotion = false, zoomLevels = {} } = {}) {
     this.canvas = canvas;
     this.onCar = onCar;
     this.onSplash = onSplash;
@@ -36,6 +38,10 @@ export class CoastalScene {
     this.camera.position.set(18, 30, 39);
     this.target = new THREE.Vector3(); this.cameraCenter = new THREE.Vector3();
     this.routeAssets = createRouteAssetLoader();
+    this.renderBudget = new RenderBudget(); this.shadowBudget = new ShadowBudget();
+    this.viewFrustum = new THREE.Frustum(); this.viewMatrix = new THREE.Matrix4();
+    this.palmInverse = new THREE.Matrix4(); this.palmMatrix = new THREE.Matrix4(); this.cullSphere = new THREE.Sphere();
+    this.lookTarget = new THREE.Vector3(); this.cameraOffset = new THREE.Vector3(-18,96,140);
     this.materials = new Map(); this.disposed = false; this.route = 'hub'; this.index = 0;
     this.carX = -16; this.destinationX = -16; this.moving = false; this.routeItems = [];
     this.focusX = 0; this.visualZoom = 1; this.activeHalo = null; this.wheels = [];
@@ -43,17 +49,36 @@ export class CoastalScene {
     this.fixedQuality = params.has('benchmark') && Object.hasOwn(QUALITY_PROFILES, params.get('quality')) ? params.get('quality') : null;
     this.qualityLevel = this.fixedQuality || initialQuality({ mobile: this.isMobileViewport(), memory: navigator.deviceMemory, cores: navigator.hardwareConcurrency });
     this.qualityProfile = QUALITY_PROFILES[this.qualityLevel];
+    // Keep text/logo raster resolution stable while effects adapt to frame timing.
+    this.resolutionQuality = this.qualityLevel;
     this.qualityController = new AdaptiveQuality(this.qualityLevel, performance.now());
     canvas.dataset.quality = this.qualityLevel;
     try {
       this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-      this.renderer.setPixelRatio(cappedPixelRatio(window.devicePixelRatio, this.qualityLevel, this.isMobileViewport()));
+      this.renderer.debug.onShaderError = (gl, program) => {
+        this.shaderError = new Error('A 3D shader could not compile on this graphics device');
+        console.error(this.shaderError.message, gl.getProgramInfoLog(program));
+      };
+      this.renderer.setPixelRatio(cappedPixelRatio(window.devicePixelRatio, this.resolutionQuality, this.isMobileViewport()));
       this.renderer.outputColorSpace = THREE.SRGBColorSpace;
       this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
       this.renderer.toneMappingExposure = 1.12;
       this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.autoUpdate = false;
       this.renderer.shadowMap.type = THREE.PCFShadowMap;
-    } catch (error) { onError?.(error); throw error; }
+    } catch (error) { throw error; }
+    this.contextLost = event => {
+      event.preventDefault(); this.contextUnavailable = true;
+      this.setPaused(true, 'context'); onContextChange?.('lost');
+    };
+    this.contextRestored = () => {
+      if (this.disposed) return;
+      this.contextUnavailable = false;
+      this.shadowBudget.invalidate(); this.renderBudget.invalidate();
+      onContextChange?.('restored');
+    };
+    canvas.addEventListener('webglcontextlost', this.contextLost);
+    canvas.addEventListener('webglcontextrestored', this.contextRestored);
     this.scene.add(new THREE.HemisphereLight(0xe5f9ff, 0xab825c, 1.1));
     const sunlight = new THREE.DirectionalLight(0xffedce, 3.1);
     sunlight.position.set(-12, 27, 11); sunlight.castShadow = true;
@@ -84,8 +109,9 @@ export class CoastalScene {
     canvas.addEventListener('pointermove', this.pointerMove); canvas.addEventListener('pointercancel', this.pointerCancel); canvas.addEventListener('pointerleave', this.pointerCancel);
     this.resize = this.resize.bind(this); window.addEventListener('resize', this.resize); this.resize(); this.visualZoom = this.baseHalfHeight;
     this.performanceProbe = createPerformanceProbe(this.renderer, canvas);
-    this.lastTime = performance.now(); this.animate = this.animate.bind(this); this.renderer.setAnimationLoop(this.animate);
-    requestAnimationFrame(() => requestAnimationFrame(() => onReady?.()));
+    this.lastTime = performance.now(); this.animate = this.animate.bind(this);
+    // The caller builds the requested route before presenting any 3D frame.
+    this.setPaused(true, 'loading');
   }
 
   isMobileViewport() {
@@ -96,10 +122,10 @@ export class CoastalScene {
     if (this.qualityLevel === level) return;
     this.qualityLevel = level; this.qualityProfile = QUALITY_PROFILES[level];
     this.canvas.dataset.quality = level;
-    this.renderer.setPixelRatio(cappedPixelRatio(devicePixelRatio, level, this.isMobileViewport()));
     this.sun.shadow.map?.dispose(); this.sun.shadow.map = null;
     this.sun.shadow.mapSize.set(this.qualityProfile.shadowSize, this.qualityProfile.shadowSize);
     this.ocean.setQuality(this.qualityProfile);
+    this.shadowBudget.invalidate(); this.renderBudget.invalidate();
     this.exhaust.movingInterval = this.qualityProfile.exhaustInterval;
   }
 
@@ -198,7 +224,7 @@ export class CoastalScene {
     const ctx = c.getContext('2d'); ctx.fillStyle = background; ctx.beginPath(); ctx.roundRect(0, 0, c.width, c.height, 12); ctx.fill();
     ctx.fillStyle = color; ctx.font = `600 ${fontSize}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(content, c.width / 2, c.height / 2 + 1, c.width - 35);
-    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = this.renderer?.capabilities.getMaxAnisotropy() ?? 4;
     const material = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
     if (alwaysOnTop) { material.depthTest = false; material.depthWrite = false; plane.renderOrder = 30; }
@@ -208,19 +234,25 @@ export class CoastalScene {
     const boardColor = palette.board ?? 0x194b55, badgeColor = palette.badge ?? 0xffbe4b;
     const label = new THREE.Group(); label.name = `Stop label: ${name}`;
     label.position.set(...position); label.rotation.x = -0.38; parent.add(label);
-    const scale = width / 5 * 1.25;
-    const plaque = this.box(label, [5, 0.85, 0.16], [0, 0, 0], boardColor, 0.075);
+    const scale = 1.25;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const displayName = this.route === 'career' ? name : name.toUpperCase();
+    ctx.font = LABEL_TYPE.font;
+    const textWidth = trackedWidth(ctx, displayName);
+    const layout = plaqueLayout(textWidth, width);
+    canvas.width = layout.pixelWidth; canvas.height = 218;
+    const plaque = this.box(label, [layout.width, 0.85, 0.16], [0, 0, 0], boardColor, 0.075);
     plaque.material = this.material(boardColor, { depthTest: false, depthWrite: false }); plaque.renderOrder = 28;
-    const badge = this.box(label, [0.78, 0.74, 0.045], [-2.04, 0, 0.105], badgeColor, 0.06);
+    const badge = this.box(label, [0.78, 0.74, 0.045], [layout.badgeX, 0, 0.105], badgeColor, 0.06);
     badge.material = this.material(badgeColor, { depthTest: false, depthWrite: false }); badge.renderOrder = 29;
-    const canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 218;
-    const ctx = canvas.getContext('2d'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = palette.number ?? '#214d55'; ctx.font = '700 114px system-ui, sans-serif';
-    ctx.fillText(String(index + 1).padStart(2, '0'), 118, 109, 168);
-    ctx.fillStyle = palette.text ?? '#fff4d9';
-    ctx.font = `700 ${width < 4 ? 175 : 118}px system-ui, sans-serif`; ctx.fillText(name.toUpperCase(), 748, 109, 930);
-    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 4;
-    const face = new THREE.Mesh(new THREE.PlaneGeometry(5, 0.85), new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, depthTest: false, depthWrite: false, toneMapped: false }));
+    ctx.fillText(String(index + 1).padStart(2, '0'), layout.numberX, 109);
+    ctx.fillStyle = palette.text ?? '#fff4d9'; ctx.font = LABEL_TYPE.font;
+    drawTrackedText(ctx, displayName, layout.textX, 109);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = this.renderer?.capabilities.getMaxAnisotropy() ?? 4;
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(layout.width, 0.85), new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, depthTest: false, depthWrite: false, toneMapped: false }));
     face.position.z = 0.14; face.renderOrder = 30; label.add(face); this.routeTextures?.push(texture);
     label.scale.setScalar(scale);
     label.userData.baseScale = scale;
@@ -317,10 +349,25 @@ export class CoastalScene {
       p.setXYZ(i, px * n, py * n, pz * n);
     }
     geo.computeVertexNormals();
-    this.rockFootprints?.push({ x, z, radius: size * 0.85 });
     const m = this.mesh(geo, [0xa79a92, 0xb4a398, 0x9d9291][Math.floor(seeded(seed) * 3)]);
-    this.contactShadow(this.world, [x, 0.47, z], size * 2, size * 1.55, 0.3);
-    m.position.set(x, 0.42 + size * 0.39, z); m.scale.set(size * 0.8, size, size * 0.72); m.rotation.y = seeded(seed + 4) * 3; return m;
+    m.position.set(x, 0.42 + size * 0.39, z); m.scale.set(size * 0.8, size, size * 0.72); m.rotation.y = seeded(seed + 4) * 3;
+    if (this.route === 'projects' && size > 1) {
+      // Reserve each icon's maximum animated footprint, including wide arches.
+      const reservations = this.stations.map(({ iconRoot }) => {
+        iconRoot.updateWorldMatrix(true, true);
+        const bounds = new THREE.Box3().setFromObject(iconRoot), extent = bounds.getSize(new THREE.Vector3());
+        return bounds.expandByVector(new THREE.Vector3(extent.x * .16 + .45, 0, extent.z * .16 + .45));
+      });
+      for (let attempt = 0; attempt < 60; attempt++) {
+        m.updateWorldMatrix(true, true);
+        const rock = new THREE.Box3().setFromObject(m);
+        if (!reservations.some(b => rock.min.x < b.max.x && rock.max.x > b.min.x && rock.min.z < b.max.z && rock.max.z > b.min.z)) break;
+        m.position.z -= .5;
+      }
+    }
+    this.rockFootprints?.push({ x: m.position.x, z: m.position.z, radius: size * 0.85 });
+    this.contactShadow(this.world, [m.position.x, 0.47, m.position.z], size * 2, size * 1.55, 0.3);
+    return m;
   }
   grass(x, z, seed) {
     const g = new THREE.Group(); g.position.set(x, 0.45, z); this.world.add(g);
@@ -387,8 +434,25 @@ export class CoastalScene {
     star.rotation.x = -Math.PI / 2; star.position.set(x, 0.48, z);
   }
   prepareRoute(route) { return this.routeAssets.prepare(route); }
+  async renderReady() {
+    const routeItems = this.routeItems;
+    this.canvas.dataset.loadingStage = 'textures';
+    await Promise.all((this.routeTextures || []).map(texture => texture.userData.ready));
+    if (this.disposed || this.contextUnavailable || this.renderer.getContext().isContextLost()) throw new Error('The 3D graphics context is unavailable');
+    // compileAsync uses parallel shader compilation where the device supports it.
+    this.canvas.dataset.loadingStage = 'shaders';
+    await this.renderer.compileAsync(this.scene, this.camera);
+    if (this.shaderError) throw this.shaderError;
+    if (this.disposed || routeItems !== this.routeItems || this.contextUnavailable) throw new Error('The island changed while preparing its frame');
+    this.renderBudget.invalidate(); this.shadowBudget.invalidate();
+    this.animate(performance.now(), true);
+    if (this.shaderError) throw this.shaderError;
+    if (this.renderer.getContext().isContextLost()) throw new Error('The 3D graphics context was interrupted');
+    this.canvas.dataset.firstFrame = this.route;
+    this.canvas.dataset.loadingStage = 'ready';
+  }
   hasRouteAssets(route) { return this.routeAssets.has(route); }
-  makeIcon(type, parent, variant = 0) {
+  makeIcon(type, parent, variant = 0, item = null) {
     const g = new THREE.Group(); parent.add(g);
     if (type === 'hello') {
       g.add(createIntroAvatar(this));
@@ -403,7 +467,7 @@ export class CoastalScene {
     } else if (type === 'mail') {
       g.add(createContactMailbox(this));
     } else {
-      g.add(this.routeAssets.create(this.route, this, type, variant));
+      g.add(this.routeAssets.create(this.route, this, type, variant, item));
     }
     return g;
   }
@@ -426,7 +490,7 @@ export class CoastalScene {
     light.material = this.material(C.orange, { emissive: C.orange, emissiveIntensity: 0.3 });
     const iconRoot = new THREE.Group(); iconRoot.position.set(0, 1.33, platformZ); group.add(iconRoot);
     iconRoot.userData.baseY = iconRoot.position.y;
-    this.makeIcon(item.icon || item.visual || 'building', iconRoot, index);
+    this.makeIcon(item.icon || item.visual || 'building', iconRoot, index, item);
     if (this.route !== 'career') this.stopLabel(group, item.name, index, this.route === 'hub' ? 'MAIN ISLAND' : `PROJECT / ${item.category || 'UNITY'}`, [0, 0.85, z + 2.65], this.route === 'hub' ? 3.85 : 5);
     const marker = this.mesh(new THREE.ConeGeometry(0.25, 0.42, 3), C.aqua, group, { emissive: C.aqua, emissiveIntensity: 0.6 });
     marker.rotation.z = Math.PI; marker.position.set(0, 4.65, platformZ); marker.visible = index === this.index;
@@ -480,11 +544,10 @@ export class CoastalScene {
       const tex = timeline.yearFace.material.map, canvas = tex.image, ctx = canvas.getContext('2d');
       const w = canvas.width, h = canvas.height, integer = Math.floor(yearValue + .00001), fraction = yearValue - integer;
       ctx.fillStyle = '#284147'; ctx.fillRect(0, 0, w, h);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffcf70';
-      ctx.font = '600 23px system-ui'; ctx.fillText('CAREER / SAMPLE YEARS', w / 2, 27);
-      ctx.save(); ctx.beginPath(); ctx.rect(0, 53, w, h - 62); ctx.clip();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 10, w, h - 20); ctx.clip();
       ctx.fillStyle = '#fff4d9'; ctx.font = '600 115px monospace';
-      const line = h - 50, center = (h + 53) / 2;
+      const line = h - 20, center = h / 2;
       ctx.fillText(String(integer), w / 2, center - fraction * line);
       if (fraction > 0) ctx.fillText(String(integer + 1), w / 2, center + (1 - fraction) * line);
       ctx.restore(); tex.needsUpdate = true; timeline.lastYear = yearValue;
@@ -494,8 +557,8 @@ export class CoastalScene {
     });
   }
   clearWorld() {
-    this.world.traverse(obj => { if (obj.geometry) obj.geometry.dispose(); if (obj.material?.map && !obj.material.userData.shared) { obj.material.map.dispose(); obj.material.dispose(); } });
-    this.world.clear(); this.routeTextures = []; this.palmLeaves = [];
+    this.world.traverse(obj => { if (obj.isInstancedMesh) obj.dispose(); if (obj.geometry) obj.geometry.dispose(); if (obj.material?.map && !obj.material.userData.shared) { obj.material.map.dispose(); obj.material.dispose(); } });
+    this.world.clear(); this.routeTextures = []; this.palmLeaves = []; this.palmBatches = [];
   }
   setRoute(route, items, selected = 0, immediate = false) {
     if (this.route === route && this.routeItems === items && this.stations?.length) { this.go(selected, immediate); return; }
@@ -540,20 +603,22 @@ export class CoastalScene {
       ...this.stations.map(station => station.group), ...this.palmLeaves.map(({ leaf }) => leaf),
       ...(this.timeline ? [this.timeline.cursor, ...this.timeline.rails, ...this.timeline.milestones.map(milestone => milestone.label)] : []),
     ]);
-    this.batching = batchStaticMeshes(this.world, { exclude: excluded });
+    this.batching = batchStaticMeshes(this.world, { exclude: excluded, cellSize: 24 });
     for (const station of this.stations) {
       const result = batchStaticMeshes(station.iconRoot, { cellSize: Infinity });
       this.batching.savedDraws += result.savedDraws;
       const base = batchStaticMeshes(station.group, { cellSize: Infinity, exclude: new Set([station.iconRoot, station.marker, station.pad, station.parkingSurface, station.light]) });
       this.batching.savedDraws += base.savedDraws;
     }
+    this.instancePalmLeaves();
     this.world.updateMatrixWorld(true);
+    for (const station of this.stations) station.cullSphere = new THREE.Box3().setFromObject(station.group).expandByScalar(6).getBoundingSphere(new THREE.Sphere());
     this.overviewBounds = new THREE.Box3().setFromObject(this.world).expandByScalar(0.65);
     this.ocean.createRoute(length); this.ocean.update(this.oceanTime);
     this.resize();
     this.focusX = this.cameraFocusX();
     this.visualZoom = this.viewHalfHeight();
-    this.qualityController.reset(performance.now());
+    this.qualityController.reset(performance.now()); this.shadowBudget.invalidate(); this.renderBudget.invalidate();
   }
   createPier(x) {
     // Find the actual front shoreline, including its irregular faceted edge.
@@ -591,6 +656,7 @@ export class CoastalScene {
     }
   }
   go(index, immediate = false) {
+    this.renderBudget.invalidate(); this.shadowBudget.invalidate();
     this.index = index; this.destinationX = this.positions?.[index] ?? 0;
     if (this.drive && this.destinationX === this.drive.to) return;
     if (immediate || this.reducedMotion) {
@@ -608,9 +674,10 @@ export class CoastalScene {
     });
   }
   resize() {
+    this.renderBudget.invalidate(); this.shadowBudget.invalidate();
     const w = window.innerWidth, h = window.innerHeight; this.mobile = w <= 700; this.aspect = w / h;
     this.renderer.setSize(w, h); this.baseHalfHeight = this.mobile ? 13.2 : clamp(24 / this.aspect, 10.5, 19);
-    this.renderer.setPixelRatio(cappedPixelRatio(devicePixelRatio, this.qualityLevel, this.isMobileViewport()));
+    this.renderer.setPixelRatio(cappedPixelRatio(devicePixelRatio, this.resolutionQuality, this.isMobileViewport()));
     this.qualityController.reset(performance.now());
     this.fitOverview(true);
     this.visualZoom = this.viewHalfHeight();
@@ -652,7 +719,7 @@ export class CoastalScene {
     const worldGap = parseFloat(layout.getPropertyValue('--world-gap')) || 16;
     const safeBottom = h - dockHeight - dockBottom - worldGap;
     this.overviewHalfHeight = referenceHalfHeight(this.homeViewBounds);
-    this.defaultZoom = fittedZoom(this.homeViewBounds, { width: w, height: h, top: safeTop, bottom: h - dockBottom, padding });
+    this.defaultZoom = fittedZoom(this.homeViewBounds, { width: w, height: h, top: safeTop, bottom: h - dockBottom, padding }) * DEFAULT_FRAME_FILL;
     const halfHeight = this.viewHalfHeight();
     const centerY = 1 - (safeTop + safeBottom) / h;
     const centerX = (safeLeft + safeRight) / w - 1;
@@ -665,6 +732,7 @@ export class CoastalScene {
   }
   getZoom() { return this.zoomLevels?.[this.route] ?? this.defaultZoom ?? 100; }
   setZoom(value) {
+    this.renderBudget.invalidate(); this.shadowBudget.invalidate();
     if (value !== null && !Number.isFinite(value)) return;
     this.zoomLevels[this.route] = value === null ? null : clamp(Math.round(value), 10, 600);
     this.fitOverview(true);
@@ -678,31 +746,67 @@ export class CoastalScene {
     const homeWidth = this.homeViewBounds.rightEdge - this.homeViewBounds.left;
     const visibleWidth = 2 * this.viewHalfHeight() * this.aspect;
     const padding = Math.max(24, Math.min(70, innerWidth * .045));
-    const usableWidth = visibleWidth * (1 - 2 * padding / innerWidth);
+    const usableWidth = visibleWidth * (1 - 2 * padding / innerWidth) * DEFAULT_FRAME_FILL;
     const extraLength = ((this.islandLength || 0) - (this.homeIslandLength || 45)) / 2;
     const limit = Math.max(0, extraLength + (homeWidth - usableWidth) / (2 * rightX));
     return clamp(this.carX, -limit, limit);
   }
-  setPaused(paused) {
-    if (Boolean(this.paused) === paused) return;
-    if (paused) this.pauseStarted = performance.now();
-    this.paused = paused;
-    this.qualityController.reset(performance.now());
+  setPaused(paused, reason = 'manual') {
+    this.pauseReasons ??= new Set();
+    if (paused) this.pauseReasons.add(reason); else this.pauseReasons.delete(reason);
+    const next = this.pauseReasons.size > 0;
+    if (Boolean(this.paused) === next) return;
+    this.paused = next;
+    this.performanceProbe?.reset();
+    this.canvas.dataset.renderState = next ? 'paused' : 'running';
+    this.lastTime = performance.now(); this.renderBudget.reset();
+    this.qualityController.reset(this.lastTime);
+    this.renderer.setAnimationLoop(next ? null : this.animate);
+  }
+  instancePalmLeaves() {
+    this.palmBatches = [];
+    this.world.updateMatrixWorld(true);
+    const buckets = new Map(), inverse = this.world.matrixWorld.clone().invert();
+    for (const entry of this.palmLeaves || []) {
+      const point = new THREE.Vector3().setFromMatrixPosition(entry.leaf.matrixWorld);
+      const key = `${Math.floor(point.x / 24)}:${entry.leaf.material.uuid}`;
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(entry);
+    }
+    for (const entries of buckets.values()) {
+      const geometry = entries[0].leaf.geometry;
+      const mesh = new THREE.InstancedMesh(geometry, entries[0].leaf.material, entries.length);
+      mesh.name = 'Instanced swaying palm canopy'; mesh.castShadow = true; mesh.receiveShadow = true;
+      mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      entries.forEach(({leaf},i) => {
+        mesh.setMatrixAt(i, new THREE.Matrix4().multiplyMatrices(inverse,leaf.matrixWorld));
+        if (leaf.geometry !== geometry) { leaf.geometry.dispose(); leaf.geometry = geometry; }
+        leaf.visible = false;
+      });
+      mesh.computeBoundingBox(); mesh.boundingBox.expandByScalar(.5); mesh.computeBoundingSphere(); mesh.boundingSphere.radius += .75;
+      this.world.add(mesh); this.palmBatches.push({mesh,entries});
+      this.batching.savedDraws += entries.length - 1;
+    }
   }
   getAnchor() {
     const a = this.stations?.[this.index]?.anchor; if (!a) return { x: innerWidth / 2, y: innerHeight / 2 };
     const p = a.clone().project(this.camera); return { x: (p.x + 1) * innerWidth / 2, y: (-p.y + 1) * innerHeight / 2 };
   }
+  sceneryVisible(x, y, z, radius = 6) {
+    this.cullSphere.center.set(x,y,z); this.cullSphere.radius = radius;
+    return this.viewFrustum.intersectsSphere(this.cullSphere);
+  }
   fishSplash(x, y, z) {
     const point = new THREE.Vector3(x, y, z).project(this.camera);
     if (Math.abs(point.x) <= 1 && Math.abs(point.y) <= 1 && Math.abs(point.z) <= 1) this.onSplash?.({ pan: point.x * .65 });
   }
-  animate(now) {
+  animate(now, force = false) {
     if (this.disposed) return;
+    if (!force && (this.paused || !this.renderBudget.due(now, Boolean(this.drive) || Math.abs(this.focusX - this.cameraFocusX()) > .02 || Math.abs(this.visualZoom - this.viewHalfHeight()) > .02))) return;
     // A queued first frame can predate scene setup; never run springs backwards.
     const frameMs = now - this.lastTime;
     const dt = clamp(frameMs / 1000, 0, 0.05); this.lastTime = now; const t = now / 1000;
-    if (this.paused) return;
+    const updateStarted = performance.now();
     if (!this.reducedMotion) this.oceanTime += dt;
     this.ocean.update(this.oceanTime);
     const previousX = this.carX;
@@ -742,10 +846,15 @@ export class CoastalScene {
     this.camera.left = -this.visualZoom * this.aspect; this.camera.right = this.visualZoom * this.aspect;
     this.camera.top = this.visualZoom; this.camera.bottom = -this.visualZoom; this.camera.updateProjectionMatrix();
     // Fit the scene between the top controls and bottom details dock. Long routes follow the car.
-    const look = this.overviewLook ? this.overviewLook.clone().add(new THREE.Vector3(this.focusX, 0, 0)) : new THREE.Vector3(this.focusX, 0, 0);
-    this.camera.position.copy(look).add(new THREE.Vector3(-18, 96, 140)); this.camera.lookAt(look);
+    const look = this.lookTarget;
+    if (this.overviewLook) look.copy(this.overviewLook); else look.set(0,0,0);
+    look.x += this.focusX;
+    this.camera.position.copy(look).add(this.cameraOffset); this.camera.lookAt(look);
+    this.camera.updateMatrixWorld(); this.viewMatrix.multiplyMatrices(this.camera.projectionMatrix,this.camera.matrixWorldInverse); this.viewFrustum.setFromProjectionMatrix(this.viewMatrix);
     this.sun.position.set(this.focusX - 12, 27, 11); this.sun.target.position.set(this.focusX, 0, 0); this.sun.target.updateMatrixWorld();
     this.stations?.forEach((s, i) => {
+      s.group.visible = !s.cullSphere || this.viewFrustum.intersectsSphere(s.cullSphere);
+      if (!s.group.visible) return;
       const bob = this.reducedMotion ? 0 : Math.sin(this.oceanTime * 1.2 + i * .8) * .12;
       s.iconRoot.position.y = s.iconRoot.userData.baseY + bob;
       if (s.marker.visible) s.marker.position.y = s.marker.userData.baseY + bob + (this.reducedMotion ? 0 : Math.sin(this.oceanTime * 2.5) * 0.08);
@@ -755,18 +864,29 @@ export class CoastalScene {
       s.iconRoot.scale.setScalar(s.iconScale);
       s.anchor.y = 0.5 + s.iconRoot.position.y + s.iconHeight * s.iconScale;
     });
-    this.palmLeaves?.forEach(({ leaf, phase }) => {
-      leaf.rotation.z = this.reducedMotion ? 0 : Math.sin(this.oceanTime * .85 + phase) * .025;
-      leaf.rotation.x = this.reducedMotion ? 0 : Math.sin(this.oceanTime * 1.1 + phase * 1.3) * .014;
+    const inverseWorld = this.palmInverse.copy(this.world.matrixWorld).invert();
+    this.palmBatches?.forEach(({mesh,entries}) => {
+      const sphere = this.cullSphere.copy(mesh.boundingSphere).applyMatrix4(mesh.matrixWorld);
+      mesh.visible = this.viewFrustum.intersectsSphere(sphere);
+      if (!mesh.visible) return;
+      entries.forEach(({leaf,phase},i) => {
+        leaf.rotation.z = this.reducedMotion ? 0 : Math.sin(this.oceanTime * .85 + phase) * .025;
+        leaf.rotation.x = this.reducedMotion ? 0 : Math.sin(this.oceanTime * 1.1 + phase * 1.3) * .014;
+        leaf.updateWorldMatrix(true,false);
+        mesh.setMatrixAt(i,this.palmMatrix.multiplyMatrices(inverseWorld,leaf.matrixWorld));
+      });
+      mesh.instanceMatrix.needsUpdate = true;
     });
     if (!this.reducedMotion) {
       this.birds.children.forEach((b, i) => { const a = t * 0.08 + b.userData.phase; b.position.set(this.focusX + Math.sin(a) * 17, 8 + i * 0.65, -13 + Math.cos(a) * 7); b.rotation.y = -a; b.rotation.z = Math.sin(t * 1.7 + i) * 0.07; });
     }
     const renderStarted = this.performanceProbe ? performance.now() : 0;
+    const shadowUpdated = this.shadowBudget.due(now, moving || Math.abs(this.focusX - focus) > .02);
+    this.renderer.shadowMap.needsUpdate = shadowUpdated;
     this.renderer.render(this.scene, this.camera);
-    this.performanceProbe?.frame(now, performance.now() - renderStarted, { route: this.route, quality: this.qualityLevel, shadowSize: this.qualityProfile.shadowSize, waterTriangles: this.waterTriangles(), batchedDrawsSaved: (this.batching?.savedDraws || 0) + this.carBatchSaved });
+    this.performanceProbe?.frame(now, performance.now() - renderStarted, { frameCpuMs: this.performanceProbe ? performance.now() - updateStarted : 0, targetFps: Math.round(1000 / this.renderBudget.interval), shadowUpdated, route: this.route, quality: this.qualityLevel, shadowSize: this.qualityProfile.shadowSize, waterTriangles: this.waterTriangles(), batchedDrawsSaved: (this.batching?.savedDraws || 0) + this.carBatchSaved });
     if (!this.fixedQuality) {
-      const level = this.qualityController.sample(frameMs, now, !document.hidden);
+      const level = this.qualityController.sample(Math.max(performance.now() - updateStarted, frameMs - this.renderBudget.interval + 1000 / 60), now, !document.hidden);
       if (level) this.setQuality(level);
     }
   }
@@ -775,6 +895,7 @@ export class CoastalScene {
     this.disposed = true; this.renderer.setAnimationLoop(null); window.removeEventListener('resize', this.resize);
     this.canvas.removeEventListener('pointerdown', this.pointerDown); this.canvas.removeEventListener('pointerup', this.pointerUp);
     this.canvas.removeEventListener('pointermove', this.pointerMove); this.canvas.removeEventListener('pointercancel', this.pointerCancel); this.canvas.removeEventListener('pointerleave', this.pointerCancel);
+    this.canvas.removeEventListener('webglcontextlost', this.contextLost); this.canvas.removeEventListener('webglcontextrestored', this.contextRestored);
     this.exhaust.dispose(); this.ocean.dispose(); this.clearWorld(); this.scene.traverse(o => { o.geometry?.dispose(); }); this.materials.forEach(m => { m.map?.dispose(); m.dispose(); }); this.renderer.dispose();
   }
 }

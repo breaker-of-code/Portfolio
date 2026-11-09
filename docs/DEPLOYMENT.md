@@ -62,3 +62,8 @@ Recheck platform documentation when implementing:
 
 - [GitHub Pages overview](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
 - [Vite static deployment](https://vite.dev/guide/static-deploy.html)
+
+
+## Combined content/update release, 2026-11-09
+
+User authorized publishing the approved local working tree after Contact framing. Seven employers, eleven projects and their optimized on-demand media, profile/skills/contact/resume, mobile readiness/context recovery and rendering optimizations are included. Release checks:77 tests pass; exact /Portfolio/ build succeeds; no remote divergence. Largest asset is a31.43MiB on-demand Arthur video, below GitHub's per-file hard limit. All media totals about104MiB on disk, not initial transfer. No admin backend was added. Verify CI and live artifact bytes before marking complete; record outcome in TEAM_LOG. Subsequent changes remain local until requested.
